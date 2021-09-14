@@ -94,11 +94,10 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
         nwSize = int(shape[0]) * int(shape[1])
         # Beginning to end, here we reshape so that we have a number of
         # segments based on the scale used at this cycle.
-        Y_n1 = np.reshape(y_n[0:nwSize], shape, order="F")
-        Y_n1 = Y_n1.T
+        Y_n1 = y_n[0:nwSize].reshape(shape[::-1])
         # End to beginning.
-        Y_n2 = np.reshape(y_n[len(y_n) - (nwSize):len(y_n)], shape, order="F")
-        Y_n2 = Y_n2.T
+        Y_n2 = (y_n[len(y_n) - nwSize:len(y_n)]).reshape(shape[::-1])
+
         # Concatenate.
         Y_n = np.vstack((Y_n1, Y_n2))
 
