@@ -50,13 +50,6 @@ def remove_artefacts(rr):
         (relative_variation_0 < threshold_variation)
         & (relative_variation_1 < threshold_variation)
     )
-
-    # Debug.
-    n_valid = np.sum(mask_valid)
-    n_points = len(mask_valid)
-    prop_valid = n_valid / n_points
-    print(f"{n_valid} {n_points} {prop_valid:.2f}")
-
     filtered_rr = rr[mask_valid]
     return filtered_rr
 
