@@ -63,6 +63,7 @@ def plot_df_rr(df):
         + pn.labs(title="RR intervals", x="seconds", y="milliseconds")
     )
 
+
 def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
     # Scales DFA is conducted between lower_scale_limit and upper_scale_limit.
     scale_density = 30
