@@ -81,7 +81,7 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
     F = np.zeros(len(scales))
     count = 0
 
-    for s in scales:
+    for scale in scales:
         rms = []
         # Step 1: Determine the "profile" (integrated signal with subtracted
         # offset).
