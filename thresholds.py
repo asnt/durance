@@ -106,9 +106,9 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
         # squares fit of the series.
         for cut in np.arange(0, 2 * shape[1]):
             xcut = np.arange(0, shape[0])
-            pl = np.polyfit(xcut, Y_n[cut,:], order)
+            pl = np.polyfit(xcut, Y_n[cut, :], order)
             Yfit = np.polyval(pl, xcut)
-            arr = Yfit - Y_n[cut,:]
+            arr = Yfit - Y_n[cut, :]
             rms.append(np.sqrt(np.mean(arr * arr)))
 
         if (len(rms) > 0):
