@@ -68,11 +68,7 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
     # Initialize. Using logarithmic scales.
     start = np.log(lower_scale_limit) / np.log(10)
     stop = np.log(upper_scale_limit) / np.log(10)
-    scales = np.floor(
-        np.logspace(np.log10(math.pow(10, start)),
-                    np.log10(math.pow(10, stop)),
-                    scale_density)
-    )
+    scales = np.floor(np.logspace(start, stop, scale_density))
     F = np.zeros(len(scales))
     count = 0
 
