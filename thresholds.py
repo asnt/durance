@@ -18,6 +18,11 @@ import seaborn as sn
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("fit")
+    parser.add_argument("--plot-rr", action="store_true")
+    parser.add_argument("--plot-scatter", action="store_true")
+    parser.add_argument("--plot-pointcarre", action="store_true")
+    parser.add_argument("--features", action="store_true")
+    parser.add_argument("--dfaa1", action="store_true")
     return parser.parse_args()
 
 
@@ -165,15 +170,17 @@ def compute_features(df):
     return df_features
 
 
-def plot_valid(rr, mask_valid):
-    cmap = "hsv"
-
+def plot_rr(rr, mask_valid, cmap="hsv"):
     fig, ax = plt.subplots()
     ax.scatter(np.arange(len(rr)), rr, c=rr, cmap=cmap)
 
+
+def plot_pointcarre(rr, mask_valid, cmap="hsv"):
     fig, ax = plt.subplots()
     ax.scatter(rr[:-1], rr[1:], c=rr[:-1], cmap=cmap)
 
+
+def plot_scatter(rr, mask_valid, cmap="hsv"):
     fig, ax = plt.subplots()
     rr_valid = np.copy(rr)
     rr_valid[~mask_valid] = np.nan
@@ -182,7 +189,18 @@ def plot_valid(rr, mask_valid):
     rr_invalid[mask_valid] = np.nan
     ax.scatter(np.arange(len(rr)), rr_invalid)
 
-    plt.show()
+
+def plot_cwt(rr, mask_valid, cmap="hsv"):
+    import pywt
+    rr_valid = np.copy(rr)
+    rr_valid[~mask_valid] = np.nan
+    scales = np.linspace(0.1, 8, 1024)
+    coef, freq = pywt.cwt(rr_valid, scales, "mexh")
+    plt.subplots()
+    plt.matshow(coef)
+    plt.subplots()
+    plt.imshow(coef, cmap='PRGn', aspect='auto',
+               vmax=abs(coef).max(), vmin=-abs(coef).max())
 
 
 def main():
@@ -193,37 +211,46 @@ def main():
     rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
 
-    print(rr_raw.shape)
-    print(time_.shape)
-    plot_valid(rr_raw, mask_valid)
+    if args.plot_scatter:
+        plot_scatter(rr_raw, mask_valid)
+
+    if args.plot_rr:
+        plot_rr(rr_raw, mask_valid)
+
+    if args.plot_pointcarre:
+        plot_pointcarre(rr_raw, mask_valid)
 
     df = pd.DataFrame()
     df["time"] = time_
     df["rr"] = rr
 
-    plot_df_rr(df)
+    # plot_df_rr(df)
 
-    df_features = compute_features(df)
-    print(df_features.head())
+    if args.features:
+        df_features = compute_features(df)
+        print(df_features.head())
 
-    # Assuming a constant effort.
-    mean_alpha1 = round(np.mean(df_features['alpha1']), 2)
-    print(f"mean alpha1 = {mean_alpha1:.2f}")
+        # Assuming a constant effort.
+        mean_alpha1 = round(np.mean(df_features['alpha1']), 2)
+        print(f"mean alpha1 = {mean_alpha1:.2f}")
 
-    plot_df_alpha1(df_features)
+        plot_df_alpha1(df_features)
 
     # Filter further based on SDNN to remove the moments standing still.
 
-    # Based on visual inspection of the data.
-    threshold_sdnn = 10
+    if args.dfaa1:
+        # Based on visual inspection of the data.
+        threshold_sdnn = 10
 
-    mask_motion = df_features['sdnn'] < threshold_sdnn
-    df_features_motion = df_features.loc[mask_motion]
+        mask_motion = df_features['sdnn'] < threshold_sdnn
+        df_features_motion = df_features.loc[mask_motion]
 
-    mean_alpha1_motion = round(np.mean(df_features_motion['alpha1']), 2)
-    print(f"mean alpha1 in motion = {mean_alpha1_motion:.2f}")
+        mean_alpha1_motion = round(np.mean(df_features_motion['alpha1']), 2)
+        print(f"mean alpha1 in motion = {mean_alpha1_motion:.2f}")
 
-    plot_df_alpha1(df_features_motion)
+        plot_df_alpha1(df_features_motion)
+
+    plt.show()
 
 
 def plot_df_alpha1(df):
@@ -254,8 +281,6 @@ def plot_df_alpha1(df):
         )
     )
     fig = plot.draw()
-    del fig
-    plt.show()
 
 
 if __name__ == "__main__":
