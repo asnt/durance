@@ -91,9 +91,6 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
         B = y.T
         x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
 
-        a = x[:, 0]
-        b = x[:, 1]
-
         errors = A @ x - B
         rmse_per_window = np.sqrt(np.mean(errors ** 2, axis=0))
 
