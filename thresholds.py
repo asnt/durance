@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("fit")
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
-    parser.add_argument("--dfaa1_motion", action="store_true")
+    parser.add_argument("--dfaa1-motion", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
