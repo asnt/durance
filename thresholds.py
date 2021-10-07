@@ -60,16 +60,6 @@ def compute_valid_mask(rr):
     return mask_valid
 
 
-def plot_df_rr(df):
-    pn = plotnine
-    (
-        pn.ggplot(df)
-        + pn.aes(x="time", y="rr")
-        + pn.geom_line()
-        + pn.labs(title="RR intervals", x="seconds", y="milliseconds")
-    )
-
-
 def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
     # Scales DFA is conducted between lower_scale_limit and upper_scale_limit.
     scale_density = 30
