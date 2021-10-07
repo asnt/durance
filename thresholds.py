@@ -346,6 +346,7 @@ def plot_df_alpha1(df, cmap="hsv"):
     alpha1 = df["alpha1"].values
     ax.plot(time, alpha1)
     ax.scatter(time, alpha1, c=alpha1, cmap=cmap)
+    ax.set_ylim((0, 1.5))
 
 
 if __name__ == "__main__":
