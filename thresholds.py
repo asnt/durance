@@ -36,8 +36,8 @@ def load_rr_from_fit(path):
     return rr
 
 
-def remove_artefacts(rr):
-    """Remove artefacts from a RR interval sequence."""
+def compute_valid_mask(rr):
+    """Find the valid samples in an RR interval sequence."""
     diff_0 = np.diff(rr)
     diff_1 = np.diff(rr[::-1])[::-1]
     diff_0 = np.concatenate((diff_0, [0]))
@@ -50,8 +50,7 @@ def remove_artefacts(rr):
         (relative_variation_0 < threshold_variation)
         & (relative_variation_1 < threshold_variation)
     )
-    filtered_rr = rr[mask_valid]
-    return filtered_rr
+    return mask_valid
 
 
 def plot_df_rr(df):
@@ -165,12 +164,37 @@ def compute_features(df):
     return df_features
 
 
+def plot_valid(rr, mask_valid):
+    cmap = "hsv"
+
+    fig, ax = plt.subplots()
+    ax.scatter(np.arange(len(rr)), rr, c=rr, cmap=cmap)
+
+    fig, ax = plt.subplots()
+    ax.scatter(rr[:-1], rr[1:], c=rr[:-1], cmap=cmap)
+
+    fig, ax = plt.subplots()
+    rr_valid = np.copy(rr)
+    rr_valid[~mask_valid] = np.nan
+    ax.scatter(np.arange(len(rr)), rr_valid)
+    rr_invalid = np.copy(rr)
+    rr_invalid[mask_valid] = np.nan
+    ax.scatter(np.arange(len(rr)), rr_invalid)
+
+    plt.show()
+
+
 def main():
     args = parse_args()
 
     rr_raw = load_rr_from_fit(args.fit)
-    rr = remove_artefacts(rr_raw)
+    mask_valid = compute_valid_mask(rr_raw)
+    rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
+
+    print(rr_raw.shape)
+    print(time_.shape)
+    plot_valid(rr_raw, mask_valid)
 
     df = pd.DataFrame()
     df["time"] = time_
