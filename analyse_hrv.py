@@ -61,15 +61,15 @@ def compute_valid_mask(rr):
     return mask_valid
 
 
-def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
-    # Scales DFA is conducted between lower_scale_limit and upper_scale_limit.
-    scale_density = 30
+def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
+    if n_scales is None:
+        n_scales = scale_max - scale_min + 1
 
     # Initialize. Using logarithmic scales.
-    start = np.log(lower_scale_limit) / np.log(10)
-    stop = np.log(upper_scale_limit) / np.log(10)
-    scales = np.floor(np.logspace(start, stop, scale_density))
-    F = np.zeros(len(scales))
+    start = np.log(scale_min) / np.log(10)
+    stop = np.log(scale_max) / np.log(10)
+    scales = np.floor(np.logspace(start, stop, n_scales))
+    F = np.zeros(n_scales)
     count = 0
 
     pp = pp_values
