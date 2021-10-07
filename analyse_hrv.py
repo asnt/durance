@@ -235,19 +235,23 @@ def main():
 
 
 def plot_df_alpha1(df, cmap="Spectral"):
+    thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
+                                            vmax=thresholds[-1])
+
     fig, ax = plt.subplots()
 
     time = df["time"].values
     alpha1 = df["alpha1"].values
     color_alpha1 = "dimgray"
     plot_dfaa1, = ax.plot(time, alpha1, color=color_alpha1)
-    ax.scatter(time, alpha1, c=alpha1, cmap=cmap)
+    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
     ax.set_xlabel("time")
     ax.set_ylabel("DFA-alpha1")
     ax.set_ylim((0, 1.5))
     ax.yaxis.label.set_color(plot_dfaa1.get_color())
     ax.tick_params(axis="y", colors=plot_dfaa1.get_color())
-    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator([0.5, 0.75, 1.0]))
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
     ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
     ax.yaxis.grid(which="major", color="lightgray")
 
