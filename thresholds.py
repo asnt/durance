@@ -340,34 +340,12 @@ def main():
     plt.show()
 
 
-def plot_df_alpha1(df):
-    """# Analyzing results
-
-    Let's look at *alpha 1*. According to the papers, you should see the following:
-
-
-    *   Values close to 1 for very low intensity efforts (40% of VO2max)
-    *   Values close 0.75 for the aerobic threshold
-    *   Values close to 0.5 for anything beyond the anaerobic threshold
-    """
-    pn = plotnine
-    plot = (
-        pn.ggplot(df)
-        + pn.aes(x='time', y='alpha1')
-        + pn.geom_point()
-        + pn.geom_line()
-        + pn.scale_y_continuous(
-            # This seems to be the range of meaningful values.
-            limits=[0, 1.5],
-        )
-        + pn.labs(
-            title=("Plot of alpha 1 as derived from DFA for aerobic threshold"
-                   " estimation"),
-            x='Window',
-            y="alpha 1"
-        )
-    )
-    fig = plot.draw()
+def plot_df_alpha1(df, cmap="hsv"):
+    fig, ax = plt.subplots()
+    time = df["time"].values
+    alpha1 = df["alpha1"].values
+    ax.plot(time, alpha1)
+    ax.scatter(time, alpha1, c=alpha1, cmap=cmap)
 
 
 if __name__ == "__main__":
