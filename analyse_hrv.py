@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
+    parser.add_argument("--rr-cumsum", action="store_true")
     return parser.parse_args()
 
 
@@ -146,6 +147,15 @@ def plot_rr(rr, mask_valid, cmap="hsv"):
     ax.scatter(np.arange(len(rr)), rr, c=rr, cmap=cmap)
 
 
+def plot_rr_cumsum(rr, mask_valid, cmap="hsv"):
+    # rr_valid = rr[mask_valid]
+    # rr_cumsum = np.cumsum(rr_valid - np.mean(rr_valid))
+    rr_cumsum = np.cumsum(rr - np.mean(rr))
+    fig, ax = plt.subplots()
+    # ax.scatter(np.arange(len(rr_cumsum)), rr_cumsum)#, c=rr, cmap=cmap)
+    ax.plot(rr_cumsum)
+
+
 def plot_pointcarre(rr, mask_valid, cmap="hsv"):
     fig, ax = plt.subplots()
     ax.scatter(rr[:-1], rr[1:], c=rr[:-1], cmap=cmap)
@@ -190,6 +200,9 @@ def main():
 
     if args.rr:
         plot_rr(rr_raw, mask_valid)
+
+    if args.rr_cumsum:
+        plot_rr_cumsum(rr_raw, mask_valid)
 
     if args.scatter:
         plot_scatter(rr_raw, mask_valid)
