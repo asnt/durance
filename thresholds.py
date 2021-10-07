@@ -19,11 +19,11 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("fit")
     parser.add_argument("--cwt", action="store_true")
+    parser.add_argument("--dfaa1", action="store_true")
+    parser.add_argument("--features", action="store_true")
+    parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
-    parser.add_argument("--pointcarre", action="store_true")
-    parser.add_argument("--features", action="store_true")
-    parser.add_argument("--dfaa1", action="store_true")
     return parser.parse_args()
 
 
