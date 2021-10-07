@@ -18,9 +18,9 @@ import seaborn as sn
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("fit")
-    parser.add_argument("--plot-rr", action="store_true")
-    parser.add_argument("--plot-scatter", action="store_true")
-    parser.add_argument("--plot-pointcarre", action="store_true")
+    parser.add_argument("--rr", action="store_true")
+    parser.add_argument("--scatter", action="store_true")
+    parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
     return parser.parse_args()
@@ -211,13 +211,13 @@ def main():
     rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
 
-    if args.plot_scatter:
+    if args.scatter:
         plot_scatter(rr_raw, mask_valid)
 
-    if args.plot_rr:
+    if args.rr:
         plot_rr(rr_raw, mask_valid)
 
-    if args.plot_pointcarre:
+    if args.pointcarre:
         plot_pointcarre(rr_raw, mask_valid)
 
     df = pd.DataFrame()
