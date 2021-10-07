@@ -95,6 +95,7 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
 
     pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
     alpha = pl2[0]
+
     return alpha
 
 
