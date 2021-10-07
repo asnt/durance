@@ -60,7 +60,7 @@ def compute_valid_mask(rr):
     return mask_valid
 
 
-def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
+def compute_dfa_original(pp_values, lower_scale_limit, upper_scale_limit):
     # Scales DFA is conducted between lower_scale_limit and upper_scale_limit.
     scale_density = 30
 
@@ -111,6 +111,94 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
         if (len(rms) > 0):
             F[count] = np.power(
                 (1 / (shape[1] * 2)) * np.sum(np.power(rms, 2)),
+                1/2
+            )
+        count = count + 1
+
+    pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
+    alpha = pl2[0]
+    return alpha
+
+
+def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
+    # Scales DFA is conducted between lower_scale_limit and upper_scale_limit.
+    scale_density = 30
+
+    # Order of polynomial fit.
+    order = 1
+
+    # Initialize. Using logarithmic scales.
+    start = np.log(lower_scale_limit) / np.log(10)
+    stop = np.log(upper_scale_limit) / np.log(10)
+    scales = np.floor(
+        np.logspace(np.log10(math.pow(10, start)),
+                    np.log10(math.pow(10, stop)),
+                    scale_density)
+    )
+    F = np.zeros(len(scales))
+    count = 0
+
+    # Step 1: Determine the "profile" (integrated signal with subtracted
+    # offset).
+    x = pp_values
+    y_n = np.cumsum(x - np.mean(x))
+
+    for scale in scales:
+        rms = []
+        # Step 2: Divide the profile into N non-overlapping segments of equal
+        # length s.
+        shape = (int(scale), int(np.floor(len(x) / scale)))
+        size = int(shape[0]) * int(shape[1])
+
+        # # Beginning to end, here we reshape so that we have a number of
+        # # segments based on the scale used at this cycle.
+        # Y_n1 = y_n[0:size].reshape(shape[::-1])
+        # # End to beginning.
+        # Y_n2 = (y_n[len(y_n) - size:len(y_n)]).reshape(shape[::-1])
+
+        # # Concatenate.
+        # Y_n = np.vstack((Y_n1, Y_n2))
+
+        # # Step 3: Calculate the local trend for each 2Ns segments by a least
+        # # squares fit of the series.
+        # for cut in np.arange(0, 2 * shape[1]):
+        #     xcut = np.arange(0, shape[0])
+        #     pl = np.polyfit(xcut, Y_n[cut, :], order)
+        #     Yfit = np.polyval(pl, xcut)
+        #     arr = Yfit - Y_n[cut, :]
+        #     rms.append(np.sqrt(np.mean(arr * arr)))
+
+        # if (len(rms) > 0):
+        #     F[count] = np.power(
+        #         (1 / (shape[1] * 2)) * np.sum(np.power(rms, 2)),
+        #         1/2
+        #     )
+        # count = count + 1
+
+        # Beginning to end, here we reshape so that we have a number of
+        # segments based on the scale used at this cycle.
+        Y_n1 = y_n[0:size].reshape(shape[::-1])
+        # End to beginning.
+        # Y_n2 = (y_n[len(y_n) - size:len(y_n)]).reshape(shape[::-1])
+
+        # Concatenate.
+        # Y_n = np.vstack((Y_n1, Y_n2))
+        Y_n = Y_n1
+
+        # Step 3: Calculate the local trend for each 2Ns segments by a least
+        # squares fit of the series.
+        # for cut in np.arange(0, 2 * shape[1]):
+        for cut in np.arange(0, shape[1]):
+            xcut = np.arange(0, shape[0])
+            pl = np.polyfit(xcut, Y_n[cut, :], order)
+            Yfit = np.polyval(pl, xcut)
+            arr = Yfit - Y_n[cut, :]
+            rms.append(np.sqrt(np.mean(arr * arr)))
+
+        if (len(rms) > 0):
+            F[count] = np.power(
+                # (1 / (shape[1] * 2)) * np.sum(np.power(rms, 2)),
+                (1 / (shape[1])) * np.sum(np.power(rms, 2)),
                 1/2
             )
         count = count + 1
