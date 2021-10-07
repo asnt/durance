@@ -215,14 +215,14 @@ def main():
     if args.cwt:
         plot_cwt(rr_raw, mask_valid)
 
-    if args.scatter:
-        plot_scatter(rr_raw, mask_valid)
+    if args.pointcarre:
+        plot_pointcarre(rr_raw, mask_valid)
 
     if args.rr:
         plot_rr(rr_raw, mask_valid)
 
-    if args.pointcarre:
-        plot_pointcarre(rr_raw, mask_valid)
+    if args.scatter:
+        plot_scatter(rr_raw, mask_valid)
 
     df = pd.DataFrame()
     df["time"] = time_
