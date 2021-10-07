@@ -8,6 +8,7 @@ import csv
 import math
 
 import fitparse
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -347,6 +348,8 @@ def plot_df_alpha1(df, cmap="hsv"):
     ax.plot(time, alpha1)
     ax.scatter(time, alpha1, c=alpha1, cmap=cmap)
     ax.set_ylim((0, 1.5))
+    ax.yaxis.grid(which="major", color="gray")
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator([0.5, 0.75, 1.0]))
 
 
 if __name__ == "__main__":
