@@ -18,6 +18,7 @@ import seaborn as sn
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("fit")
+    parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
@@ -210,6 +211,9 @@ def main():
     mask_valid = compute_valid_mask(rr_raw)
     rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
+
+    if args.cwt:
+        plot_cwt(rr_raw, mask_valid)
 
     if args.scatter:
         plot_scatter(rr_raw, mask_valid)
