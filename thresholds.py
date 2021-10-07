@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument("fit")
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
+    parser.add_argument("--dfaa1_motion", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
@@ -230,8 +231,10 @@ def main():
 
     # plot_df_rr(df)
 
-    if args.features:
+    if args.dfaa1 or args.dfaa1_motion:
         df_features = compute_features(df)
+
+    if args.dfaa1:
         print(df_features.head())
 
         # Assuming a constant effort.
@@ -242,12 +245,14 @@ def main():
 
     # Filter further based on SDNN to remove the moments standing still.
 
-    if args.dfaa1:
+    if args.dfaa1_motion:
         # Based on visual inspection of the data.
         threshold_sdnn = 10
 
         mask_motion = df_features['sdnn'] < threshold_sdnn
         df_features_motion = df_features.loc[mask_motion]
+
+        print(df_features_motion.head())
 
         mean_alpha1_motion = round(np.mean(df_features_motion['alpha1']), 2)
         print(f"mean alpha1 in motion = {mean_alpha1_motion:.2f}")
