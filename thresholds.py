@@ -81,12 +81,13 @@ def compute_dfa(pp_values, lower_scale_limit, upper_scale_limit):
     F = np.zeros(len(scales))
     count = 0
 
+    # Step 1: Determine the "profile" (integrated signal with subtracted
+    # offset).
+    x = pp_values
+    y_n = np.cumsum(x - np.mean(x))
+
     for scale in scales:
         rms = []
-        # Step 1: Determine the "profile" (integrated signal with subtracted
-        # offset).
-        x = pp_values
-        y_n = np.cumsum(x - np.mean(x))
         # Step 2: Divide the profile into N non-overlapping segments of equal
         # length s.
         shape = (int(scale), int(np.floor(len(x) / scale)))
