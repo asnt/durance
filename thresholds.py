@@ -341,15 +341,29 @@ def main():
     plt.show()
 
 
-def plot_df_alpha1(df, cmap="hsv"):
+def plot_df_alpha1(df, cmap="Spectral"):
     fig, ax = plt.subplots()
+
     time = df["time"].values
     alpha1 = df["alpha1"].values
-    ax.plot(time, alpha1)
+    color_alpha1 = "dimgray"
+    plot_dfaa1, = ax.plot(time, alpha1, color=color_alpha1)
     ax.scatter(time, alpha1, c=alpha1, cmap=cmap)
     ax.set_ylim((0, 1.5))
-    ax.yaxis.grid(which="major", color="gray")
+    ax.yaxis.grid(which="major", color="lightgray")
     ax.yaxis.set_major_locator(mpl.ticker.FixedLocator([0.5, 0.75, 1.0]))
+    ax.set_xlabel("time")
+    ax.set_ylabel("DFA-alpha1")
+    ax.yaxis.label.set_color(plot_dfaa1.get_color())
+    ax.tick_params(axis="y", colors=plot_dfaa1.get_color())
+
+    ax_hr = ax.twinx()
+    hr = df["heartrate"].values
+    color_hr = "orangered"
+    plot_hr, = ax_hr.plot(time, hr, color=color_hr, alpha=0.25)
+    ax_hr.set_ylabel("heartrate")
+    ax_hr.yaxis.label.set_color(plot_hr.get_color())
+    ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
 
 
 if __name__ == "__main__":
