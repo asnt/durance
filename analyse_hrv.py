@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
     parser.add_argument("--dfaa1-motion", action="store_true")
+    parser.add_argument("--dfaa1-vs-hr", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
@@ -213,7 +214,7 @@ def main():
 
     # plot_df_rr(df)
 
-    if args.dfaa1 or args.dfaa1_motion:
+    if args.dfaa1 or args.dfaa1_motion or args.dfaa1_vs_hr:
         df_features = compute_features(df)
 
     if args.dfaa1:
@@ -240,6 +241,9 @@ def main():
         print(f"mean alpha1 in motion = {mean_alpha1_motion:.2f}")
 
         plot_df_alpha1(df_features_motion)
+
+    if args.dfaa1_vs_hr:
+        plot_df_alpha1_vs_hr(df_features)
 
     plt.show()
 
@@ -272,6 +276,24 @@ def plot_df_alpha1(df, cmap="Spectral"):
     ax_hr.set_ylabel("heartrate")
     ax_hr.yaxis.label.set_color(plot_hr.get_color())
     ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
+
+
+def plot_df_alpha1_vs_hr(df, cmap="Spectral"):
+    thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
+                                            vmax=thresholds[-1])
+
+    fig, ax = plt.subplots()
+
+    hr = df["heartrate"].values
+    alpha1 = df["alpha1"].values
+    ax.scatter(hr, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    ax.set_xlabel("heartrate")
+    ax.set_ylabel("DFA-alpha1")
+    ax.set_ylim((0, 1.5))
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax.yaxis.grid(which="major", color="lightgray")
 
 
 if __name__ == "__main__":
