@@ -101,8 +101,7 @@ def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
 
 def compute_features(df):
     features = []
-    # window_size = 120
-    window_size = 128
+    window_size = 2 ** 7
     step = 16
     index_start = 0
     # index_end = round(df["time"].max() / step)
