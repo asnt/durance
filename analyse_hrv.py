@@ -6,6 +6,7 @@ This can be used for estimating the aerobic threshold.
 import argparse
 import csv
 import math
+import pathlib
 
 import fitparse
 import matplotlib as mpl
@@ -16,7 +17,7 @@ import pandas as pd
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("fit")
+    parser.add_argument("input", type=pathlib.Path)
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
     parser.add_argument("--dfaa1-motion", action="store_true")
@@ -27,21 +28,6 @@ def parse_args():
     parser.add_argument("--scatter", action="store_true")
     parser.add_argument("--rr-cumsum", action="store_true")
     return parser.parse_args()
-
-
-def load_rr_from_fit(path):
-    fit_data = fitparse.FitFile(path)
-    rr = []
-    records = fit_data.get_messages('hrv')
-    rr_intervals_with_nones = [
-        record_data.value
-        for record in records
-        for record_data in record
-    ]
-    rr = np.array(rr_intervals_with_nones)
-    rr = rr.flatten()
-    rr = rr[rr != None]
-    return rr
 
 
 def compute_valid_mask(rr):
@@ -185,10 +171,41 @@ def plot_cwt(rr, mask_valid, cmap="hsv"):
                vmax=abs(coef).max(), vmin=-abs(coef).max())
 
 
+def load_rr_from_fit(path):
+    fit_data = fitparse.FitFile(str(path))
+    rr = []
+    records = fit_data.get_messages('hrv')
+    rr_intervals_with_nones = [
+        record_data.value
+        for record in records
+        for record_data in record
+    ]
+    rr = np.array(rr_intervals_with_nones)
+    rr = rr.flatten()
+    rr = rr[rr != None]
+    return rr
+
+
+def load_rr_from_csv(path):
+    return np.loadtxt(path)
+
+
+def load_rr(path):
+    if path.suffix == ".fit":
+        rr_raw = load_rr_from_fit(path)
+    elif path.suffix == ".csv":
+        rr_raw_ms = load_rr_from_csv(path)
+        rr_raw_s = rr_raw_ms / 1000
+        rr_raw = rr_raw_s
+    else:
+        raise ValueError("input file not supported (must be .fit or .csv)")
+    return rr_raw
+
+
 def main():
     args = parse_args()
 
-    rr_raw = load_rr_from_fit(args.fit)
+    rr_raw = load_rr(args.input)
     mask_valid = compute_valid_mask(rr_raw)
     rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
