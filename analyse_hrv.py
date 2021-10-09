@@ -12,8 +12,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotnine
-import seaborn as sn
 
 
 def parse_args():
