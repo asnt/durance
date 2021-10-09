@@ -209,8 +209,6 @@ def main():
     df["time"] = time_
     df["rr"] = rr
 
-    # plot_df_rr(df)
-
     if args.dfaa1 or args.dfaa1_motion or args.dfaa1_vs_hr:
         df_features = compute_features(df)
 
