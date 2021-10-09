@@ -103,29 +103,32 @@ def compute_features(df):
     features = []
     window_size = 2 ** 7
     step = 16
-    index_start = 0
-    # index_end = round(df["time"].max() / step)
-    # index_end = int(np.floor((df["time"].max() - window_size) / step))
-    # for index in range(index_start, index_end):
-    index_end = int(np.floor((df["time"].max() - window_size)))
-    for index in range(index_start, index_end, step):
-        print(f"\rindex={int(index / step):03d}/{int(index_end / step):03d}",
-              end="")
-        window_mask = (
-            (df['time'] >= index)
-            & (df['time'] <= index + window_size)
-        )
-        array_rr = 1000 * df.loc[window_mask, "rr"]
-        # compute heart rate
-        heartrate = 60000 / np.mean(array_rr)
-        nn_diff = np.abs(np.diff(array_rr))
-        # rmssd = round(np.sqrt(np.sum((nn_diff * nn_diff) / len(nn_diff))), 2)
+
+    rr = df["rr"].values
+    times = df["time"].values
+
+    sliding_window_view = np.lib.stride_tricks.sliding_window_view
+    rr_windows_ms = sliding_window_view(rr, window_size)
+
+    rr_windows_ms = rr_windows_ms[::step]
+    times = times[round(step // 2)::step]
+
+    n_windows = len(rr_windows_ms)
+    for index, rr_window_ms in enumerate(rr_windows_ms):
+        print(f"\rindex={index:03d}/{n_windows:03d}", end="")
+
+        rr_window_s = rr_window_ms * 1000
+        rr_window_s = list(rr_window_s)
+
+        heartrate = 60000 / np.mean(rr_window_s)
+        nn_diff = np.abs(np.diff(rr_window_s))
         rmssd = np.sqrt(np.mean((nn_diff ** 2)))
-        sdnn = np.std(array_rr)
-        alpha1 = compute_dfa(array_rr.to_list(), 4, 16)
+        sdnn = np.std(rr_window_s)
+        alpha1 = compute_dfa(rr_window_s.copy(), 4, 16)
 
         curr_features = {
-            'time': index,
+            'index': index,
+            'time': times[index],
             'heartrate': heartrate,
             'rmssd': rmssd,
             'sdnn': sdnn,
