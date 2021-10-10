@@ -88,9 +88,7 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
         F[count] = rmse
         count = count + 1
 
-    # pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
-    pl2, residuals, *_ = np.polyfit(np.log2(scales), np.log2(F), 1, full=True)
-    print("pol ", pl2, residuals)
+    pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
     alpha = pl2[0]
 
     return alpha
