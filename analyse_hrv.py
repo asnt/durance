@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument("--dfaa1-motion", action="store_true")
     parser.add_argument("--dfaa1-vs-hr", action="store_true")
     parser.add_argument("--features", action="store_true")
+    parser.add_argument("--lines", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
@@ -170,6 +171,16 @@ def plot_scatter(rr, mask_valid, cmap="hsv"):
     rr_invalid = np.copy(rr)
     rr_invalid[mask_valid] = np.nan
     ax.scatter(np.arange(len(rr)), rr_invalid)
+
+
+def plot_lines(rr, mask_valid, cmap="hsv"):
+    fig, ax = plt.subplots()
+    rr_valid = np.copy(rr)
+    rr_valid[~mask_valid] = np.nan
+    ax.plot(np.arange(len(rr)), rr_valid, color="black")
+    rr_invalid = np.copy(rr)
+    rr_invalid[mask_valid] = np.nan
+    ax.scatter(np.arange(len(rr)), rr_invalid, color="red", alpha=0.25)
 
 
 def plot_cwt(rr, mask_valid, cmap="hsv"):
@@ -366,6 +377,9 @@ def main():
 
     if args.scatter:
         plot_scatter(rr_raw, mask_valid)
+
+    if args.lines:
+        plot_lines(rr_raw, mask_valid)
 
     df = pd.DataFrame()
     df["time"] = time_
