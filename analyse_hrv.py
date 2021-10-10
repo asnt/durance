@@ -256,7 +256,7 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
     axes[2].plot(x, rr_padded, alpha=0.25)
     axes[2].plot(x, rr_denoised)
     for ax in axes:
-        ax.set_xlim(x[[0, -1]])
+        ax.set_xlim(x[[pad_before, length_padded - pad_after]])
 
 
 def load_rr_from_fit(path):
