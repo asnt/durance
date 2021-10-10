@@ -30,7 +30,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def compute_valid_mask(rr):
+def find_valid_samples(rr):
     """Find the valid samples in an RR interval sequence."""
     diff_0 = np.diff(rr)
     diff_1 = np.diff(rr[::-1])[::-1]
@@ -219,7 +219,7 @@ def main():
     args = parse_args()
 
     rr_raw = load_rr(args.input)
-    mask_valid = compute_valid_mask(rr_raw)
+    mask_valid = find_valid_samples(rr_raw)
     rr = rr_raw[mask_valid]
     time_ = np.cumsum(rr)
 
