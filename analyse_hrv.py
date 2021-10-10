@@ -187,15 +187,25 @@ def plot_cwt(rr, mask_valid, cmap="hsv"):
 
 def plot_swt(rr, mask_valid, cmap="hsv"):
     import pywt
-    wavelet = pywt.Wavelet("db1")
+    wavelet = pywt.Wavelet("db9")
     rr_valid = np.copy(rr)
     # rr_valid[~mask_valid] = np.nan
 
-    n_padded = 2 ** int(np.ceil(np.log2(len(rr_valid))))
-    rr_padded = np.full(n_padded, np.nan)
-    rr_padded[:len(rr_valid)] = rr_valid
+    power2_length = 1 + int(np.ceil(np.log2(len(rr_valid))))
+    length_padded = 2 ** power2_length
+    # # rr_padded = np.full(length_padded, np.nan)
+    # rr_padded = np.zeros(length_padded)
+    # rr_padded[:len(rr_valid)] = rr_valid
+    pad_width = length_padded - len(rr_valid)
+    pad_before = pad_width // 2
+    pad_after = pad_width - pad_before
+    # mode = "constant"
+    mode = "symmetric"
+    rr_padded = pywt.pad(rr_valid, (pad_before, pad_after), mode)
+    mask_padding = np.full(length_padded, np.nan)
+    mask_padding[pad_before:length_padded - pad_after] = 1
 
-    n_levels = 10
+    n_levels = 8
     normalise = True
     coef = pywt.swt(rr_padded, wavelet, level=n_levels, norm=normalise)
 
