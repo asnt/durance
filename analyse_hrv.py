@@ -62,7 +62,7 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
     stop = np.log(scale_max) / np.log(10)
     scales = np.floor(np.logspace(start, stop, n_scales))
 
-    F = np.zeros(n_scales)
+    fluctuations = np.zeros(n_scales)
     count = 0
 
     pp = pp_values
@@ -85,10 +85,10 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
 
         errors = A @ x - B
         rmse = np.sqrt(np.mean(errors ** 2, axis=None))
-        F[count] = rmse
+        fluctuations[count] = rmse
         count = count + 1
 
-    coeffs = np.polyfit(np.log2(scales), np.log2(F), 1)
+    coeffs = np.polyfit(np.log2(scales), np.log2(fluctuations), 1)
     alpha = coeffs[0]
 
     return alpha
