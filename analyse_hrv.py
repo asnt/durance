@@ -338,8 +338,15 @@ def main():
     args = parse_args()
 
     rr_raw = load_rr(args.input)
+
+    # 1) Heuristic to identify outliers.
     mask_valid = find_valid_samples(rr_raw)
     rr = rr_raw[mask_valid]
+    # 2) Wavelet denoising.
+    # XXX: Does not work. Loss of details?
+    # mask_valid = np.full_like(rr_raw, True)
+    # rr = denoise_swt(rr_raw)
+
     time_ = np.cumsum(rr)
 
     if args.cwt:
