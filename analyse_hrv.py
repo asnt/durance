@@ -228,15 +228,15 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
 
     coef_thresholded = coef
     n_threshold_levels = 5
+    threshold = 0.005
+    # threshold = 0.1
     for level in range(len(coef_thresholded))[-n_threshold_levels:]:
-        print(coef_thresholded[level])
         ca, cd = coef_thresholded[level]
         # ca_thresholded = np.zeros_like(ca)
         # cd_thresholded = np.zeros_like(cd)
-        ca_thresholded = threshold_over(ca, threshold=0.005)
-        cd_thresholded = threshold_over(cd, threshold=0.005)
+        ca_thresholded = threshold_over(ca, threshold=threshold)
+        cd_thresholded = threshold_over(cd, threshold=threshold)
         coef_thresholded[level] = ca_thresholded, cd_thresholded
-        print(coef_thresholded[level])
     for level in range(1, len(coef_thresholded)):
         ca, cd = coef_thresholded[level]
         ca_zeroed = np.zeros_like(ca)
