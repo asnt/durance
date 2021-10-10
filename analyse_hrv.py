@@ -48,6 +48,10 @@ def compute_valid_mask(rr):
 
 
 def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
+# XXX: Values that seem to work with Garmin HRM-dual. Using a window size of
+# 2**8 or 2**9. Values different than Polar H10 because of different sampling
+# rates?
+# def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
     if scale_max is None:
         scale_max = int(len(pp_values) / 8)
     if n_scales is None:
