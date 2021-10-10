@@ -119,7 +119,7 @@ def compute_features(df):
 
         heartrate = 60000 / np.mean(rr_window_s)
         nn_diff = np.abs(np.diff(rr_window_s))
-        rmssd = np.sqrt(np.mean((nn_diff ** 2)))
+        rmssd = np.sqrt(np.mean(nn_diff ** 2))
         sdnn = np.std(rr_window_s)
         alpha1 = compute_dfa(rr_window_s.copy())
 
