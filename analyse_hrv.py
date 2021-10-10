@@ -47,14 +47,21 @@ def compute_valid_mask(rr):
     return mask_valid
 
 
-def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
+def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
+    if scale_max is None:
+        scale_max = int(len(pp_values) / 8)
     if n_scales is None:
         n_scales = scale_max - scale_min + 1
+        n_scales = min(8, n_scales)
+        # XXX: On 20211002-run-easy, setting n_scales=2 is similar to higher
+        # number of scales, at least until 16.
+        # n_scales = 2
+    assert scale_min < scale_max
 
-    # Initialize. Using logarithmic scales.
     start = np.log(scale_min) / np.log(10)
     stop = np.log(scale_max) / np.log(10)
     scales = np.floor(np.logspace(start, stop, n_scales))
+
     F = np.zeros(n_scales)
     count = 0
 
@@ -70,16 +77,20 @@ def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
         A0 = np.arange(0, width).reshape(-1, 1)
         ones = np.ones((len(A0), 1))
         A = np.hstack((A0, ones))
+        # TODO: Detrending with second-order polynomial. Seems to work with
+        # longer window size and larger maximum scale (i.e. len(rr) / 4).
+        # A = np.hstack((A0 ** 2, A0, ones))
         B = y.T
         x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
 
         errors = A @ x - B
-        rmse_per_window = np.sqrt(np.mean(errors ** 2, axis=0))
-
-        F[count] = np.sqrt(np.mean(rmse_per_window ** 2))
+        rmse = np.sqrt(np.mean(errors ** 2, axis=None))
+        F[count] = rmse
         count = count + 1
 
-    pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
+    # pl2 = np.polyfit(np.log2(scales), np.log2(F), 1)
+    pl2, residuals, *_ = np.polyfit(np.log2(scales), np.log2(F), 1, full=True)
+    print("pol ", pl2, residuals)
     alpha = pl2[0]
 
     return alpha
@@ -87,7 +98,7 @@ def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
 
 def compute_features(df):
     features = []
-    window_size = 2 ** 7
+    window_size = 2 ** 8
     step = 16
 
     rr = df["rr"].values
@@ -110,7 +121,7 @@ def compute_features(df):
         nn_diff = np.abs(np.diff(rr_window_s))
         rmssd = np.sqrt(np.mean((nn_diff ** 2)))
         sdnn = np.std(rr_window_s)
-        alpha1 = compute_dfa(rr_window_s.copy(), 4, 16)
+        alpha1 = compute_dfa(rr_window_s.copy())
 
         curr_features = {
             'index': index,
