@@ -19,6 +19,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=pathlib.Path)
     parser.add_argument("--cwt", action="store_true")
+    parser.add_argument("--swt", action="store_true")
     parser.add_argument("--dfaa1", action="store_true")
     parser.add_argument("--dfaa1-motion", action="store_true")
     parser.add_argument("--dfaa1-vs-hr", action="store_true")
@@ -184,6 +185,27 @@ def plot_cwt(rr, mask_valid, cmap="hsv"):
                vmax=abs(coef).max(), vmin=-abs(coef).max())
 
 
+def plot_swt(rr, mask_valid, cmap="hsv"):
+    import pywt
+    wavelet = pywt.Wavelet("db1")
+    rr_valid = np.copy(rr)
+    # rr_valid[~mask_valid] = np.nan
+
+    n_padded = 2 ** int(np.ceil(np.log2(len(rr_valid))))
+    rr_padded = np.full(n_padded, np.nan)
+    rr_padded[:len(rr_valid)] = rr_valid
+
+    n_levels = 10
+    coef = pywt.swt(rr_padded, wavelet, level=n_levels, norm=True)
+
+    n_curves = 1 + 2 * len(coef)
+    fig, axes = plt.subplots(nrows=n_curves)
+    axes[0].plot(rr_padded)
+    for index, (ca, cd) in enumerate(reversed(coef)):
+        axes[1 + 2 * index].plot(ca)
+        axes[1 + 2 * index + 1].plot(cd, alpha=0.25)
+
+
 def load_rr_from_fit(path):
     fit_data = fitparse.FitFile(str(path))
     rr = []
@@ -225,6 +247,9 @@ def main():
 
     if args.cwt:
         plot_cwt(rr_raw, mask_valid)
+
+    if args.swt:
+        plot_swt(rr_raw, mask_valid)
 
     if args.pointcarre:
         plot_pointcarre(rr_raw, mask_valid)
