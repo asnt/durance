@@ -196,14 +196,57 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
     rr_padded[:len(rr_valid)] = rr_valid
 
     n_levels = 10
-    coef = pywt.swt(rr_padded, wavelet, level=n_levels, norm=True)
+    normalise = True
+    coef = pywt.swt(rr_padded, wavelet, level=n_levels, norm=normalise)
 
     n_curves = 1 + 2 * len(coef)
+
     fig, axes = plt.subplots(nrows=n_curves)
     axes[0].plot(rr_padded)
     for index, (ca, cd) in enumerate(reversed(coef)):
         axes[1 + 2 * index].plot(ca)
         axes[1 + 2 * index + 1].plot(cd, alpha=0.25)
+
+    def threshold_over(x, threshold=1):
+        mask_over_threshold = np.abs(x) > threshold
+        x_copy = x.copy()
+        x_copy[mask_over_threshold] = 0
+        return x_copy
+
+    def threshold_soft(x, threshold=1):
+        return np.sign(x) * np.maximum(0, np.abs(x) - threshold)
+
+    coef_thresholded = coef
+    n_threshold_levels = 5
+    for level in range(len(coef_thresholded))[-n_threshold_levels:]:
+        print(coef_thresholded[level])
+        ca, cd = coef_thresholded[level]
+        # ca_thresholded = np.zeros_like(ca)
+        # cd_thresholded = np.zeros_like(cd)
+        ca_thresholded = threshold_over(ca, threshold=0.005)
+        cd_thresholded = threshold_over(cd, threshold=0.005)
+        coef_thresholded[level] = ca_thresholded, cd_thresholded
+        print(coef_thresholded[level])
+    for level in range(1, len(coef_thresholded)):
+        ca, cd = coef_thresholded[level]
+        ca_zeroed = np.zeros_like(ca)
+        coef_thresholded[level] = ca_zeroed, cd
+    rr_denoised = pywt.iswt(coef_thresholded, wavelet, norm=normalise)
+
+    fig, axes = plt.subplots(nrows=n_curves)
+    axes[0].plot(rr_padded)
+    for index, (ca, cd) in enumerate(reversed(coef_thresholded)):
+        axes[1 + 2 * index].plot(ca)
+        axes[1 + 2 * index + 1].plot(cd, alpha=0.25)
+
+    fig, axes = plt.subplots(nrows=3)
+    x = np.arange(len(rr_padded))
+    axes[0].plot(x, rr_padded)
+    axes[1].plot(x, rr_denoised)
+    axes[2].plot(x, rr_padded, alpha=0.25)
+    axes[2].plot(x, rr_denoised)
+    for ax in axes:
+        ax.set_xlim(x[[0, -1]])
 
 
 def load_rr_from_fit(path):
