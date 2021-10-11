@@ -32,7 +32,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def find_valid_samples(rr):
+def find_valid(rr):
     """Find the valid samples in an RR interval sequence.
 
     Returns:
@@ -355,7 +355,7 @@ def main():
     rr_raw = load_rr(args.input)
 
     # 1) Heuristic to identify outliers.
-    mask_valid = find_valid_samples(rr_raw)
+    mask_valid = find_valid(rr_raw)
     rr = rr_raw[mask_valid]
     # 2) Wavelet denoising.
     # XXX: Does not work. Loss of details?
