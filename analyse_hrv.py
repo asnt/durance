@@ -35,8 +35,15 @@ def parse_args():
 def find_valid(rr):
     """Find the valid samples in an RR interval sequence.
 
-    Returns:
-        Boolen mask array of the valid samples.
+    Parameters
+    ----------
+    rr: array-like
+        (n,) signal of RR intervals.
+
+    Returns
+    -------
+    mask_valid: array-like
+        (n,) boolen mask array of the valid samples.
     """
     diff_0 = np.diff(rr)
     diff_1 = np.diff(rr[::-1])[::-1]
