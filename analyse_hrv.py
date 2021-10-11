@@ -33,7 +33,11 @@ def parse_args():
 
 
 def find_valid_samples(rr):
-    """Find the valid samples in an RR interval sequence."""
+    """Find the valid samples in an RR interval sequence.
+
+    Returns:
+        Boolen mask array of the valid samples.
+    """
     diff_0 = np.diff(rr)
     diff_1 = np.diff(rr[::-1])[::-1]
     diff_0 = np.concatenate((diff_0, [0]))
