@@ -20,9 +20,9 @@ def parse_args():
     parser.add_argument("input", type=pathlib.Path)
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--swt", action="store_true")
-    parser.add_argument("--dfaa1", action="store_true")
-    parser.add_argument("--dfaa1-motion", action="store_true")
-    parser.add_argument("--dfaa1-vs-hr", action="store_true")
+    parser.add_argument("--dfa1", action="store_true")
+    parser.add_argument("--dfa1-motion", action="store_true")
+    parser.add_argument("--dfa1-vs-hr", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--lines", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
@@ -385,10 +385,10 @@ def main():
     df["time"] = time_
     df["rr"] = rr
 
-    if args.dfaa1 or args.dfaa1_motion or args.dfaa1_vs_hr:
+    if args.dfa1 or args.dfa1_motion or args.dfa1_vs_hr:
         df_features = compute_features(df)
 
-    if args.dfaa1:
+    if args.dfa1:
         print(df_features.head())
 
         # Assuming a constant effort.
@@ -399,7 +399,7 @@ def main():
 
     # Filter further based on SDNN to remove the moments standing still.
 
-    if args.dfaa1_motion:
+    if args.dfa1_motion:
         # Based on visual inspection of the data.
         threshold_sdnn = 10
 
@@ -413,7 +413,7 @@ def main():
 
         plot_df_alpha1(df_features_motion)
 
-    if args.dfaa1_vs_hr:
+    if args.dfa1_vs_hr:
         plot_df_alpha1_vs_hr(df_features)
 
     plt.show()
@@ -429,13 +429,13 @@ def plot_df_alpha1(df, cmap="Spectral"):
     time = df["time"].values
     alpha1 = df["alpha1"].values
     color_alpha1 = "dimgray"
-    plot_dfaa1, = ax.plot(time, alpha1, color=color_alpha1)
+    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
     ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
     ax.set_xlabel("time")
     ax.set_ylabel("DFA-alpha1")
     ax.set_ylim((0, 1.5))
-    ax.yaxis.label.set_color(plot_dfaa1.get_color())
-    ax.tick_params(axis="y", colors=plot_dfaa1.get_color())
+    ax.yaxis.label.set_color(plot_dfa1.get_color())
+    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
     ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
     ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
     ax.yaxis.grid(which="major", color="lightgray")
