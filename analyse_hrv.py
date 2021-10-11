@@ -35,8 +35,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def find_valid(rr):
-    """Find the valid samples in an RR interval sequence.
+def find_valid_deviation(rr):
+    """Find the valid samples in an RR signal from sample-to-sample deviation.
 
     Parameters
     ----------
@@ -412,7 +412,7 @@ def main():
     rr_raw = load_rr(args.input)
 
     if args.outlier_method == "deviation":
-        mask_valid = find_valid(rr_raw)
+        mask_valid = find_valid_deviation(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "moving_median":
         mask_valid = find_valid_moving_median(rr_raw)
