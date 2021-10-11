@@ -387,6 +387,13 @@ def load_rr_from_fit(path):
     rr = np.array(rr_intervals_with_nones)
     rr = rr.flatten()
     rr = rr[rr != None]
+    # records = [
+    #     {data.name: data.value for data in record}
+    #     for record in fit_data.get_messages('record')
+    # ]
+    # dataframe = pd.DataFrame.from_records(records)
+    # start_timestamp = dataframe["timestamp"][0]
+    # start_datetime = start_timestamp.to_pydatetime()
     return rr
 
 
@@ -423,6 +430,35 @@ def main():
         rr = denoise_swt(rr_raw)
 
     time_ = np.cumsum(rr)
+
+    if args.input.suffix == ".fit":
+        fit_data = fitparse.FitFile(str(args.input))
+        records = [
+            {data.name: data.value for data in record}
+            for record in fit_data.get_messages('record')
+        ]
+        dataframe = pd.DataFrame.from_records(records)
+        start_timestamp_ = dataframe["timestamp"][0]
+        start_datetime = start_timestamp_.to_pydatetime()
+        start_timestamp = start_datetime.timestamp()
+        timestamps = [
+            start_timestamp + time__
+            for time__ in time_
+        ]
+
+        import datetime
+
+        datetimes = [
+            datetime.datetime.fromtimestamp(timestamp)
+            for timestamp in timestamps
+        ]
+        time_ = datetimes
+
+        # timedeltas = [
+        #     datetime.timedelta(seconds=timestamp)
+        #     for timestamp in timestamps
+        # ]
+        # time_ = timedeltas
 
     if args.cwt:
         plot_cwt(rr_raw, mask_valid)
@@ -491,6 +527,9 @@ def plot_df_alpha1(df, cmap="Spectral"):
     fig, ax = plt.subplots()
 
     time = df["time"].values
+    # time = mpl.dates.num2timedelta(time)
+    # time = mpl.dates.date2num(time)
+
     alpha1 = df["alpha1"].values
     color_alpha1 = "dimgray"
     plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
@@ -498,6 +537,7 @@ def plot_df_alpha1(df, cmap="Spectral"):
     ax.set_xlabel("time")
     ax.set_ylabel("DFA-alpha1")
     ax.set_ylim((0, 1.5))
+    fig.autofmt_xdate()
     ax.yaxis.label.set_color(plot_dfa1.get_color())
     ax.tick_params(axis="y", colors=plot_dfa1.get_color())
     ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
