@@ -29,6 +29,9 @@ def parse_args():
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
     parser.add_argument("--rr-cumsum", action="store_true")
+    parser.add_argument("--outlier-method",
+                        default="moving_median",
+                        choices=["deviation", "moving_median", "wavelet"])
     return parser.parse_args()
 
 
@@ -57,6 +60,53 @@ def find_valid(rr):
         (relative_variation_0 < threshold_variation)
         & (relative_variation_1 < threshold_variation)
     )
+    return mask_valid
+
+
+def find_valid_moving_median(rr, window_size=31):
+    """Find valid samples in an RR signal using a moving median.
+
+    Parameters
+    ----------
+    rr: array-like
+        (n,) signal of RR intervals.
+
+    Returns
+    -------
+    mask_valid: array-like
+        (n,) boolen mask array of the valid samples.
+    """
+    mask_valid = find_valid(rr)
+
+    pad_before = window_size // 2
+    pad_after = window_size - pad_before - 1
+    pad_widths = pad_before, pad_after
+    rr_padded = np.pad(rr, pad_widths,
+                       mode="constant", constant_values=np.nan)
+
+    sliding_window_view = np.lib.stride_tricks.sliding_window_view
+    windows = sliding_window_view(rr_padded, window_size)
+
+    # XXX: np.nanmedian does not seem to work on a view of sliding-windows.
+    # medians = np.nanmedian(windows, axis=1)
+    medians = np.median(windows, axis=1)
+
+    deviations = np.abs(rr - medians)
+
+    # Determine the threshold for outliers.
+    # 1) From statistics on the whole signal.
+    #    For Polar H10.
+    threshold = np.quantile(deviations, 0.80)
+    #    For Garmin HRM-Dual.
+    # threshold = np.quantile(deviations, 0.90)
+    # 2) From statistics on the past window.
+    #    XXX: Does not seem to work as well a the global statistics on a single
+    #    example 20211011-run-easy.
+    # windows_deviations = np.abs(windows - medians[:, None])
+    # threshold = np.quantile(windows_deviations, 0.8, axis=1)
+
+    mask_valid = deviations < threshold
+
     return mask_valid
 
 
@@ -361,13 +411,16 @@ def main():
 
     rr_raw = load_rr(args.input)
 
-    # 1) Heuristic to identify outliers.
-    mask_valid = find_valid(rr_raw)
-    rr = rr_raw[mask_valid]
-    # 2) Wavelet denoising.
-    # XXX: Does not work. Loss of details?
-    # mask_valid = np.full_like(rr_raw, True)
-    # rr = denoise_swt(rr_raw)
+    if args.outlier_method == "deviation":
+        mask_valid = find_valid(rr_raw)
+        rr = rr_raw[mask_valid]
+    elif args.outlier_method == "moving_median":
+        mask_valid = find_valid_moving_median(rr_raw)
+        rr = rr_raw[mask_valid]
+    elif args.outlier_method == "wavelet":
+        # XXX: Does not work. Loss of details?
+        mask_valid = np.full_like(rr_raw, True)
+        rr = denoise_swt(rr_raw)
 
     time_ = np.cumsum(rr)
 
