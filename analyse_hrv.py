@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--lines", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
+    parser.add_argument("--rmssd", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
     parser.add_argument("--sdnn", action="store_true")
@@ -504,6 +505,7 @@ def main():
         or args.dfa1_motion
         or args.dfa1_vs_hr
         or args.sdnn
+        or args.rmssd
     )
 
     if require_features:
@@ -516,6 +518,14 @@ def main():
         fig.autofmt_xdate()
         ax.set_title("sdnn")
         ax.set_ylabel("sdnn")
+
+    if args.rmssd:
+        rmssd = df_features["rmssd"]
+        time = df_features["time"]
+        fig, ax = plot_series(rmssd, x=time)
+        fig.autofmt_xdate()
+        ax.set_title("rmssd")
+        ax.set_ylabel("rmssd")
 
     if args.dfa1:
         print(df_features.head())
