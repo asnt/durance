@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rr", action="store_true")
     parser.add_argument("--scatter", action="store_true")
+    parser.add_argument("--sdnn", action="store_true")
     parser.add_argument("--rr-cumsum", action="store_true")
     parser.add_argument("--outlier-method",
                         default="moving_median",
@@ -242,6 +243,16 @@ def plot_lines(rr, mask_valid, cmap="hsv"):
     rr_invalid = np.copy(rr)
     rr_invalid[mask_valid] = np.nan
     ax.scatter(np.arange(len(rr)), rr_invalid, color="red", alpha=0.25)
+
+
+def plot_series(y, mask_valid=True, x=None, cmap="hsv"):
+    fig, ax = plt.subplots()
+    y_valid = np.copy(y)
+    y_valid[~mask_valid] = np.nan
+    if x is None:
+        x = np.arange(len(y))
+    ax.plot(x, y, color="black")
+    return fig, ax
 
 
 def plot_cwt(rr, mask_valid, cmap="hsv"):
@@ -488,8 +499,23 @@ def main():
     df["time"] = time_
     df["rr"] = rr
 
-    if args.dfa1 or args.dfa1_motion or args.dfa1_vs_hr:
+    require_features = (
+        args.dfa1
+        or args.dfa1_motion
+        or args.dfa1_vs_hr
+        or args.sdnn
+    )
+
+    if require_features:
         df_features = compute_features(df)
+
+    if args.sdnn:
+        sdnn = df_features["sdnn"]
+        time = df_features["time"]
+        fig, ax = plot_series(sdnn, x=time)
+        fig.autofmt_xdate()
+        ax.set_title("sdnn")
+        ax.set_ylabel("sdnn")
 
     if args.dfa1:
         print(df_features.head())
