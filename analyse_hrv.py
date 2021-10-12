@@ -454,6 +454,9 @@ def main():
         ]
         time_ = datetimes
 
+        # TODO: Find a way to pass durations to matplotlib.
+        # `datetime.timedelta`'s do not seem directly usable by matplotlib, it
+        # seems.
         # timedeltas = [
         #     datetime.timedelta(seconds=timestamp)
         #     for timestamp in timestamps
