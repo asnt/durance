@@ -634,7 +634,7 @@ def plot_overlay(df, cmap="Spectral"):
             linestyle="dotted",
         ),
         rmssd=dict(
-            color="darkgray",
+            color="gray",
             linestyle="dashed",
         ),
     )
