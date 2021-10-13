@@ -606,7 +606,6 @@ def plot_overlay(df, cmap="Spectral"):
     time = df["time"]
     alpha1 = df["alpha1"].values
 
-
     fig, ax = plt.subplots()
 
     time = df["time"].values
