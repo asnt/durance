@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument("--dfa1-motion", action="store_true")
     parser.add_argument("--dfa1-vs-hr", action="store_true")
     parser.add_argument("--features", action="store_true")
+    parser.add_argument("--overlay", action="store_true")
     parser.add_argument("--lines", action="store_true")
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rmssd", action="store_true")
@@ -506,6 +507,7 @@ def main():
         or args.dfa1_vs_hr
         or args.sdnn
         or args.rmssd
+        or args.overlay
     )
 
     if require_features:
@@ -555,6 +557,9 @@ def main():
     if args.dfa1_vs_hr:
         plot_df_alpha1_vs_hr(df_features)
 
+    if args.overlay:
+        plot_overlay(df_features)
+
     plt.show()
 
 
@@ -590,6 +595,58 @@ def plot_df_alpha1(df, cmap="Spectral"):
     ax_hr.set_ylabel("heartrate")
     ax_hr.yaxis.label.set_color(plot_hr.get_color())
     ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
+
+
+def plot_overlay(df, cmap="Spectral"):
+    dfa_thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=dfa_thresholds[0],
+                                            vmax=dfa_thresholds[-1])
+    dfa_ticks = dfa_thresholds + [1.5, 2.0]
+
+    time = df["time"]
+    alpha1 = df["alpha1"].values
+
+
+    fig, ax = plt.subplots()
+
+    time = df["time"].values
+
+    alpha1 = df["alpha1"].values
+    color_alpha1 = "dimgray"
+    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
+    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    ax.set_xlabel("time")
+    ax.set_ylabel("DFA1")
+    ax.set_ylim((0, dfa_ticks[-1]))
+    fig.autofmt_xdate()
+    ax.yaxis.label.set_color(plot_dfa1.get_color())
+    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(dfa_ticks))
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax.yaxis.grid(which="major", color="lightgray")
+
+    params = dict(
+        heartrate=dict(
+            color="orangered",
+            alpha=0.25,
+        ),
+        sdnn=dict(
+            color="darkgray",
+            linestyle="dotted",
+        ),
+        rmssd=dict(
+            color="darkgray",
+            linestyle="dashed",
+        ),
+    )
+
+    for feature in params:
+        ax_ = ax.twinx()
+        y = df[feature].values
+        plot_, = ax_.plot(time, y, **params[feature])
+        ax_.set_ylabel(feature)
+        ax_.yaxis.label.set_color(plot_.get_color())
+        ax_.tick_params(axis="y", colors=plot_.get_color())
 
 
 def plot_df_alpha1_vs_hr(df, cmap="Spectral"):
