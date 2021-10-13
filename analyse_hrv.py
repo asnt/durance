@@ -640,13 +640,16 @@ def plot_overlay(df, cmap="Spectral"):
         ),
     )
 
-    for feature in params:
+    for index, feature in enumerate(params):
         ax_ = ax.twinx()
+        ax_.spines.right.set_position(("axes", 1 + index / 10))
         y = df[feature].values
         plot_, = ax_.plot(time, y, **params[feature])
         ax_.set_ylabel(feature)
         ax_.yaxis.label.set_color(plot_.get_color())
         ax_.tick_params(axis="y", colors=plot_.get_color())
+
+    fig.tight_layout()
 
 
 def plot_df_alpha1_vs_hr(df, cmap="Spectral"):
