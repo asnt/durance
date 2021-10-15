@@ -104,8 +104,8 @@ def find_valid_moving_median(rr, window_size=31):
     #    For Garmin HRM-Dual.
     # threshold = np.quantile(deviations, 0.90)
     # 2) From statistics on the past window.
-    #    XXX: Does not seem to work as well a the global statistics on a single
-    #    example 20211011-run-easy.
+    #    XXX: Does not seem to work as well as the global statistics on a
+    #    single example 20211011-run-easy.
     # windows_deviations = np.abs(windows - medians[:, None])
     # threshold = np.quantile(windows_deviations, 0.8, axis=1)
 
