@@ -168,7 +168,6 @@ def compute_features(df):
     features = []
     window_size = 2 ** 8
     step = 16
-
     n_scales_max = 16
 
     rr = df["rr"].values
