@@ -456,6 +456,11 @@ def main():
         mask_valid = np.full_like(rr_raw, True)
         rr = denoise_swt(rr_raw)
 
+    n_valid = mask_valid.sum()
+    n_samples = len(mask_valid)
+    proportion_valid = n_valid / n_samples
+    print(f"proportion valid = {proportion_valid:.2f}")
+
     time_ = np.cumsum(rr)
 
     if args.input.suffix == ".fit":
