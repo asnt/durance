@@ -73,6 +73,8 @@ def find_valid_moving_median(rr, window_size=31):
     ----------
     rr: array-like
         (n,) signal of RR intervals.
+    window_size: int
+        Size of the moving window.
 
     Returns
     -------
