@@ -132,7 +132,8 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
 
     start = np.log(scale_min) / np.log(10)
     stop = np.log(scale_max) / np.log(10)
-    scales = np.floor(np.logspace(start, stop, n_scales))
+    scales = np.logspace(start, stop, n_scales)
+    scales = np.round(scales).astype(int)
 
     fluctuations = np.zeros(n_scales)
     count = 0
@@ -141,7 +142,7 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
     y_n = np.cumsum(pp - np.mean(pp))
 
     for scale in scales:
-        width = int(scale)
+        width = scale
 
         sliding_window_view = np.lib.stride_tricks.sliding_window_view
         y = sliding_window_view(y_n, width)
