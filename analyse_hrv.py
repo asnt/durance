@@ -223,12 +223,17 @@ def plot_rr(rr, mask_valid, cmap="hsv"):
 
 
 def plot_rr_cumsum(rr, mask_valid, cmap="hsv"):
-    # rr_valid = rr[mask_valid]
-    # rr_cumsum = np.cumsum(rr_valid - np.mean(rr_valid))
     rr_cumsum = np.cumsum(rr - np.mean(rr))
     fig, ax = plt.subplots()
-    # ax.scatter(np.arange(len(rr_cumsum)), rr_cumsum)#, c=rr, cmap=cmap)
-    ax.plot(rr_cumsum)
+
+    rr_valid = rr[mask_valid]
+    rr_valid_cumsum = np.cumsum(rr_valid - np.mean(rr_valid))
+    rr_valid_cumsum_masked = np.full_like(rr, np.nan)
+    rr_valid_cumsum_masked[mask_valid] = rr_valid_cumsum
+
+    x = np.arange(len(rr_cumsum))
+    ax.plot(x, rr_cumsum, color="black", alpha=0.25, linewidth=2)
+    ax.plot(x, rr_valid_cumsum_masked, color="black")
 
 
 def plot_pointcarre(rr, mask_valid, cmap="hsv"):
