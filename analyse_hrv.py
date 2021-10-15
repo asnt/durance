@@ -93,6 +93,7 @@ def find_valid_moving_median(rr, window_size=31):
     # XXX: np.nanmedian does not seem to work on a view of sliding-windows.
     # medians = np.nanmedian(windows, axis=1)
     medians = np.median(windows, axis=1)
+    # medians = np.mean(windows, axis=1)
 
     deviations = np.abs(rr - medians)
 
