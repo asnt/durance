@@ -149,7 +149,13 @@ def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
 
         A0 = np.arange(0, width).reshape(-1, 1)
         ones = np.ones((len(A0), 1))
+        # Zero-th order polynomial. The same a centred moving average (CMA)
+        # method.
+        # A = ones
+        # First order polynomial
         A = np.hstack((A0, ones))
+        # Second order polynomial
+        # A = np.hstack((A0 ** 2, A0, ones))
         # TODO: Detrending with second-order polynomial. Seems to work with
         # longer window size and larger maximum scale (i.e. len(rr) / 4).
         # A = np.hstack((A0 ** 2, A0, ones))
