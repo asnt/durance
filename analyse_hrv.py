@@ -183,7 +183,7 @@ def compute_dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
         # TODO: Check how this compares to a first-order polynomial. Seems to
         # work with longer window size and larger maximum scale
         # (i.e. len(rr) / 4).
-        A = np.hstack((A0 ** 2, A0, ones))
+        # A = np.hstack((A0 ** 2, A0, ones))
         B = y.T
         x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
 
