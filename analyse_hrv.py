@@ -115,20 +115,12 @@ def find_valid_moving_median(rr, window_size=31):
     return mask_valid
 
 
-def compute_dfa(pp_values, scale_min=16, scale_max=None, n_scales=None):
-# XXX: Values that seem to work with Garmin HRM-dual. Using a window size of
-# 2**8 or 2**9. Values different than Polar H10 because of different sampling
-# rates?
-# def compute_dfa(pp_values, scale_min=4, scale_max=16, n_scales=None):
-    if scale_max is None:
-        scale_max = int(len(pp_values) / 8)
-    if n_scales is None:
-        n_scales = scale_max - scale_min + 1
-        n_scales = min(8, n_scales)
-        # XXX: On 20211002-run-easy, setting n_scales=2 is similar to higher
-        # number of scales, at least until 16.
-        # n_scales = 2
+def compute_dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
     assert scale_min < scale_max
+
+    n_scales = scale_max - scale_min + 1
+    if n_scales_max is not None:
+        n_scales = min(n_scales_max, n_scales)
 
     start = np.log(scale_min) / np.log(10)
     stop = np.log(scale_max) / np.log(10)
@@ -178,6 +170,8 @@ def compute_features(df):
     window_size = 2 ** 8
     step = 16
 
+    n_scales_max = 16
+
     rr = df["rr"].values
     times = df["time"].values
 
@@ -198,7 +192,7 @@ def compute_features(df):
         nn_diff = np.abs(np.diff(rr_window_s))
         rmssd = np.sqrt(np.mean(nn_diff ** 2))
         sdnn = np.std(rr_window_s)
-        alpha1 = compute_dfa(rr_window_s.copy())
+        alpha1 = compute_dfa(rr_window_s.copy(), n_scales_max=n_scales_max)
 
         curr_features = {
             'index': index,
