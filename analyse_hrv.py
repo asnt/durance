@@ -117,6 +117,38 @@ def find_valid_moving_median(rr, window_size=31):
     return mask_valid
 
 
+def compute_moving_average(x, window_size=31, average_fn="mean"):
+    """Compute the moving average over a signal.
+
+    Parameters
+    ----------
+    rr: array-like
+        (n,) signal of RR intervals.
+    window_size: int
+        Size of the moving window.
+
+    Returns
+    -------
+    average_signal: array-like
+        (n,) moving average of the input signal x.
+    """
+    pad_before = window_size // 2
+    pad_after = window_size - pad_before - 1
+    pad_widths = pad_before, pad_after
+    x_padded = np.pad(x, pad_widths, mode="constant", constant_values=np.nan)
+
+    sliding_window_view = np.lib.stride_tricks.sliding_window_view
+    windows = sliding_window_view(x_padded, window_size)
+
+    if average_fn == "mean":
+        average_signal = np.nanmean(windows, axis=1)
+    elif average_fn == "median":
+        average_signal = np.quantile(windows, 0.5, axis=1)
+        # average_signal = np.nanquantile(windows, 0.5, axis=1)
+
+    return average_signal
+
+
 def compute_dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
     assert scale_min < scale_max
 
