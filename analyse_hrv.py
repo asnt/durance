@@ -99,7 +99,8 @@ def find_valid_moving_median(rr, window_size=31):
     # Determine the threshold for outliers.
     # 1) From statistics on the whole signal.
     #    For Polar H10.
-    threshold = np.quantile(deviations, 0.80)
+    # threshold = np.quantile(deviations, 0.80)
+    threshold = np.quantile(deviations, 0.85)
     #    For Garmin HRM-Dual.
     # threshold = np.quantile(deviations, 0.90)
     # 2) From statistics on the past window.
