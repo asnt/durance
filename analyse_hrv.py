@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument("--pointcarre", action="store_true")
     parser.add_argument("--rmssd", action="store_true")
     parser.add_argument("--rr", action="store_true")
+    parser.add_argument("--rr-average", action="store_true")
     parser.add_argument("--scatter", action="store_true")
     parser.add_argument("--sdnn", action="store_true")
     parser.add_argument("--rr-cumsum", action="store_true")
@@ -481,6 +482,9 @@ def main():
         mask_valid = np.full_like(rr_raw, True)
         rr = denoise_swt(rr_raw)
 
+    if args.rr_average:
+        rr_average = compute_moving_average(rr_raw, average_fn="median")
+
     n_valid = mask_valid.sum()
     n_samples = len(mask_valid)
     proportion_valid = n_valid / n_samples
@@ -541,9 +545,17 @@ def main():
     if args.lines:
         plot_lines(rr_raw, mask_valid)
 
+    if args.rr_average:
+        fig, ax = plt.subplots()
+        ax.scatter(np.arange(len(rr_raw)), rr_raw, alpha=0.25,
+                   color="orangered")
+        ax.plot(rr_average)
+
     df = pd.DataFrame()
     df["time"] = time_
     df["rr"] = rr
+    if args.rr_average:
+        df["rr_average"] = rr_average[mask_valid]
 
     require_features = (
         args.dfa1
