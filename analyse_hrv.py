@@ -91,12 +91,11 @@ def find_valid_moving_median(rr, window_size=31):
 
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
     windows = sliding_window_view(rr_padded, window_size)
+    # Need explicit cast to dtype float for some operations below (e.g.
+    # np.nanmedian). By default, the sliding window views have dtype object.
+    windows = windows.astype(float)
 
-    # XXX: np.nanmedian does not seem to work on a view of sliding-windows.
-    # medians = np.nanmedian(windows, axis=1)
-    medians = np.median(windows, axis=1)
-    # medians = np.mean(windows, axis=1)
-
+    medians = np.nanmedian(windows, axis=1)
     deviations = np.abs(rr - medians)
 
     # Determine the threshold for outliers.
