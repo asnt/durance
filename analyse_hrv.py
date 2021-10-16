@@ -20,6 +20,8 @@ def parse_args():
     parser.add_argument("input", type=pathlib.Path)
     parser.add_argument("--cwt", action="store_true")
     parser.add_argument("--swt", action="store_true")
+    parser.add_argument("--dfa1-mode", default="per_window",
+                        choices=["per_window", "batch"])
     parser.add_argument("--dfa1", action="store_true")
     parser.add_argument("--dfa1-motion", action="store_true")
     parser.add_argument("--dfa1-vs-hr", action="store_true")
@@ -198,6 +200,74 @@ def compute_dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
     return alpha
 
 
+def compute_dfa_batch(rr,
+                      window_size=2 ** 8,
+                      scale_min=16,
+                      scale_max=32,
+                      n_scales_max=None):
+    assert scale_min < scale_max
+
+    n_scales = scale_max - scale_min + 1
+    if n_scales_max is not None:
+        n_scales = min(n_scales_max, n_scales)
+
+    start = np.log(scale_min) / np.log(10)
+    stop = np.log(scale_max) / np.log(10)
+    scales = np.logspace(start, stop, n_scales)
+    scales = np.round(scales).astype(int)
+
+    y_n = np.cumsum(rr - np.mean(rr))
+
+    errors_per_scale = []
+    for scale in scales:
+        width = scale
+
+        sliding_window_view = np.lib.stride_tricks.sliding_window_view
+        y = sliding_window_view(y_n, width)
+        y = y.astype(float)
+
+        A0 = np.arange(width).reshape(-1, 1)
+        ones = np.ones((len(A0), 1))
+        A = np.hstack((A0, ones))
+        B = y.T
+        x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
+
+        errors = A @ x - B
+        errors_per_scale.append(errors.T)
+
+    errors_windows = [
+        sliding_window_view(errors, window_size, axis=0, subok=True)
+        for errors in errors_per_scale
+    ]
+
+    fluctuations_per_scale = [
+        np.sqrt(np.nanmean(errors ** 2, axis=(1, 2)))
+        for errors in errors_windows
+    ]
+
+    n_samples_min = np.amin([
+        fluctuations.shape[0]
+        for fluctuations in fluctuations_per_scale
+    ])
+
+    fluctuations_per_scale = np.stack([
+        fluctuations[:n_samples_min]
+        for fluctuations in fluctuations_per_scale
+    ])
+
+    log2_scales = np.log2(scales)
+    log2_fluctuations = np.log2(fluctuations_per_scale)
+
+    B = log2_fluctuations
+    ones = np.ones((len(log2_scales), 1))
+    A = np.hstack((log2_scales[:, None], ones))
+    x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
+
+    alpha = x[0]
+
+    return alpha
+
+
 def compute_features(df):
     features = []
     window_size = 2 ** 8
@@ -237,6 +307,55 @@ def compute_features(df):
 
         features.append(curr_features)
     print()
+
+    df_features = pd.DataFrame(features)
+
+    return df_features
+
+
+def compute_features_2(df):
+    features = []
+    window_size = 2 ** 8
+    step = 1
+    n_scales_max = 16
+
+    rr_s = df["rr"].values
+    times = df["time"].values
+
+    rr_ms = rr_s * 1000
+    sliding_window_view = np.lib.stride_tricks.sliding_window_view
+    rr_windows = sliding_window_view(rr_ms, window_size)
+    rr_windows = rr_windows.astype(float)
+
+    rr_windows = rr_windows[::step]
+    times = times[:-window_size:step]
+
+    heartrate = 60_000 / np.mean(rr_windows, axis=1)
+    nn_diff = np.abs(np.diff(rr_windows, axis=1))
+    rmssd = np.sqrt(np.mean(nn_diff ** 2, axis=1))
+    sdnn = np.std(rr_windows, axis=1)
+
+    rr = df["rr"]
+    alpha1 = compute_dfa_batch(rr, n_scales_max=n_scales_max)
+    n_samples = len(alpha1)
+
+    times = times[:n_samples]
+    heartrate = heartrate[:n_samples]
+    rmssd = rmssd[:n_samples]
+    sdnn = sdnn[:n_samples]
+    heartrate = heartrate[:n_samples]
+
+    features = {
+        "index": np.arange(n_samples, dtype=int),
+        "time": times,
+        "heartrate": heartrate,
+        "rmssd": rmssd,
+        "sdnn": sdnn,
+        "alpha1": alpha1,
+    }
+
+    for k, v in features.items():
+        print(k, v.shape)
 
     df_features = pd.DataFrame(features)
 
@@ -567,7 +686,10 @@ def main():
     )
 
     if require_features:
-        df_features = compute_features(df)
+        if args.dfa1_mode == "per_window":
+            df_features = compute_features(df)
+        elif args.dfa1_mode == "batch":
+            df_features = compute_features_2(df)
 
     if args.sdnn:
         sdnn = df_features["sdnn"]
