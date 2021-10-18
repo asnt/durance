@@ -574,9 +574,9 @@ def load_rr_from_csv(path):
 
 
 def load_rr(path):
-    if path.suffix == ".fit":
+    if path.suffix.lower() == ".fit":
         rr_raw = load_rr_from_fit(path)
-    elif path.suffix == ".csv":
+    elif path.suffix.lower() == ".csv":
         rr_raw_ms = load_rr_from_csv(path)
         rr_raw_s = rr_raw_ms / 1000
         rr_raw = rr_raw_s
