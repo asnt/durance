@@ -1,4 +1,4 @@
-# Detrendred fluctuation analysis
+# Detrended fluctuation analysis
 
 Articles:
 
