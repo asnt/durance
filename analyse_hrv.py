@@ -559,13 +559,6 @@ def load_rr_from_fit(path):
     rr = np.array(rr_intervals_with_nones)
     rr = rr.flatten()
     rr = rr[rr != None]
-    # records = [
-    #     {data.name: data.value for data in record}
-    #     for record in fit_data.get_messages('record')
-    # ]
-    # dataframe = pd.DataFrame.from_records(records)
-    # start_timestamp = dataframe["timestamp"][0]
-    # start_datetime = start_timestamp.to_pydatetime()
     return rr
 
 
