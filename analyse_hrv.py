@@ -337,13 +337,14 @@ def compute_features_2(df):
 
     rr = df["rr"]
     alpha1 = compute_dfa_batch(rr, n_scales_max=n_scales_max)
-    n_samples = len(alpha1)
+    n_samples = min(len(alpha1), len(times))
 
     times = times[:n_samples]
     heartrate = heartrate[:n_samples]
     rmssd = rmssd[:n_samples]
     sdnn = sdnn[:n_samples]
     heartrate = heartrate[:n_samples]
+    alpha1 = alpha1[:n_samples]
 
     features = {
         "index": np.arange(n_samples, dtype=int),
