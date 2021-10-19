@@ -8,11 +8,12 @@ import csv
 import math
 import pathlib
 
-import fitparse
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+import data
 
 
 def parse_args():
@@ -543,41 +544,10 @@ def denoise_swt(rr):
     return rr_denoised
 
 
-def load_rr_from_fit(path):
-    fit_data = fitparse.FitFile(str(path))
-    rr = []
-    records = fit_data.get_messages('hrv')
-    rr_intervals_with_nones = [
-        record_data.value
-        for record in records
-        for record_data in record
-    ]
-    rr = np.array(rr_intervals_with_nones)
-    rr = rr.flatten()
-    rr = rr[rr != None]
-    return rr
-
-
-def load_rr_from_csv(path):
-    return np.loadtxt(path)
-
-
-def load_rr(path):
-    if path.suffix.lower() == ".fit":
-        rr_raw = load_rr_from_fit(path)
-    elif path.suffix.lower() == ".csv":
-        rr_raw_ms = load_rr_from_csv(path)
-        rr_raw_s = rr_raw_ms / 1000
-        rr_raw = rr_raw_s
-    else:
-        raise ValueError("input file not supported (must be .fit or .csv)")
-    return rr_raw
-
-
 def main():
     args = parse_args()
 
-    rr_raw = load_rr(args.input)
+    rr_raw = data.load_rr(args.input)
 
     if args.outlier_method == "deviation":
         mask_valid = find_valid_deviation(rr_raw)
@@ -601,11 +571,7 @@ def main():
     time_ = np.cumsum(rr)
 
     if args.input.suffix == ".fit":
-        fit_data = fitparse.FitFile(str(args.input))
-        records = [
-            {data.name: data.value for data in record}
-            for record in fit_data.get_messages('record')
-        ]
+        records = data.load_fit_records(args.input)
         dataframe = pd.DataFrame.from_records(records)
         start_timestamp_ = dataframe["timestamp"][0]
         start_datetime = start_timestamp_.to_pydatetime()

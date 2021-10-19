@@ -86,6 +86,7 @@ def main():
 
     print(rr)
     print(records)
+    print(records.columns)
 
 
 if __name__ == "__main__":
