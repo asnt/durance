@@ -3,7 +3,7 @@ import numpy as np
 
 
 def load_fit_records(path):
-    fit_data = fitparse.FitFile(str(args.input))
+    fit_data = fitparse.FitFile(str(path))
     records = [
         {data.name: data.value for data in record}
         for record in fit_data.get_messages('record')
