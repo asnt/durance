@@ -1,5 +1,5 @@
-
 import fitparse
+import numpy as np
 
 
 def load_fit_records(path):
