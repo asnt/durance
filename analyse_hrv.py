@@ -353,9 +353,6 @@ def compute_features_2(df):
         "alpha1": alpha1,
     }
 
-    for k, v in features.items():
-        print(k, v.shape)
-
     df_features = pd.DataFrame(features)
 
     return df_features
