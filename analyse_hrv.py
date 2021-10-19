@@ -84,8 +84,6 @@ def find_valid_moving_median(rr, window_size=31):
     mask_valid: array-like
         (n,) boolen mask array of the valid samples.
     """
-    mask_valid = find_valid_deviation(rr)
-
     pad_before = window_size // 2
     pad_after = window_size - pad_before - 1
     pad_widths = pad_before, pad_after
