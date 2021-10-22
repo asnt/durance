@@ -475,10 +475,10 @@ def main():
     rr_raw = data.load_rr(args.input)
 
     if args.outlier_method == "deviation":
-        mask_valid = denoise.find_valid_deviation(rr_raw)
+        mask_valid = denoise.inliers_from_deviation(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "moving_median":
-        mask_valid = denoise.find_valid_moving_median(rr_raw)
+        mask_valid = denoise.inliers_from_moving_median(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "wavelet":
         # XXX: Does not work. Loss of details?

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def find_valid_deviation(rr):
+def inliers_from_deviation(rr):
     """Find the valid samples in an RR signal from sample-to-sample deviation.
 
     Parameters
@@ -29,7 +29,7 @@ def find_valid_deviation(rr):
     return mask_valid
 
 
-def find_valid_moving_median(rr, window_size=31):
+def inliers_from_moving_median(rr, window_size=31):
     """Find valid samples in an RR signal using a moving median.
 
     Parameters
