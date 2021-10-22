@@ -191,6 +191,112 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
         ax.set_xlim(x[[pad_before, length_padded - pad_after]])
 
 
+def plot_df_alpha1(df, cmap="Spectral"):
+    thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
+                                            vmax=thresholds[-1])
+
+    fig, ax = plt.subplots()
+
+    time = df["time"].values
+    # time = mpl.dates.num2timedelta(time)
+    # time = mpl.dates.date2num(time)
+
+    alpha1 = df["alpha1"].values
+    color_alpha1 = "dimgray"
+    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
+    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    ax.set_xlabel("time")
+    ax.set_ylabel("DFA-alpha1")
+    ax.set_ylim((0, 1.5))
+    fig.autofmt_xdate()
+    ax.yaxis.label.set_color(plot_dfa1.get_color())
+    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax.yaxis.grid(which="major", color="lightgray")
+
+    ax_hr = ax.twinx()
+    hr = df["heartrate"].values
+    color_hr = "orangered"
+    plot_hr, = ax_hr.plot(time, hr, color=color_hr, alpha=0.25)
+    ax_hr.set_ylabel("heartrate")
+    ax_hr.yaxis.label.set_color(plot_hr.get_color())
+    ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
+
+
+def plot_overlay(df, cmap="Spectral"):
+    dfa_thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=dfa_thresholds[0],
+                                            vmax=dfa_thresholds[-1])
+    dfa_ticks = dfa_thresholds + [1.5, 2.0]
+
+    time = df["time"]
+    alpha1 = df["alpha1"].values
+
+    fig, ax = plt.subplots()
+
+    time = df["time"].values
+
+    alpha1 = df["alpha1"].values
+    color_alpha1 = "dimgray"
+    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
+    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    ax.set_xlabel("time")
+    ax.set_ylabel("DFA1")
+    ax.set_ylim((0, dfa_ticks[-1]))
+    fig.autofmt_xdate()
+    ax.yaxis.label.set_color(plot_dfa1.get_color())
+    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(dfa_ticks))
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax.yaxis.grid(which="major", color="lightgray")
+
+    params = dict(
+        heartrate=dict(
+            color="orangered",
+            alpha=0.25,
+        ),
+        sdnn=dict(
+            color="darkgray",
+            linestyle="dotted",
+        ),
+        rmssd=dict(
+            color="gray",
+            linestyle="dashed",
+        ),
+    )
+
+    for index, feature in enumerate(params):
+        ax_ = ax.twinx()
+        ax_.spines.right.set_position(("axes", 1 + index / 10))
+        y = df[feature].values
+        plot_, = ax_.plot(time, y, **params[feature])
+        ax_.set_ylabel(feature)
+        ax_.yaxis.label.set_color(plot_.get_color())
+        ax_.tick_params(axis="y", colors=plot_.get_color())
+
+    fig.tight_layout()
+
+
+def plot_df_alpha1_vs_hr(df, cmap="Spectral"):
+    thresholds = [0.5, 0.75, 1.0]
+    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
+                                            vmax=thresholds[-1])
+
+    fig, ax = plt.subplots()
+
+    hr = df["heartrate"].values
+    alpha1 = df["alpha1"].values
+    ax.scatter(hr, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    ax.set_xlabel("heartrate")
+    ax.set_ylabel("DFA-alpha1")
+    ax.set_ylim((0, 1.5))
+    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
+    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax.yaxis.grid(which="major", color="lightgray")
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=pathlib.Path)
@@ -367,112 +473,6 @@ def main():
         plot_overlay(df_features)
 
     plt.show()
-
-
-def plot_df_alpha1(df, cmap="Spectral"):
-    thresholds = [0.5, 0.75, 1.0]
-    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
-                                            vmax=thresholds[-1])
-
-    fig, ax = plt.subplots()
-
-    time = df["time"].values
-    # time = mpl.dates.num2timedelta(time)
-    # time = mpl.dates.date2num(time)
-
-    alpha1 = df["alpha1"].values
-    color_alpha1 = "dimgray"
-    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
-    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
-    ax.set_xlabel("time")
-    ax.set_ylabel("DFA-alpha1")
-    ax.set_ylim((0, 1.5))
-    fig.autofmt_xdate()
-    ax.yaxis.label.set_color(plot_dfa1.get_color())
-    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
-    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
-    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
-    ax.yaxis.grid(which="major", color="lightgray")
-
-    ax_hr = ax.twinx()
-    hr = df["heartrate"].values
-    color_hr = "orangered"
-    plot_hr, = ax_hr.plot(time, hr, color=color_hr, alpha=0.25)
-    ax_hr.set_ylabel("heartrate")
-    ax_hr.yaxis.label.set_color(plot_hr.get_color())
-    ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
-
-
-def plot_overlay(df, cmap="Spectral"):
-    dfa_thresholds = [0.5, 0.75, 1.0]
-    color_normalizer = mpl.colors.Normalize(vmin=dfa_thresholds[0],
-                                            vmax=dfa_thresholds[-1])
-    dfa_ticks = dfa_thresholds + [1.5, 2.0]
-
-    time = df["time"]
-    alpha1 = df["alpha1"].values
-
-    fig, ax = plt.subplots()
-
-    time = df["time"].values
-
-    alpha1 = df["alpha1"].values
-    color_alpha1 = "dimgray"
-    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
-    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
-    ax.set_xlabel("time")
-    ax.set_ylabel("DFA1")
-    ax.set_ylim((0, dfa_ticks[-1]))
-    fig.autofmt_xdate()
-    ax.yaxis.label.set_color(plot_dfa1.get_color())
-    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
-    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(dfa_ticks))
-    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
-    ax.yaxis.grid(which="major", color="lightgray")
-
-    params = dict(
-        heartrate=dict(
-            color="orangered",
-            alpha=0.25,
-        ),
-        sdnn=dict(
-            color="darkgray",
-            linestyle="dotted",
-        ),
-        rmssd=dict(
-            color="gray",
-            linestyle="dashed",
-        ),
-    )
-
-    for index, feature in enumerate(params):
-        ax_ = ax.twinx()
-        ax_.spines.right.set_position(("axes", 1 + index / 10))
-        y = df[feature].values
-        plot_, = ax_.plot(time, y, **params[feature])
-        ax_.set_ylabel(feature)
-        ax_.yaxis.label.set_color(plot_.get_color())
-        ax_.tick_params(axis="y", colors=plot_.get_color())
-
-    fig.tight_layout()
-
-
-def plot_df_alpha1_vs_hr(df, cmap="Spectral"):
-    thresholds = [0.5, 0.75, 1.0]
-    color_normalizer = mpl.colors.Normalize(vmin=thresholds[0],
-                                            vmax=thresholds[-1])
-
-    fig, ax = plt.subplots()
-
-    hr = df["heartrate"].values
-    alpha1 = df["alpha1"].values
-    ax.scatter(hr, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
-    ax.set_xlabel("heartrate")
-    ax.set_ylabel("DFA-alpha1")
-    ax.set_ylim((0, 1.5))
-    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(thresholds))
-    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
-    ax.yaxis.grid(which="major", color="lightgray")
 
 
 if __name__ == "__main__":
