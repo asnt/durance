@@ -425,50 +425,6 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
         ax.set_xlim(x[[pad_before, length_padded - pad_after]])
 
 
-def denoise_swt(rr):
-    import pywt
-    wavelet = pywt.Wavelet("db9")
-    rr_valid = np.copy(rr)
-
-    power2_length = 1 + int(np.ceil(np.log2(len(rr_valid))))
-    length_padded = 2 ** power2_length
-    pad_width = length_padded - len(rr_valid)
-    pad_before = pad_width // 2
-    pad_after = pad_width - pad_before
-    # mode = "constant"
-    mode = "symmetric"
-    rr_padded = pywt.pad(rr_valid, (pad_before, pad_after), mode)
-    mask_padding = np.full(length_padded, np.nan)
-    mask_padding[pad_before:length_padded - pad_after] = 1
-
-    n_levels = 8
-    normalise = True
-    coef = pywt.swt(rr_padded, wavelet, level=n_levels, norm=normalise)
-
-    def threshold_over(x, threshold=1):
-        mask_over_threshold = np.abs(x) > threshold
-        x_copy = x.copy()
-        x_copy[mask_over_threshold] = 0
-        return x_copy
-
-    coef_thresholded = coef
-    n_threshold_levels = 5
-    threshold = 0.005
-    for level in range(len(coef_thresholded))[-n_threshold_levels:]:
-        ca, cd = coef_thresholded[level]
-        cd_thresholded = threshold_over(cd, threshold=threshold)
-        coef_thresholded[level] = ca, cd_thresholded
-    for level in range(1, len(coef_thresholded)):
-        ca, cd = coef_thresholded[level]
-        ca_zeroed = np.zeros_like(ca)
-        coef_thresholded[level] = ca_zeroed, cd
-    rr_denoised = pywt.iswt(coef_thresholded, wavelet, norm=normalise)
-    rr_denoised = rr_denoised[pad_before:length_padded - pad_after]
-    assert len(rr_denoised) == len(rr_valid)
-
-    return rr_denoised
-
-
 def main():
     args = parse_args()
 
@@ -483,7 +439,7 @@ def main():
     elif args.outlier_method == "wavelet":
         # XXX: Does not work. Loss of details?
         mask_valid = np.full_like(rr_raw, True)
-        rr = denoise_swt(rr_raw)
+        rr = denoise.inliers_from_swt(rr_raw)
 
     if args.rr_average:
         rr_average = compute_moving_average(rr_raw, average_fn="median")
