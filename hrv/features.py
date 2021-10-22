@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-import dfa
+import hrv.dfa
 
 
 def compute_features(df):
@@ -30,7 +30,7 @@ def compute_features(df):
         nn_diff = np.abs(np.diff(rr_window_s))
         rmssd = np.sqrt(np.mean(nn_diff ** 2))
         sdnn = np.std(rr_window_s)
-        alpha1 = dfa.compute_dfa(rr_window_s.copy(), n_scales_max=n_scales_max)
+        alpha1 = hrv.dfa.compute_dfa(rr_window_s.copy(), n_scales_max=n_scales_max)
 
         curr_features = {
             'index': index,
@@ -72,7 +72,7 @@ def compute_features_2(df):
     sdnn = np.std(rr_windows, axis=1)
 
     rr = df["rr"]
-    alpha1 = dfa.compute_dfa_batch(rr, n_scales_max=n_scales_max)
+    alpha1 = hrv.dfa.compute_dfa_batch(rr, n_scales_max=n_scales_max)
     n_samples = min(len(alpha1), len(times))
 
     times = times[:n_samples]

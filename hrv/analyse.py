@@ -13,35 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import data
-import denoise
-import features
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=pathlib.Path)
-    parser.add_argument("--cwt", action="store_true")
-    parser.add_argument("--swt", action="store_true")
-    parser.add_argument("--dfa1-mode", default="per_window",
-                        choices=["per_window", "batch"])
-    parser.add_argument("--dfa1", action="store_true")
-    parser.add_argument("--dfa1-motion", action="store_true")
-    parser.add_argument("--dfa1-vs-hr", action="store_true")
-    parser.add_argument("--features", action="store_true")
-    parser.add_argument("--overlay", action="store_true")
-    parser.add_argument("--lines", action="store_true")
-    parser.add_argument("--pointcarre", action="store_true")
-    parser.add_argument("--rmssd", action="store_true")
-    parser.add_argument("--rr", action="store_true")
-    parser.add_argument("--rr-average", action="store_true")
-    parser.add_argument("--scatter", action="store_true")
-    parser.add_argument("--sdnn", action="store_true")
-    parser.add_argument("--rr-cumsum", action="store_true")
-    parser.add_argument("--outlier-method",
-                        default="moving_median",
-                        choices=["deviation", "moving_median", "wavelet"])
-    return parser.parse_args()
+import hrv.data
+import hrv.denoise
+import hrv.features
 
 
 def compute_moving_average(x, window_size=31, average_fn="mean"):
@@ -217,21 +191,47 @@ def plot_swt(rr, mask_valid, cmap="hsv"):
         ax.set_xlim(x[[pad_before, length_padded - pad_after]])
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", type=pathlib.Path)
+    parser.add_argument("--cwt", action="store_true")
+    parser.add_argument("--swt", action="store_true")
+    parser.add_argument("--dfa1-mode", default="per_window",
+                        choices=["per_window", "batch"])
+    parser.add_argument("--dfa1", action="store_true")
+    parser.add_argument("--dfa1-motion", action="store_true")
+    parser.add_argument("--dfa1-vs-hr", action="store_true")
+    parser.add_argument("--features", action="store_true")
+    parser.add_argument("--overlay", action="store_true")
+    parser.add_argument("--lines", action="store_true")
+    parser.add_argument("--pointcarre", action="store_true")
+    parser.add_argument("--rmssd", action="store_true")
+    parser.add_argument("--rr", action="store_true")
+    parser.add_argument("--rr-average", action="store_true")
+    parser.add_argument("--scatter", action="store_true")
+    parser.add_argument("--sdnn", action="store_true")
+    parser.add_argument("--rr-cumsum", action="store_true")
+    parser.add_argument("--outlier-method",
+                        default="moving_median",
+                        choices=["deviation", "moving_median", "wavelet"])
+    return parser.parse_args()
+
+
 def main():
     args = parse_args()
 
-    rr_raw = data.load_rr(args.input)
+    rr_raw = hrv.data.load_rr(args.input)
 
     if args.outlier_method == "deviation":
-        mask_valid = denoise.inliers_from_deviation(rr_raw)
+        mask_valid = hrv.denoise.inliers_from_deviation(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "moving_median":
-        mask_valid = denoise.inliers_from_moving_median(rr_raw)
+        mask_valid = hrv.denoise.inliers_from_moving_median(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "wavelet":
         # XXX: Does not work. Loss of details?
         mask_valid = np.full_like(rr_raw, True)
-        rr = denoise.inliers_from_swt(rr_raw)
+        rr = hrv.denoise.inliers_from_swt(rr_raw)
 
     if args.rr_average:
         rr_average = compute_moving_average(rr_raw, average_fn="median")
@@ -244,7 +244,7 @@ def main():
     time_ = np.cumsum(rr)
 
     if args.input.suffix == ".fit":
-        records = data.load_fit_records(args.input)
+        records = hrv.data.load_fit_records(args.input)
         dataframe = pd.DataFrame.from_records(records)
         start_timestamp_ = dataframe["timestamp"][0]
         start_datetime = start_timestamp_.to_pydatetime()
@@ -315,9 +315,9 @@ def main():
 
     if require_features:
         if args.dfa1_mode == "per_window":
-            df_features = features.compute_features(df)
+            df_features = hrv.features.compute_features(df)
         elif args.dfa1_mode == "batch":
-            df_features = features.compute_features_2(df)
+            df_features = hrv.features.compute_features_2(df)
 
     if args.sdnn:
         sdnn = df_features["sdnn"]
