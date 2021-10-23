@@ -12,12 +12,6 @@ create table activities (
     duration real,
     length real
 );
-
-create table recordings (
-    activity_id integer,
-    type text,
-    array blob
-);
 """
 
 # TODO: Add adapter/converter to store/read numpy array into/from sqlite.
