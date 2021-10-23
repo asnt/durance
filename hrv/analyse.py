@@ -15,7 +15,7 @@ import pandas as pd
 
 import hrv.data
 import hrv.denoise
-import hrv.features
+import hrv.measures
 
 
 def compute_moving_average(x, window_size=31, average_fn="mean"):
@@ -421,9 +421,9 @@ def main():
 
     if require_features:
         if args.dfa1_mode == "per_window":
-            df_features = hrv.features.compute_features(df)
+            df_features = hrv.measures.features_from_sliding_window(df)
         elif args.dfa1_mode == "batch":
-            df_features = hrv.features.compute_features_2(df)
+            df_features = hrv.measures.features_from_sliding_window_2(df)
 
     if args.sdnn:
         sdnn = df_features["sdnn"]
