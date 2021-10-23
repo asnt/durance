@@ -471,8 +471,33 @@ def main():
 
     if args.overlay:
         plot_overlay(df_features)
+        bokeh_plot_overlay(df_features)
 
-    plt.show()
+    # plt.show()
+
+
+def bokeh_plot_overlay(df):
+    from bokeh.plotting import figure, show
+    from bokeh.models import ColumnDataSource, LinearAxis, Range1d
+
+    source = ColumnDataSource(df)
+
+    plot = figure()
+    plot.extra_y_ranges = {}
+    for measure in ["heartrate", "rmssd", "sdnn", "alpha1"]:
+        plot.line(
+            x="index",
+            y=measure,
+            y_range_name=measure,
+            source=source,
+        )
+        y = df[measure].values
+        y_min = y.min()
+        y_max = y.max()
+        plot.extra_y_ranges[measure] = Range1d(y_min, y_max)
+        plot.add_layout(LinearAxis(y_range_name=measure), "right")
+
+    show(plot)
 
 
 if __name__ == "__main__":
