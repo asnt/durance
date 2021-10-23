@@ -30,6 +30,22 @@ def db_init(db: sqlite3.Connection, args) -> None:
 
 def import_activity(db: sqlite3.Connection, args) -> None:
     print(f"importing {args.activity_file}")
+    import numpy as np
+    import pandas as pd
+    import hrv.data
+    records = hrv.data.load_fit_records(args.activity_file)
+    records = pd.DataFrame.from_records(records)
+    print(records)
+    print(records.columns)
+    heartrate = records["heart_rate"].values
+    heartrate_mean = np.mean(heartrate)
+    heartrate_median = np.median(heartrate)
+    heartrate_min = np.min(heartrate)
+    heartrate_max = np.max(heartrate)
+    print("mean(hr) =", heartrate_mean)
+    print("median(hr) =", heartrate_median)
+    print("min(hr) =", heartrate_min)
+    print("max(hr) =", heartrate_max)
     pass
 
 
