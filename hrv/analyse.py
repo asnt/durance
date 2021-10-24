@@ -496,11 +496,14 @@ def bokeh_plot_overlay(df):
             line_color="lightgray",
         )
     plot.y_range = Range1d(0, 2)
+    dfa_color = "black"
+    plot.yaxis.axis_label = "dfa index"
+    plot.yaxis.axis_label_text_color = dfa_color
     plot.line(
         x="index",
         y="alpha1",
         source=source,
-        line_color="black",
+        line_color=dfa_color,
     )
 
     config = dict(
@@ -532,8 +535,10 @@ def bokeh_plot_overlay(df):
             y = df[measure].values
             range_ = y.min(), y.max()
         plot.extra_y_ranges[measure] = Range1d(*range_)
-        plot.add_layout(LinearAxis(y_range_name=measure),
-                        params["axis"]["side"])
+        axis = LinearAxis(y_range_name=measure)
+        axis.axis_label = measure
+        axis.axis_label_text_color = params["line"]["line_color"]
+        plot.add_layout(axis, params["axis"]["side"])
 
     layout = row(plot, sizing_mode="stretch_both")
     show(layout)
