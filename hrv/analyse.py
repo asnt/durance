@@ -497,7 +497,7 @@ def bokeh_plot_overlay(df):
             line_color="gainsboro",
         )
     plot.y_range = Range1d(0, 2)
-    dfa_color = "black"
+    dfa_color = "darkslategray"
     plot.yaxis.axis_label = "dfa index"
     plot.yaxis.axis_label_text_color = dfa_color
     plot.line(
@@ -505,19 +505,26 @@ def bokeh_plot_overlay(df):
         y="alpha1",
         source=source,
         line_color=dfa_color,
+        line_width=3,
     )
 
     config = dict(
         heartrate=dict(
-            line=dict(line_color="orangered"),
+            line=dict(line_color="orange", line_width=2, line_alpha=0.5),
             axis=dict(side="left"),
         ),
         rmssd=dict(
-            line=dict(line_color="slategray", line_dash=[8, 2]),
+            line=dict(
+                line_color="gray",
+                line_width=2,
+            ),
             axis=dict(side="right"),
         ),
         sdnn=dict(
-            line=dict(line_color="gray", line_dash=[1, 1]),
+            line=dict(
+                line_color="lightgray",
+                line_width=2,
+            ),
             axis=dict(side="right"),
         ),
     )
