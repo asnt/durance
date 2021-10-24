@@ -484,26 +484,56 @@ def bokeh_plot_overlay(df):
     source = ColumnDataSource(df)
 
     plot = figure()
-    plot.extra_y_ranges = {}
-    config = dict(
-        heartrate=dict(line_color="orangered"),
-        rmssd=dict(line_color="darkgray", line_dash=[2, 2]),
-        sdnn=dict(line_color="gray", line_dash=[1, 1]),
-        alpha1=dict(),
+    plot.grid.visible = False
+
+    x_min = 0
+    x_max = len(df)
+    dfa_thresholds = [0.5, 0.75, 1.0]
+    for threshold in dfa_thresholds:
+        plot.line(
+            x=[x_min, x_max],
+            y=[threshold, threshold],
+            line_color="lightgray",
+        )
+    plot.y_range = Range1d(0, 2)
+    plot.line(
+        x="index",
+        y="alpha1",
+        source=source,
+        line_color="black",
     )
+
+    config = dict(
+        heartrate=dict(
+            line=dict(line_color="orangered"),
+            axis=dict(side="left"),
+        ),
+        rmssd=dict(
+            line=dict(line_color="darkgray", line_dash=[2, 2]),
+            axis=dict(side="right"),
+        ),
+        sdnn=dict(
+            line=dict(line_color="gray", line_dash=[1, 1]),
+            axis=dict(side="right"),
+        ),
+    )
+    plot.extra_y_ranges = {}
     for measure, params in config.items():
         plot.line(
             x="index",
             y=measure,
             y_range_name=measure,
             source=source,
-            **params,
+            **params["line"],
         )
-        y = df[measure].values
-        y_min = y.min()
-        y_max = y.max()
-        plot.extra_y_ranges[measure] = Range1d(y_min, y_max)
-        plot.add_layout(LinearAxis(y_range_name=measure), "right")
+        if "range_" in params["axis"]:
+            range_ = params["axis"]["range_"]
+        else:
+            y = df[measure].values
+            range_ = y.min(), y.max()
+        plot.extra_y_ranges[measure] = Range1d(*range_)
+        plot.add_layout(LinearAxis(y_range_name=measure),
+                        params["axis"]["side"])
 
     layout = row(plot, sizing_mode="stretch_both")
     show(layout)
