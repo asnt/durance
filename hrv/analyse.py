@@ -478,6 +478,7 @@ def main():
 
 def bokeh_plot_overlay(df):
     from bokeh.plotting import figure, show
+    from bokeh.layouts import row
     from bokeh.models import ColumnDataSource, LinearAxis, Range1d
 
     source = ColumnDataSource(df)
@@ -504,7 +505,8 @@ def bokeh_plot_overlay(df):
         plot.extra_y_ranges[measure] = Range1d(y_min, y_max)
         plot.add_layout(LinearAxis(y_range_name=measure), "right")
 
-    show(plot)
+    layout = row(plot, sizing_mode="stretch_both")
+    show(layout)
 
 
 if __name__ == "__main__":
