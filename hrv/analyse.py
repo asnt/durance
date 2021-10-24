@@ -485,9 +485,9 @@ def bokeh_plot_overlay(df):
     plot = figure()
     plot.extra_y_ranges = {}
     config = dict(
-        heartrate=dict(),
-        rmssd=dict(),
-        sdnn=dict(),
+        heartrate=dict(line_color="orangered"),
+        rmssd=dict(line_color="darkgray", line_dash=[2, 2]),
+        sdnn=dict(line_color="gray", line_dash=[1, 1]),
         alpha1=dict(),
     )
     for measure, params in config.items():
