@@ -493,7 +493,8 @@ def bokeh_plot_overlay(df):
         plot.line(
             x=[x_min, x_max],
             y=[threshold, threshold],
-            line_color="lightgray",
+            # Lighter than light gray.
+            line_color="gainsboro",
         )
     plot.y_range = Range1d(0, 2)
     dfa_color = "black"
@@ -512,7 +513,7 @@ def bokeh_plot_overlay(df):
             axis=dict(side="left"),
         ),
         rmssd=dict(
-            line=dict(line_color="darkgray", line_dash=[2, 2]),
+            line=dict(line_color="slategray", line_dash=[8, 2]),
             axis=dict(side="right"),
         ),
         sdnn=dict(
