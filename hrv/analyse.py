@@ -484,12 +484,19 @@ def bokeh_plot_overlay(df):
 
     plot = figure()
     plot.extra_y_ranges = {}
-    for measure in ["heartrate", "rmssd", "sdnn", "alpha1"]:
+    config = dict(
+        heartrate=dict(),
+        rmssd=dict(),
+        sdnn=dict(),
+        alpha1=dict(),
+    )
+    for measure, params in config.items():
         plot.line(
             x="index",
             y=measure,
             y_range_name=measure,
             source=source,
+            **params,
         )
         y = df[measure].values
         y_min = y.min()
