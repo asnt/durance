@@ -7,10 +7,11 @@ import sqlite3
 sql_init_tables = """
 create table activities (
     id integer primary key,
-    data text,
     type text,
     duration real,
-    length real
+    distance real,
+    heartrate_mean real,
+    heartrate_median real
 );
 """
 
@@ -35,18 +36,33 @@ def import_activity(db: sqlite3.Connection, args) -> None:
     import hrv.data
     records = hrv.data.load_fit_records(args.activity_file)
     records = pd.DataFrame.from_records(records)
-    print(records)
-    print(records.columns)
     heartrate = records["heart_rate"].values
     heartrate_mean = np.mean(heartrate)
     heartrate_median = np.median(heartrate)
-    heartrate_min = np.min(heartrate)
-    heartrate_max = np.max(heartrate)
-    print("mean(hr) =", heartrate_mean)
-    print("median(hr) =", heartrate_median)
-    print("min(hr) =", heartrate_min)
-    print("max(hr) =", heartrate_max)
-    pass
+
+    timestamps = records["timestamp"].values
+    time_start = timestamps[0]
+    time_end = timestamps[-1]
+    duration_ns = time_end - time_start
+    duration_s = np.timedelta64(duration_ns, "s")
+    duration = duration_s.astype(int)
+    duration = duration.item()
+    distance = records["distance"].values[-1]
+
+    data = dict(
+        type="undefined",
+        duration=duration,
+        distance=distance,
+        heartrate_mean=heartrate_mean,
+        heartrate_median=heartrate_median,
+    )
+
+    cursor = db.cursor()
+    names = ",".join(data)
+    placeholders = ",".join("?" * len(data))
+    query = f"insert into activities ({names}) values ({placeholders})"
+    cursor.execute(query, list(data.values()))
+    db.commit()
 
 
 def parse_args():
