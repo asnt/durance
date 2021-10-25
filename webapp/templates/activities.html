@@ -1,0 +1,16 @@
+<!doctype html>
+<title>Activities</title>
+<table>
+  <!-- <th> -->
+  <!--   {% for field in activities %} -->
+  <!--   <td>{{ field }}</td> -->
+  <!--   {% endfor %} -->
+  <!-- </th> -->
+  {% for activity_values in activities_values %}
+  <tr>
+    {% for value in activity_values %}
+    <td>{{ value }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
