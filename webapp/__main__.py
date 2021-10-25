@@ -25,5 +25,13 @@ def index():
                            activities_values=activities_values)
 
 
+@app.route("/activity/<id_>", methods=["GET"])
+def view_activity(id_):
+    return id_
+    # activities = Activities()
+    # activities_values = activities.values()
+    # return render_template("activity.html", activity_values=activity_values)
+
+
 if __name__ == '__main__':
     app.run(port=8080)
