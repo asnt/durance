@@ -1,36 +1,18 @@
 import argparse
-import os
 import pathlib
-import sqlite3
+
+import app.model
 
 
-sql_init_tables = """
-create table activities (
-    id integer primary key,
-    type text,
-    duration real,
-    distance real,
-    heartrate_mean real,
-    heartrate_median real
-);
-"""
-
-# TODO: Add adapter/converter to store/read numpy array into/from sqlite.
-# https://stackoverflow.com/a/18622264
+def init_db(args) -> None:
+    del args
+    engine = app.model.make_engine()
+    app.model.create(engine)
 
 
-def db_connect(path_like: os.PathLike) -> sqlite3.Connection:
-    return sqlite3.connect(path_like)
-
-
-def db_init(db: sqlite3.Connection, args) -> None:
-    cursor = db.cursor()
-    cursor.executescript(sql_init_tables)
-    db.commit()
-
-
-def import_activity(db: sqlite3.Connection, args) -> None:
+def import_activity(args) -> None:
     print(f"importing {args.activity_file}")
+
     import numpy as np
     import pandas as pd
     import hrv.data
@@ -50,6 +32,7 @@ def import_activity(db: sqlite3.Connection, args) -> None:
     distance = records["distance"].values[-1]
 
     data = dict(
+        name="unnamed",
         type="undefined",
         duration=duration,
         distance=distance,
@@ -57,12 +40,13 @@ def import_activity(db: sqlite3.Connection, args) -> None:
         heartrate_median=heartrate_median,
     )
 
-    cursor = db.cursor()
-    names = ",".join(data)
-    placeholders = ",".join("?" * len(data))
-    query = f"insert into activities ({names}) values ({placeholders})"
-    cursor.execute(query, list(data.values()))
-    db.commit()
+    activity = app.model.Activity(**data)
+    print(activity)
+
+    _ = app.model.make_engine()
+    session = app.model.make_session()
+    session.add(activity)
+    session.commit()
 
 
 def parse_args():
@@ -72,7 +56,7 @@ def parse_args():
     subparsers = parser.add_subparsers()
 
     parser_init = subparsers.add_parser("init")
-    parser_init.set_defaults(func=db_init)
+    parser_init.set_defaults(func=init_db)
 
     parser_import = subparsers.add_parser("import")
     parser_import.set_defaults(func=import_activity)
@@ -86,9 +70,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    db = sqlite3.connect(args.db)
-
-    args.func(db, args)
+    args.func(args)
 
 
 if __name__ == "__main__":
