@@ -12,14 +12,14 @@
     <!-- </th> -->
     {% for activity_values in activities_values %}
     <tr>
+      {% for value in activity_values %}
+      <td>{{ value }}</td>
+      {% endfor %}
       <td>
         <a href={{ url_for("view_activity", id_=activity_values[0]) }}>
           view
         </a>
       </td>
-      {% for value in activity_values %}
-      <td>{{ value }}</td>
-      {% endfor %}
     </tr>
     {% endfor %}
   </table>
