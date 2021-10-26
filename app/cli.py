@@ -16,6 +16,11 @@ def import_activity(args) -> None:
     import numpy as np
     import pandas as pd
     import hrv.data
+
+    if app.model.has_activity(args.activity_file):
+        print("activity already imported")
+        return
+
     records = hrv.data.load_fit_records(args.activity_file)
     records = pd.DataFrame.from_records(records)
     heartrate = records["heart_rate"].values
@@ -33,6 +38,7 @@ def import_activity(args) -> None:
 
     data = dict(
         name="unnamed",
+        file_hash=app.model.hash_file(args.activity_file),
         type="undefined",
         duration=duration,
         distance=distance,

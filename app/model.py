@@ -1,5 +1,8 @@
+import os
+
 import sqlalchemy
 import sqlalchemy.orm
+from sqlalchemy import select
 from sqlalchemy import Column, Integer, String
 
 
@@ -14,6 +17,7 @@ class Activity(Base):
     __tablename__ = "activities"
 
     id = Column(Integer, primary_key=True)
+    file_hash = Column(String)
     name = Column(String)
     type = Column(String)
     duration = Column(Integer)
@@ -39,3 +43,29 @@ def make_session():
 
 def create(engine):
     Base.metadata.create_all(engine)
+
+
+def hash_file(path: os.PathLike) -> bool:
+    import hashlib
+    params = dict(
+        function="blake2b",
+        digest_size=16,
+    )
+    hasher = hashlib.blake2b(digest_size=params["digest_size"])
+    with open(path, "rb") as file_:
+        hasher.update(file_.read())
+    params["digest"] = hasher.hexdigest()
+    file_hash = ":".join(
+        "=".join((key, str(value)))
+        for key, value in params.items()
+    )
+    return file_hash
+
+
+def has_activity(path: os.PathLike) -> bool:
+    file_hash = hash_file(path)
+    query = select(Activity).where(Activity.file_hash == file_hash)
+    _ = make_engine()
+    session = make_session()
+    result = session.execute(query).first()
+    return result is not None
