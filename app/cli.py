@@ -21,11 +21,33 @@ def import_activity(args) -> None:
         print("activity already imported")
         return
 
-    records = hrv.data.load_fit_records(args.activity_file)
-    records = pd.DataFrame.from_records(records)
+    data = hrv.data.load_fit(args.activity_file)
+
+    data_sport = data["sport"][0]
+    name = data_sport["name"]
+    sport = data_sport["sport"]
+    sub_sport = data_sport["sub_sport"]
+
+    data_file_id = data["file_id"][0]
+    device_manufacturer = data_file_id["manufacturer"]
+    device_model = None
+    if device_manufacturer == "garmin":
+        device_model = data_file_id["garmin_product"]
+
+    datetime_start = None
+    datetime_end = None
+    for data_event in data["event"]:
+        if not data_event["event"] == "timer":
+            continue
+        if data_event["event_type"] == "start":
+            datetime_start = data_event["timestamp"]
+        elif data_event["event_type"] == "stop_all":
+            datetime_end = data_event["timestamp"]
+
+    records = pd.DataFrame.from_records(data["record"])
     heartrate = records["heart_rate"].values
-    heartrate_mean = np.mean(heartrate)
-    heartrate_median = np.median(heartrate)
+    heartrate_mean = int(np.mean(heartrate))
+    heartrate_median = int(np.median(heartrate))
 
     timestamps = records["timestamp"].values
     time_start = timestamps[0]
@@ -37,11 +59,21 @@ def import_activity(args) -> None:
     distance = records["distance"].values[-1]
 
     data = dict(
-        name="unnamed",
         file_hash=app.model.hash_file(args.activity_file),
-        type="undefined",
+
+        device_manufacturer=device_manufacturer,
+        device_model=device_model,
+
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+
+        name=name,
+        sport=sport,
+        sub_sport=sub_sport,
+
         duration=duration,
         distance=distance,
+
         heartrate_mean=heartrate_mean,
         heartrate_median=heartrate_median,
     )

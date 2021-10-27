@@ -13,10 +13,18 @@ def index():
     session = app.model.make_session()
     Activity = app.model.Activity
     fields = dict(
+        datetime_start=Activity.datetime_start,
+
         name=Activity.name,
-        type=Activity.type,
+        sport=Activity.sport,
+        sub_sport=Activity.sub_sport,
+        workout=Activity.workout,
+
         duration=Activity.duration,
         distance=Activity.distance,
+
+        heartrate_mean=Activity.heartrate_mean,
+        heartrate_median=Activity.heartrate_median,
     )
     query = select(*fields.values())
     activities = session.execute(query).all()

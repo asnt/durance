@@ -1,5 +1,24 @@
+import collections
+
 import fitparse
 import numpy as np
+
+
+def load_fit(path):
+    fit_data = fitparse.FitFile(str(path))
+
+    messages = fit_data.messages
+    message_types = set(message.name for message in messages)
+
+    data = collections.defaultdict(list)
+    for message_type in message_types:
+        messages_data = [
+            {data.name: data.value for data in message}
+            for message in fit_data.get_messages(message_type)
+        ]
+        data[message_type] = messages_data
+
+    return data
 
 
 def load_fit_records(path):

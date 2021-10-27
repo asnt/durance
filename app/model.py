@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy import select
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 
 
 engine = None
@@ -18,10 +18,21 @@ class Activity(Base):
 
     id = Column(Integer, primary_key=True)
     file_hash = Column(String)
+
+    device_manufacturer = Column(String)
+    device_model = Column(String)
+
+    datetime_start = Column(DateTime)
+    datetime_end = Column(DateTime)
+
     name = Column(String)
-    type = Column(String)
+    sport = Column(String)
+    sub_sport = Column(String)
+    workout = Column(String)
+
     duration = Column(Integer)
     distance = Column(Integer)
+
     heartrate_mean = Column(Integer)
     heartrate_median = Column(Integer)
 
