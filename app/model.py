@@ -47,19 +47,12 @@ def create(engine):
 
 def hash_file(path: os.PathLike) -> bool:
     import hashlib
-    params = dict(
-        function="blake2b",
-        digest_size=16,
-    )
-    hasher = hashlib.blake2b(digest_size=params["digest_size"])
+    digest_size = 16
+    hasher = hashlib.blake2b(digest_size=digest_size)
     with open(path, "rb") as file_:
         hasher.update(file_.read())
-    params["digest"] = hasher.hexdigest()
-    file_hash = ":".join(
-        "=".join((key, str(value)))
-        for key, value in params.items()
-    )
-    return file_hash
+    hexdigest = hasher.hexdigest()
+    return hexdigest
 
 
 def has_activity(path: os.PathLike) -> bool:
