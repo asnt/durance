@@ -76,17 +76,39 @@ def load_fit(path):
     records = get_records(messages)
     records_dataframe = records_to_dataframe(records)
 
-    return rr_dataframe, records_dataframe
+    def get_records_for(message_type, messages):
+        messages = fit_data.get_messages(name=message_type)
+        records = [
+            {data.name: data.value for data in record}
+            for record in messages
+        ]
+        return records
+
+    other_message_types = (
+        "file_id", "device_settings", "user_profile", "sport", "session",
+        "lap", "event", "device_info", "activity",
+    )
+    other_messages = {
+        message_type: get_records_for(message_type, messages)
+        for message_type in other_message_types
+    }
+
+    return rr_dataframe, records_dataframe, other_messages
 
 
 def main():
     args = parse_args()
 
-    rr, records = load_fit(args.input)
+    rr, records, other_messages = load_fit(args.input)
 
     print(rr)
     print(records)
     print(records.columns)
+    import pprint
+    for message_type, messages in other_messages.items():
+        print("-" * 10)
+        print(f"{message_type}:")
+        pprint.pprint(messages)
 
 
 if __name__ == "__main__":
