@@ -1,5 +1,6 @@
 import argparse
 import pathlib
+import os
 
 import app.model
 
@@ -10,18 +11,24 @@ def init_db(args) -> None:
     app.model.create(engine)
 
 
-def import_activity(args) -> None:
-    print(f"importing {args.activity_file}")
+def import_activities(args) -> None:
+    print(f"importing {len(args.files)} activities")
+    for path in args.files:
+        import_activity(path)
+
+
+def import_activity(path: os.PathLike) -> None:
+    print(f"importing {path}")
 
     import numpy as np
     import pandas as pd
     import hrv.data
 
-    if app.model.has_activity(args.activity_file):
+    if app.model.has_activity(path):
         print("activity already imported")
         return
 
-    data = hrv.data.load_fit(args.activity_file)
+    data = hrv.data.load_fit(path)
 
     data_sport = data["sport"][0]
     name = data_sport["name"]
@@ -59,7 +66,7 @@ def import_activity(args) -> None:
     distance = records["distance"].values[-1]
 
     data = dict(
-        file_hash=app.model.hash_file(args.activity_file),
+        file_hash=app.model.hash_file(path),
 
         device_manufacturer=device_manufacturer,
         device_model=device_model,
@@ -97,10 +104,11 @@ def parse_args():
     parser_init.set_defaults(func=init_db)
 
     parser_import = subparsers.add_parser("import")
-    parser_import.set_defaults(func=import_activity)
-    parser_import.add_argument("activity_file",
+    parser_import.set_defaults(func=import_activities)
+    parser_import.add_argument("files",
+                               nargs="+",
                                type=pathlib.Path,
-                               help="FIT activity file.")
+                               help="FIT activity file(s).")
 
     return parser.parse_args()
 
