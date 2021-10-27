@@ -46,8 +46,8 @@ def import_activity(args) -> None:
 
     records = pd.DataFrame.from_records(data["record"])
     heartrate = records["heart_rate"].values
-    heartrate_mean = int(np.mean(heartrate))
-    heartrate_median = int(np.median(heartrate))
+    heartrate_mean = int(np.nanmean(heartrate))
+    heartrate_median = int(np.nanmedian(heartrate))
 
     timestamps = records["timestamp"].values
     time_start = timestamps[0]
