@@ -19,6 +19,13 @@ def format_seconds_to_days_hours_minutes_seconds(seconds):
     return str(duration)
 
 
+@flask_app.template_filter("meters_to_km")
+def format_meters_to_km(meters):
+    if meters == 0:
+        return "-"
+    return f"{meters / 1000:.1f}"
+
+
 @flask_app.route("/", methods=["GET"])
 def index():
     _ = app.model.make_engine()

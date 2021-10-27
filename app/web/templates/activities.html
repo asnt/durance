@@ -1,6 +1,8 @@
 <head>
   <!DOCTYPE html>
-  <link rel="stylesheet" href="https://classless.de/classless.css">
+  <link
+      rel="stylesheet"
+      href={{ url_for("static", filename="classless.css") }}>
 </head>
 <body>
   <title>Activities</title>
@@ -16,7 +18,9 @@
       <tr>
         {% for field, value in zip(activity_fields, activity_values) %}
           {% if field == "duration" %}
-          <td>{{ value|seconds_to_dhms }}</td>
+            <td>{{ value|seconds_to_dhms }}</td>
+          {% elif field == "distance" %}
+            <td>{{ value|meters_to_km }}</td>
           {% else %}
             <td>{{ value }}</td>
           {% endif %}
