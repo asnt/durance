@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Flask, render_template
 from sqlalchemy import select
 
@@ -5,6 +7,16 @@ import app.model
 
 
 flask_app = Flask(__name__)
+
+
+# Make the zip built-in usable inside Jinja templates.
+flask_app.jinja_env.globals.update(zip=zip)
+
+
+@flask_app.template_filter("seconds_to_dhms")
+def format_seconds_to_days_hours_minutes_seconds(seconds):
+    duration = datetime.timedelta(seconds=seconds)
+    return str(duration)
 
 
 @flask_app.route("/", methods=["GET"])
