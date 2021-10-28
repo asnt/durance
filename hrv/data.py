@@ -1,7 +1,7 @@
 import collections
 import datetime
 import os
-from typing import Dict
+from typing import Dict, Tuple
 
 import fitparse
 import numpy as np
@@ -29,7 +29,7 @@ ACTIVITY_SCHEMA = dict(
 )
 
 
-def load_fit(path):
+def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
     fit_data = fitparse.FitFile(str(path))
 
     messages = fit_data.messages
@@ -43,7 +43,9 @@ def load_fit(path):
         ]
         data[message_type] = messages_data
 
-    return data
+    recordings = dict()
+
+    return data, recordings
 
 
 def load_fit_records(path):
@@ -134,7 +136,27 @@ def _get_lines_until_blank(file_):
     return lines
 
 
-def load_hrmonitorapp(path: os.PathLike) -> Dict:
+def _hrmonitorapp_parse_recordings(lines_recordings: list[str]) -> Dict:
+    tokens = [line.split(",") for line in lines_recordings]
+
+    headers = tokens[0]
+    headers = [header.lower() for header in headers]
+
+    renames = dict(sec="timestamp", hr_bpm="heart_rate")
+    headers = [renames.get(header, header) for header in headers]
+
+    values = tokens[1:]
+    values = np.array(values, dtype=float)
+    values = values.T
+
+    recordings = {
+        header: series
+        for header, series in zip(headers, values)
+    }
+    return recordings
+
+
+def load_hrmonitorapp(path: os.PathLike) -> Tuple[Dict, Dict]:
     data = dict(
         file_hash=None,
 
@@ -163,5 +185,8 @@ def load_hrmonitorapp(path: os.PathLike) -> Dict:
                 lines_stats = _get_lines_until_blank(file_)
                 stats = _hrmonitorapp_parse_stats(lines_stats)
                 data.update(stats)
+            elif line == "{History}":
+                lines_recordings = _get_lines_until_blank(file_)
+                recordings = _hrmonitorapp_parse_recordings(lines_recordings)
 
-    return data
+    return data, recordings

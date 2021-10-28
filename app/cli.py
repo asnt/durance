@@ -55,7 +55,7 @@ def import_activity(path: os.PathLike) -> None:
 
 def load_activity_fit(path: os.PathLike) -> Dict:
     path = pathlib.Path(path)
-    data = hrv.data.load_fit(path)
+    data, _ = hrv.data.load_fit(path)
 
     data_sport = data["sport"][0]
     name = data_sport["name"]
@@ -116,7 +116,7 @@ def load_activity_fit(path: os.PathLike) -> Dict:
 
 
 def load_activity_hrmonitorapp(path: os.PathLike) -> Dict:
-    data = hrv.data.load_hrmonitorapp(path)
+    data, _ = hrv.data.load_hrmonitorapp(path)
     data["file_hash"] = app.model.hash_file(path)
     return data
 
