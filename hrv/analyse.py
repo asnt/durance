@@ -4,8 +4,6 @@
 This can be used for estimating the aerobic threshold.
 """
 import argparse
-import csv
-import math
 import pathlib
 
 import matplotlib as mpl
