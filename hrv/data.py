@@ -158,11 +158,9 @@ def load_hrmonitorapp(path: os.PathLike) -> Dict:
 
     with open(path, "r") as file_:
         for line in file_:
-            if line.strip() != "{Statistics}":
-                continue
-            lines_stats = _get_lines_until_blank(file_)
-            stats = _hrmonitorapp_parse_stats(lines_stats)
-            data.update(stats)
-            break
+            if line.strip() == "{Statistics}":
+                lines_stats = _get_lines_until_blank(file_)
+                stats = _hrmonitorapp_parse_stats(lines_stats)
+                data.update(stats)
 
     return data
