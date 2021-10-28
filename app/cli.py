@@ -40,8 +40,6 @@ def import_activity(path: os.PathLike) -> None:
     else:
         raise ValueError(f"unsupported activity file {path}")
 
-    print(activity_data)
-
     activity = app.model.Activity(**activity_data)
 
     _ = app.model.make_engine()
