@@ -5,6 +5,7 @@ from typing import Dict, Tuple
 
 import fitparse
 import numpy as np
+import pandas as pd
 
 
 ACTIVITY_SCHEMA = dict(
@@ -43,7 +44,63 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         ]
         data[message_type] = messages_data
 
-    recordings = dict()
+    recordings = pd.DataFrame.from_records(data["record"])
+    recordings = {
+        column: recordings[column].values
+        for column in recordings.columns
+    }
+
+    data_sport = data["sport"][0]
+    name = data_sport["name"]
+    sport = data_sport["sport"]
+    sub_sport = data_sport["sub_sport"]
+
+    data_file_id = data["file_id"][0]
+    device_manufacturer = data_file_id["manufacturer"]
+    device_model = None
+    if device_manufacturer == "garmin":
+        device_model = data_file_id["garmin_product"]
+
+    datetime_start = None
+    datetime_end = None
+    for data_event in data["event"]:
+        if not data_event["event"] == "timer":
+            continue
+        if data_event["event_type"] == "start":
+            datetime_start = data_event["timestamp"]
+        elif data_event["event_type"] == "stop_all":
+            datetime_end = data_event["timestamp"]
+
+    heartrate = recordings["heart_rate"]
+    heartrate_mean = int(np.nanmean(heartrate))
+    heartrate_median = int(np.nanmedian(heartrate))
+
+    timestamps = recordings["timestamp"]
+    time_start = timestamps[0]
+    time_end = timestamps[-1]
+    duration_ns = time_end - time_start
+    duration_s = np.timedelta64(duration_ns, "s")
+    duration = duration_s.astype(int)
+    duration = duration.item()
+    distance = recordings["distance"][-1]
+
+    data = dict(
+        device_manufacturer=device_manufacturer,
+        device_model=device_model,
+
+        datetime_start=datetime_start,
+        datetime_end=datetime_end,
+
+        name=name,
+        sport=sport,
+        sub_sport=sub_sport,
+
+        duration=duration,
+        distance=distance,
+
+        heartrate_mean=heartrate_mean,
+        heartrate_median=heartrate_median,
+    )
 
     return data, recordings
 
