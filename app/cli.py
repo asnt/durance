@@ -1,7 +1,12 @@
 import argparse
 import pathlib
 import os
+from typing import Dict
 
+import numpy as np
+import pandas as pd
+
+import hrv.data
 import app.model
 
 
@@ -17,17 +22,36 @@ def import_activities(args) -> None:
         import_activity(path)
 
 
+def _is_hrmonitorapp_activity(path: os.PathLike) -> bool:
+    return (path.suffix.lower() == ".csv"
+            and path.name.startswith("user_hr_data_"))
+
+
 def import_activity(path: os.PathLike) -> None:
     print(f"importing {path}")
-
-    import numpy as np
-    import pandas as pd
-    import hrv.data
 
     if app.model.has_activity(path):
         print("activity already imported")
         return
 
+    if path.suffix.lower() == ".fit":
+        activity_data = load_activity_fit(path)
+    elif _is_hrmonitorapp_activity(path):
+        activity_data = load_activity_hrmonitorapp(path)
+    else:
+        raise ValueError(f"unsupported activity file {path}")
+
+    print(activity_data)
+
+    activity = app.model.Activity(**activity_data)
+
+    _ = app.model.make_engine()
+    session = app.model.make_session()
+    session.add(activity)
+    session.commit()
+
+
+def load_activity_fit(path: os.PathLike) -> Dict:
     data = hrv.data.load_fit(path)
 
     data_sport = data["sport"][0]
@@ -85,13 +109,11 @@ def import_activity(path: os.PathLike) -> None:
         heartrate_median=heartrate_median,
     )
 
-    activity = app.model.Activity(**data)
-    print(activity)
+    return data
 
-    _ = app.model.make_engine()
-    session = app.model.make_session()
-    session.add(activity)
-    session.commit()
+
+def load_activity_hrmonitorapp(path: os.PathLike) -> Dict:
+    raise NotImplementedError
 
 
 def parse_args():
