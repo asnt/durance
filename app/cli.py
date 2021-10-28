@@ -23,11 +23,13 @@ def import_activities(args) -> None:
 
 
 def _is_hrmonitorapp_activity(path: os.PathLike) -> bool:
+    path = pathlib.Path(path)
     return (path.suffix.lower() == ".csv"
             and path.name.startswith("user_hr_data_"))
 
 
 def import_activity(path: os.PathLike) -> None:
+    path = pathlib.Path(path)
     print(f"importing {path}")
 
     if app.model.has_activity(path):
@@ -52,6 +54,7 @@ def import_activity(path: os.PathLike) -> None:
 
 
 def load_activity_fit(path: os.PathLike) -> Dict:
+    path = pathlib.Path(path)
     data = hrv.data.load_fit(path)
 
     data_sport = data["sport"][0]
@@ -113,7 +116,9 @@ def load_activity_fit(path: os.PathLike) -> Dict:
 
 
 def load_activity_hrmonitorapp(path: os.PathLike) -> Dict:
-    raise NotImplementedError
+    data = hrv.data.load_hrmonitorapp(path)
+    data["file_hash"] = app.model.hash_file(path)
+    return data
 
 
 def parse_args():
