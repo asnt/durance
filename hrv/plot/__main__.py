@@ -73,7 +73,8 @@ def parse_args():
     parser.add_argument("--rr-cumsum", action="store_true")
     parser.add_argument("--outlier-method",
                         default="moving_median",
-                        choices=["deviation", "moving_median", "wavelet"])
+                        choices=["deviation", "deviation_forward",
+                                 "moving_median", "wavelet"])
     return parser.parse_args()
 
 
@@ -86,6 +87,9 @@ def main():
 
     if args.outlier_method == "deviation":
         mask_valid = hrv.denoise.inliers_from_deviation(rr_raw)
+        rr = rr_raw[mask_valid]
+    elif args.outlier_method == "deviation_forward":
+        mask_valid = hrv.denoise.inliers_from_deviation_forward(rr_raw)
         rr = rr_raw[mask_valid]
     elif args.outlier_method == "moving_median":
         mask_valid = hrv.denoise.inliers_from_moving_median(rr_raw)

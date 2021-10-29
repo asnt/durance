@@ -1,8 +1,32 @@
 import numpy as np
 
 
+def inliers_from_deviation_forward(rr):
+    """Find valid RR signal samples from the deviation to the next sample.
+
+    Parameters
+    ----------
+    rr: array-like
+        (n,) signal of RR intervals.
+
+    Returns
+    -------
+    mask_valid: array-like
+        (n,) boolen mask array of the valid samples.
+    """
+    diff_0 = np.diff(rr)
+    diff_0 = np.concatenate((diff_0, [np.inf]))
+    relative_variation_0 = np.abs(diff_0) / np.abs(rr)
+    threshold_variation = 0.05
+    mask_valid = relative_variation_0 < threshold_variation
+    return mask_valid
+
+
 def inliers_from_deviation(rr):
-    """Find the valid samples in an RR signal from sample-to-sample deviation.
+    """Find valid RR signal samples from sample-to-sample deviation.
+
+    The deviations from both the previous and the next samples must be within
+    the threshold.
 
     Parameters
     ----------
