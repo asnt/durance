@@ -4,6 +4,7 @@
 This can be used for estimating the aerobic threshold.
 """
 import argparse
+import datetime
 import importlib
 import pathlib
 
@@ -102,23 +103,14 @@ def main():
     proportion_valid = n_valid / n_samples
     print(f"proportion valid = {proportion_valid:.2f}")
 
-    time_ = np.cumsum(rr)
+    time_relative = np.cumsum(rr)
+    time_relative = time_relative.astype(float)
 
-    if args.input.suffix.lower() == ".fit":
-        records = hrv.data.load_fit_records(args.input)
-        dataframe = pd.DataFrame.from_records(records)
-        start_timestamp_ = dataframe["timestamp"][0]
-        start_datetime = start_timestamp_.to_pydatetime()
-        start_timestamp = start_datetime.timestamp()
-
-        timestamps = start_timestamp + time_
-        import datetime
-        datetimes = np.array([
-            datetime.datetime.fromtimestamp(t) for t in timestamps
-        ])
-        datetimes = datetimes.astype(np.datetime64)
-
-        time_ = datetimes
+    activity_data, _ = hrv.data.load(args.input)
+    datetime_start = np.datetime64(activity_data["datetime_start"])
+    timedelta = time_relative.astype("timedelta64[s]")
+    datetimes = datetime_start + timedelta
+    time_ = datetimes
 
     if args.cwt:
         plot.cwt(rr_raw, mask_valid)
