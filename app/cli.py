@@ -1,7 +1,6 @@
 import argparse
 import pathlib
 import os
-from typing import Dict
 
 import hrv.data
 import app.model
@@ -19,12 +18,6 @@ def import_activities(args) -> None:
         import_activity(path)
 
 
-def _is_hrmonitorapp_activity(path: os.PathLike) -> bool:
-    path = pathlib.Path(path)
-    return (path.suffix.lower() == ".csv"
-            and path.name.startswith("user_hr_data_"))
-
-
 def import_activity(path: os.PathLike) -> None:
     path = pathlib.Path(path)
     print(f"importing {path}")
@@ -33,12 +26,8 @@ def import_activity(path: os.PathLike) -> None:
         print("activity already imported")
         return
 
-    if path.suffix.lower() == ".fit":
-        activity_data = load_activity_fit(path)
-    elif _is_hrmonitorapp_activity(path):
-        activity_data = load_activity_hrmonitorapp(path)
-    else:
-        raise ValueError(f"unsupported activity file {path}")
+    activity_data, _ = hrv.data.load(path)
+    activity_data["file_hash"] = app.model.hash_file(path)
 
     activity = app.model.Activity(**activity_data)
 
@@ -46,19 +35,6 @@ def import_activity(path: os.PathLike) -> None:
     session = app.model.make_session()
     session.add(activity)
     session.commit()
-
-
-def load_activity_fit(path: os.PathLike) -> Dict:
-    path = pathlib.Path(path)
-    data, _ = hrv.data.load_fit(path)
-    data["file_hash"] = app.model.hash_file(path)
-    return data
-
-
-def load_activity_hrmonitorapp(path: os.PathLike) -> Dict:
-    data, _ = hrv.data.load_hrmonitorapp(path)
-    data["file_hash"] = app.model.hash_file(path)
-    return data
 
 
 def parse_args():
