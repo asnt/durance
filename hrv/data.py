@@ -1,6 +1,7 @@
 import collections
 import datetime
 import os
+import pathlib
 from typing import Dict, Tuple
 
 import fitparse
@@ -28,6 +29,21 @@ ACTIVITY_SCHEMA = dict(
     heartrate_mean=None,
     heartrate_median=None,
 )
+
+
+def _is_hrmonitorapp_activity(path: os.PathLike) -> bool:
+    path = pathlib.Path(path)
+    return (path.suffix.lower() == ".csv"
+            and path.name.startswith("user_hr_data_"))
+
+
+def load(path: os.PathLike) -> Tuple[Dict, Dict]:
+    path = pathlib.Path(path)
+    if path.suffix.lower() == ".fit":
+        return load_fit(path)
+    elif _is_hrmonitorapp_activity(path):
+        return load_hrmonitorapp(path)
+    raise ValueError(f"unsupported activity file format {path}")
 
 
 def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
