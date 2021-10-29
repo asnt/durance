@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Compute FDA-alpha1 index from reart rate variability (HRV).
+"""Compute FDA-alpha1 index from heart rate variability (HRV).
 
 This can be used for estimating the aerobic threshold.
 """
