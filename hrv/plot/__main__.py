@@ -3,6 +3,7 @@
 
 This can be used for estimating the aerobic threshold.
 """
+
 import argparse
 import importlib
 import pathlib
