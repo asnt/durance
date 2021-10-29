@@ -4,7 +4,6 @@
 This can be used for estimating the aerobic threshold.
 """
 import argparse
-import datetime
 import importlib
 import pathlib
 
