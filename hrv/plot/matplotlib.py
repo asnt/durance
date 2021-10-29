@@ -197,8 +197,10 @@ def overlay(df, cmap="Spectral"):
 
     alpha1 = df["alpha1"].values
     color_alpha1 = "dimgray"
+
     plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
     ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+
     ax.set_xlabel("time")
     ax.set_ylabel("DFA1")
     ax.set_ylim((0, dfa_ticks[-1]))
