@@ -104,33 +104,21 @@ def main():
 
     time_ = np.cumsum(rr)
 
-    if args.input.suffix == ".fit":
+    if args.input.suffix.lower() == ".fit":
         records = hrv.data.load_fit_records(args.input)
         dataframe = pd.DataFrame.from_records(records)
         start_timestamp_ = dataframe["timestamp"][0]
         start_datetime = start_timestamp_.to_pydatetime()
         start_timestamp = start_datetime.timestamp()
-        timestamps = [
-            start_timestamp + time__
-            for time__ in time_
-        ]
 
+        timestamps = start_timestamp + time_
         import datetime
+        datetimes = np.array([
+            datetime.datetime.fromtimestamp(t) for t in timestamps
+        ])
+        datetimes = datetimes.astype(np.datetime64)
 
-        datetimes = [
-            datetime.datetime.fromtimestamp(timestamp)
-            for timestamp in timestamps
-        ]
         time_ = datetimes
-
-        # TODO: Find a way to pass durations to matplotlib.
-        # `datetime.timedelta`'s do not seem directly usable by matplotlib, it
-        # seems.
-        # timedeltas = [
-        #     datetime.timedelta(seconds=timestamp)
-        #     for timestamp in timestamps
-        # ]
-        # time_ = timedeltas
 
     if args.cwt:
         plot.cwt(rr_raw, mask_valid)
