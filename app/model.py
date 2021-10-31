@@ -3,7 +3,9 @@ import os
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy import select
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, Integer, LargeBinary, String
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 
 engine = None
@@ -35,6 +37,19 @@ class Activity(Base):
 
     heartrate_mean = Column(Integer)
     heartrate_median = Column(Integer)
+
+    # One-to-many: One activity, several recordings.
+    # https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html?highlight=relationship#one-to-many
+    recordings = relationship("Recording")
+
+
+class Recording(Base):
+    __tablename__ = "recordings"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    data = Column(LargeBinary)
+    activity_id = Column(Integer, ForeignKey("activities.id"))
 
 
 def make_engine(path="activities.db"):

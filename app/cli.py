@@ -26,14 +26,30 @@ def import_activity(path: os.PathLike) -> None:
         print("activity already imported")
         return
 
-    activity_data, _ = hrv.data.load(path)
+    activity_data, recordings_data = hrv.data.load(path)
     activity_data["file_hash"] = app.model.hash_file(path)
-
-    activity = app.model.Activity(**activity_data)
 
     _ = app.model.make_engine()
     session = app.model.make_session()
+
+    activity = app.model.Activity(**activity_data)
     session.add(activity)
+    session.commit()
+
+    recordings = [
+        app.model.Recording(
+            activity_id=activity.id,
+            name=name,
+            data=data,
+        )
+        for name, data in recordings_data.items()
+    ]
+    for recording in recordings:
+        if recording.name == "timestamp":
+            # FIXME: Convert timestamp data type to a format that sqlite can
+            # handle.
+            continue
+        session.add(recording)
     session.commit()
 
 
