@@ -87,9 +87,13 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         elif data_event["event_type"] == "stop_all":
             datetime_end = data_event["timestamp"]
 
-    heartrate = recordings["heart_rate"]
-    heartrate_mean = int(np.nanmean(heartrate))
-    heartrate_median = int(np.nanmedian(heartrate))
+    heartrate = recordings.get("heart_rate")
+    if heartrate is not None:
+        heartrate_mean = int(np.nanmean(heartrate))
+        heartrate_median = int(np.nanmedian(heartrate))
+    else:
+        heartrate_mean = None
+        heartrate_median = None
 
     timestamps = recordings["timestamp"]
     time_start = timestamps[0]
