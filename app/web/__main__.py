@@ -56,9 +56,25 @@ def index():
 
 @flask_app.route("/activity/<id_>", methods=["GET"])
 def view_activity(id_):
+    import numpy as np
+    import pandas as pd
+    data = pd.DataFrame({
+        "time": np.arange(10),
+        "alpha1": np.arange(10) / 10,
+        "heartrate": np.arange(10) ** 2 / 100,
+        "rmssd": np.arange(10) ** 3 / 1000,
+        "sdnn": np.arange(10) ** 4 / 10000,
+    })
+    import importlib
+    plot = importlib.import_module("hrv.plot.bokeh")
+    plot_ = plot.overlay(data)
+    import bokeh.embed
+    script, div = bokeh.embed.components(plot_)
     return render_template(
         "activity.html",
         id_=id_,
+        script=script,
+        div=div,
     )
 
 
