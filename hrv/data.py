@@ -66,6 +66,16 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         for column in recordings.columns
     }
 
+    def numpy_datetime64_to_timestamp_s(datetime64):
+        unix_epoch = np.datetime64(0, "s")
+        one_second = np.timedelta64(1, "s")
+        seconds_since_epoch = (datetime64 - unix_epoch) / one_second
+        return seconds_since_epoch
+
+    if "timestamp" in recordings:
+        datetimes = recordings["timestamp"]
+        recordings["timestamp"] = numpy_datetime64_to_timestamp_s(datetimes)
+
     data_sport = data["sport"][0]
     name = data_sport["name"]
     sport = data_sport["sport"]
@@ -98,10 +108,8 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
     timestamps = recordings["timestamp"]
     time_start = timestamps[0]
     time_end = timestamps[-1]
-    duration_ns = time_end - time_start
-    duration_s = np.timedelta64(duration_ns, "s")
-    duration = duration_s.astype(int)
-    duration = duration.item()
+    duration_s = time_end - time_start
+    duration = duration_s.item()
     distance = recordings["distance"][-1]
 
     data = dict(

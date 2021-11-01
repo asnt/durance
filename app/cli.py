@@ -45,10 +45,6 @@ def import_activity(path: os.PathLike) -> None:
         for name, data in recordings_data.items()
     ]
     for recording in recordings:
-        if recording.name == "timestamp":
-            # FIXME: Convert timestamp data type to a format that sqlite can
-            # handle.
-            continue
         session.add(recording)
     session.commit()
 
