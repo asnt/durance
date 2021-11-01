@@ -56,7 +56,10 @@ def index():
 
 @flask_app.route("/activity/<id_>", methods=["GET"])
 def view_activity(id_):
-    return id_
+    return render_template(
+        "activity.html",
+        id_=id_,
+    )
 
 
 if __name__ == '__main__':
