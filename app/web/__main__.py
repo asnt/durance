@@ -1,7 +1,10 @@
 import datetime
+import importlib
 
 from flask import Flask, render_template
 from sqlalchemy import select
+import bokeh.embed
+import pandas as pd
 
 import app.model
 
@@ -59,9 +62,6 @@ def index():
 
 @flask_app.route("/activity/<id_>", methods=["GET"])
 def view_activity(id_):
-    import numpy as np
-    import pandas as pd
-
     _ = app.model.make_engine()
     session = app.model.make_session()
     Activity = app.model.Activity
@@ -69,6 +69,7 @@ def view_activity(id_):
     query = select(Recording.name, Recording.array) \
         .where(Recording.activity_id == Activity.id)
     recordings_data = session.execute(query).all()
+
     recordings_data = dict(recordings_data)
     data = pd.DataFrame({
         "time": recordings_data["timestamp"],
@@ -78,11 +79,10 @@ def view_activity(id_):
         "sdnn": recordings_data["heart_rate"],
     })
 
-    import importlib
     plot = importlib.import_module("hrv.plot.bokeh")
     plot_ = plot.overlay(data)
-    import bokeh.embed
     script, div = bokeh.embed.components(plot_)
+
     return render_template(
         "activity.html",
         id_=id_,
