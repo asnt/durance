@@ -45,12 +45,15 @@ def index():
         heartrate_mean=Activity.heartrate_mean,
         heartrate_median=Activity.heartrate_median,
     )
-    query = select(*fields.values())
-    activities = session.execute(query).all()
+    query = select(Activity.id, *fields.values())
+    activity_data = session.execute(query).all()
+    activity_ids = [values[0] for values in activity_data]
+    activity_values = [values[1:] for values in activity_data]
     return render_template(
         "activities.html",
+        activity_ids=activity_ids,
         activity_fields=list(fields.keys()),
-        activities=activities,
+        activity_values=activity_values,
     )
 
 

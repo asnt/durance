@@ -17,9 +17,9 @@
       </tr>
     </thead>
     <tbody>
-      {% for activity_values in activities %}
+      {% for id_, values in zip(activity_ids, activity_values) %}
       <tr>
-        {% for field, value in zip(activity_fields, activity_values) %}
+        {% for field, value in zip(activity_fields, values) %}
         {% if field == "duration" %}
         <td>{{ value|seconds_to_dhms }}</td>
         {% elif field == "distance" %}
@@ -31,7 +31,7 @@
         {% endif %}
         {% endfor %}
         <td>
-          <a href={{ url_for("view_activity", id_=activity_values[0]) }}>
+          <a href={{ url_for("view_activity", id_=id_) }}>
             view
           </a>
         </td>
