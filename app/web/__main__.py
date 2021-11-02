@@ -61,13 +61,23 @@ def index():
 def view_activity(id_):
     import numpy as np
     import pandas as pd
+
+    _ = app.model.make_engine()
+    session = app.model.make_session()
+    Activity = app.model.Activity
+    Recording = app.model.Recording
+    query = select(Recording.name, Recording.array) \
+        .where(Recording.activity_id == Activity.id)
+    recordings_data = session.execute(query).all()
+    recordings_data = dict(recordings_data)
     data = pd.DataFrame({
-        "time": np.arange(10),
-        "alpha1": np.arange(10) / 10,
-        "heartrate": np.arange(10) ** 2 / 100,
-        "rmssd": np.arange(10) ** 3 / 1000,
-        "sdnn": np.arange(10) ** 4 / 10000,
+        "time": recordings_data["timestamp"],
+        "alpha1": recordings_data["heart_rate"],
+        "heartrate": recordings_data["heart_rate"],
+        "rmssd": recordings_data["heart_rate"],
+        "sdnn": recordings_data["heart_rate"],
     })
+
     import importlib
     plot = importlib.import_module("hrv.plot.bokeh")
     plot_ = plot.overlay(data)
