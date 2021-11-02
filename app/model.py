@@ -1,11 +1,14 @@
+import io
 import os
 
+import numpy as np
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy import select
 from sqlalchemy import Column, DateTime, Integer, LargeBinary, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator
 
 
 engine = None
@@ -43,12 +46,33 @@ class Activity(Base):
     recordings = relationship("Recording")
 
 
+class NumpyArray(TypeDecorator):
+    """A data type for numpy arrays."""
+    # https://docs.sqlalchemy.org/en/13/core/custom_types.html#marshal-json-strings
+
+    impl = LargeBinary
+
+    def process_bind_param(self, value, dialect):
+        del dialect
+        if value is not None:
+            buffer = io.BytesIO()
+            np.save(buffer, value)
+        return buffer.getvalue()
+
+    def process_result_value(self, value, dialect):
+        del dialect
+        if value is not None:
+            buffer = io.BytesIO(value)
+            value = np.load(buffer)
+        return value
+
+
 class Recording(Base):
     __tablename__ = "recordings"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    data = Column(LargeBinary)
+    array = Column(NumpyArray)
     activity_id = Column(Integer, ForeignKey("activities.id"))
 
 

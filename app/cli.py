@@ -40,7 +40,7 @@ def import_activity(path: os.PathLike) -> None:
         app.model.Recording(
             activity_id=activity.id,
             name=name,
-            data=data,
+            array=data,
         )
         for name, data in recordings_data.items()
     ]
