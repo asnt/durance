@@ -95,8 +95,9 @@ def view_activity(id_):
     # positions_names = ("position_lat", "position_long")
 
     plot = importlib.import_module("hrv.plot.bokeh")
-    plot_ = plot.recordings(data)
-    script, div = bokeh.embed.components(plot_)
+    figure = plot.recordings(data)
+    layout = bokeh.layouts.row(figure, sizing_mode="stretch_both")
+    script, div = bokeh.embed.components(layout)
 
     return render_template(
         "activity.html",
