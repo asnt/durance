@@ -109,20 +109,53 @@ def recordings(df: pd.DataFrame) -> bk.models.LayoutDOM:
     plot.grid.visible = False
 
     config = dict(
-        heart_rate=dict(line=dict(), axis=dict(side="left")),
-        altitude=dict(line=dict(), axis=dict(side="right")),
+        altitude=dict(
+            type="line",
+            style=dict(color="gray"),
+            line=dict(line_color="gray", line_width=2),
+            axis=dict(side="left"),
+        ),
+        heart_rate=dict(
+            type="line",
+            style=dict(color="orange"),
+            line=dict(line_color="orange", line_width=2),
+            axis=dict(side="left"),
+        ),
+        cadence=dict(
+            type="scatter",
+            style=dict(color="blue"),
+            axis=dict(side="left"),
+        ),
+        stride_rate=dict(
+            type="scatter",
+            style=dict(color="blue"),
+            axis=dict(side="left"),
+        ),
     )
     plot.extra_y_ranges = {}
     for measure in y_measures:
-        params = config.get(measure, dict(line=dict(), axis=dict(side="left")))
-        plot.line(
-            # XXX: Use time or distance on the x axis.
-            x="index",
-            y=measure,
-            y_range_name=measure,
-            source=source,
-            **params["line"],
-        )
+        params = config.get(measure, dict(type="line",
+                                          style=dict(),
+                                          line=dict(),
+                                          axis=dict(side="left")))
+        if params["type"] == "line":
+            plot.line(
+                # XXX: Use time or distance on the x axis.
+                x="index",
+                y=measure,
+                y_range_name=measure,
+                source=source,
+                **params.get("line", {}),
+            )
+        elif params["type"] == "scatter":
+            plot.scatter(
+                # XXX: Use time or distance on the x axis.
+                x="index",
+                y=measure,
+                y_range_name=measure,
+                source=source,
+                **params.get("scatter", {}),
+            )
         if "range_" in params["axis"]:
             range_ = params["axis"]["range_"]
         else:
@@ -131,8 +164,8 @@ def recordings(df: pd.DataFrame) -> bk.models.LayoutDOM:
         plot.extra_y_ranges[measure] = bk.models.Range1d(*range_)
         axis = bk.models.LinearAxis(y_range_name=measure)
         axis.axis_label = measure
-        # axis.axis_label_text_color = params["line"]["line_color"]
-        plot.add_layout(axis, params["axis"]["side"])
+        axis.axis_label_text_color = params["style"].get("color", "black")
+        plot.add_layout(axis, params["axis"].get("side", "left"))
 
     layout = bk.layouts.row(plot, sizing_mode="stretch_both")
 

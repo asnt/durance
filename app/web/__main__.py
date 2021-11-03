@@ -79,6 +79,16 @@ def view_activity(id_):
         for name, series in recordings_data.items()
         if name in series_names
     }
+    if "speed" in recordings_series:
+        # From [metres/second] to [kilometres/hour].
+        recordings_series["speed"] *= 1e-3 * 3600
+    if "cadence" in recordings_series:
+        cadence = recordings_series["cadence"]
+        # Cadence [steps/foot/minute]
+        # to
+        # stride rate [steps/minutes] (steps from both feet).
+        recordings_series["stride_rate"] = 2 * cadence
+        del recordings_series["cadence"]
     data = pd.DataFrame.from_dict(recordings_series)
 
     # TODO: Add map plot.
