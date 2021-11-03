@@ -93,3 +93,50 @@ def overlay(df: pd.DataFrame) -> bk.models.LayoutDOM:
     _layout = layout
 
     return layout
+
+
+def recordings(df: pd.DataFrame) -> bk.models.LayoutDOM:
+    """Plot standard recordings of an activity."""
+    source = bk.models.ColumnDataSource(df)
+
+    x_measures = ("distance", "time")
+    y_measures = list(df.columns)
+    for x_measure in x_measures:
+        if x_measure in y_measures:
+            y_measures.remove(x_measure)
+
+    plot = bk.plotting.figure()
+    plot.grid.visible = False
+
+    config = dict(
+        heart_rate=dict(line=dict(), axis=dict(side="left")),
+        altitude=dict(line=dict(), axis=dict(side="right")),
+    )
+    plot.extra_y_ranges = {}
+    for measure in y_measures:
+        params = config.get(measure, dict(line=dict(), axis=dict(side="left")))
+        plot.line(
+            # XXX: Use time or distance on the x axis.
+            x="index",
+            y=measure,
+            y_range_name=measure,
+            source=source,
+            **params["line"],
+        )
+        if "range_" in params["axis"]:
+            range_ = params["axis"]["range_"]
+        else:
+            y = df[measure].values
+            range_ = y.min(), y.max()
+        plot.extra_y_ranges[measure] = bk.models.Range1d(*range_)
+        axis = bk.models.LinearAxis(y_range_name=measure)
+        axis.axis_label = measure
+        # axis.axis_label_text_color = params["line"]["line_color"]
+        plot.add_layout(axis, params["axis"]["side"])
+
+    layout = bk.layouts.row(plot, sizing_mode="stretch_both")
+
+    global _layout
+    _layout = layout
+
+    return layout

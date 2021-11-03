@@ -64,23 +64,28 @@ def index():
 def view_activity(id_):
     _ = app.model.make_engine()
     session = app.model.make_session()
-    Activity = app.model.Activity
     Recording = app.model.Recording
     query = select(Recording.name, Recording.array) \
-        .where(Recording.activity_id == Activity.id)
+        .where(Recording.activity_id == id_)
     recordings_data = session.execute(query).all()
 
     recordings_data = dict(recordings_data)
-    data = pd.DataFrame({
-        "time": recordings_data["timestamp"],
-        "alpha1": recordings_data["heart_rate"],
-        "heartrate": recordings_data["heart_rate"],
-        "rmssd": recordings_data["heart_rate"],
-        "sdnn": recordings_data["heart_rate"],
-    })
+    # XXX: For debugging.
+    # for k, v in recordings_data.items():
+    #     print(k, v.shape, v.dtype)
+    series_names = ("altitude", "cadence", "heart_rate", "speed")
+    recordings_series = {
+        name: series
+        for name, series in recordings_data.items()
+        if name in series_names
+    }
+    data = pd.DataFrame.from_dict(recordings_series)
+
+    # TODO: Add map plot.
+    # positions_names = ("position_lat", "position_long")
 
     plot = importlib.import_module("hrv.plot.bokeh")
-    plot_ = plot.overlay(data)
+    plot_ = plot.recordings(data)
     script, div = bokeh.embed.components(plot_)
 
     return render_template(
