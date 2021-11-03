@@ -97,9 +97,8 @@ def view_activity(id_):
     plot = importlib.import_module("hrv.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(data)
     figure = plot.recordings(data_source)
-    # layout = bokeh.layouts.row(figure, sizing_mode="stretch_both")
 
-    series_choice = bokeh.models.MultiChoice(options=["a", "b", "c"])
+    series_choice = bokeh.models.MultiChoice(options=data_source.column_names)
     column = bokeh.layouts.column
     row = bokeh.layouts.row
     layout_series_choice = row(series_choice)
