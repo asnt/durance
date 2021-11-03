@@ -95,8 +95,18 @@ def view_activity(id_):
     # positions_names = ("position_lat", "position_long")
 
     plot = importlib.import_module("hrv.plot.bokeh")
-    figure = plot.recordings(data)
-    layout = bokeh.layouts.row(figure, sizing_mode="stretch_both")
+    data_source = bokeh.models.ColumnDataSource(data)
+    figure = plot.recordings(data_source)
+    # layout = bokeh.layouts.row(figure, sizing_mode="stretch_both")
+
+    series_choice = bokeh.models.MultiChoice(options=["a", "b", "c"])
+    column = bokeh.layouts.column
+    row = bokeh.layouts.row
+    layout_series_choice = row(series_choice)
+    layout_figure = row(figure, sizing_mode="stretch_width")
+    layout = column([layout_series_choice, layout_figure],
+                    sizing_mode="stretch_width")
+
     script, div = bokeh.embed.components(layout)
 
     return render_template(

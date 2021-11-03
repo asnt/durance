@@ -26,7 +26,7 @@ def overlay(df: pd.DataFrame) -> bk.models.LayoutDOM:
     plot.grid.visible = False
 
     x_min = 0
-    x_max = len(df)
+    x_max = len(source)
     dfa_thresholds = [0.5, 0.75, 1.0]
     for threshold in dfa_thresholds:
         plot.line(
@@ -95,12 +95,10 @@ def overlay(df: pd.DataFrame) -> bk.models.LayoutDOM:
     return layout
 
 
-def recordings(df: pd.DataFrame) -> bk.plotting.Figure:
+def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
     """Plot standard recordings of an activity."""
-    source = bk.models.ColumnDataSource(df)
-
     x_measures = ("distance", "time")
-    y_measures = list(df.columns)
+    y_measures = list(source.column_names)
     for x_measure in x_measures:
         if x_measure in y_measures:
             y_measures.remove(x_measure)
@@ -159,7 +157,7 @@ def recordings(df: pd.DataFrame) -> bk.plotting.Figure:
         if "range_" in params["axis"]:
             range_ = params["axis"]["range_"]
         else:
-            y = df[measure].values
+            y = source.data[measure]
             range_ = y.min(), y.max()
         figure.extra_y_ranges[measure] = bk.models.Range1d(*range_)
         axis = bk.models.LinearAxis(y_range_name=measure)
