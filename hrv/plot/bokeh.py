@@ -143,6 +143,7 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
                 y=measure,
                 y_range_name=measure,
                 source=source,
+                name=measure,
                 **params.get("line", {}),
             )
         elif params["type"] == "scatter":
@@ -152,6 +153,7 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
                 y=measure,
                 y_range_name=measure,
                 source=source,
+                name=measure,
                 **params.get("scatter", {}),
             )
         if "range_" in params["axis"]:

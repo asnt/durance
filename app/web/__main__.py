@@ -103,19 +103,23 @@ def view_activity(id_):
         active=[0],
     )
     series_choice_clicked = bokeh.models.CustomJS(
-        args=dict(source=data_source),
-        # FIXME: This does not seem to work because the plot on the client side
-        # expects all series to be present, as defined on the server.
-        # TODO: Find a way to hide some series?
+        args=dict(figure=figure),
         code="""
-    console.log(source.data);
-    const data = source.data;
-    const series = cb_obj.value
-    source.data = Object.fromEntries(
-        Object.entries(data).filter(([key]) => key === "heart_rate")
-    )
-    source.change.emit();
-    console.log(source.data);
+    const labels = this.labels;
+    const active = this.active;
+    let visible = labels.map(_ => false);
+    for (let index of active) {
+        visible[index] = true;
+    }
+    for (let index in labels) {
+        const results = figure.select(labels[index]);
+        if (results.length == 0) {
+            console.error("plot no found");
+            continue;
+        }
+        const plot = results[0];
+        plot.visible = visible[index];
+    }
 """,
     )
     series_choice.js_on_click(series_choice_clicked)
