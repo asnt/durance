@@ -101,9 +101,11 @@ def view_activity(id_):
     data_source = bokeh.models.ColumnDataSource(data)
     figure = plot.recordings(data_source)
 
+    series_names = data_source.column_names
+    series_names.remove("index")
     series_choice = bokeh.models.CheckboxButtonGroup(
-        labels=data_source.column_names,
-        active=[0],
+        labels=series_names,
+        active=list(range(len(series_names))),
     )
     series_choice_clicked = bokeh.models.CustomJS(
         args=dict(figure=figure),
