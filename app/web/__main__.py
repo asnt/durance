@@ -98,8 +98,11 @@ def view_activity(id_):
     data_source = bokeh.models.ColumnDataSource(data)
     figure = plot.recordings(data_source)
 
-    series_choice = bokeh.models.MultiChoice(options=data_source.column_names)
-    series_choice_changed = bokeh.models.CustomJS(
+    series_choice = bokeh.models.CheckboxButtonGroup(
+        labels=data_source.column_names,
+        active=[0],
+    )
+    series_choice_clicked = bokeh.models.CustomJS(
         args=dict(source=data_source),
         # FIXME: This does not seem to work because the plot on the client side
         # expects all series to be present, as defined on the server.
@@ -115,7 +118,7 @@ def view_activity(id_):
     console.log(source.data);
 """,
     )
-    series_choice.js_on_change("change:value", series_choice_changed)
+    series_choice.js_on_click(series_choice_clicked)
 
     column = bokeh.layouts.column
     row = bokeh.layouts.row
