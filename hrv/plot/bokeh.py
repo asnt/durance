@@ -99,6 +99,7 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
     """Plot standard recordings of an activity."""
     x_measures = ("distance", "time")
     y_measures = list(source.column_names)
+    y_measures.remove("index")
     for x_measure in x_measures:
         if x_measure in y_measures:
             y_measures.remove(x_measure)
