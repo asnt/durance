@@ -99,6 +99,24 @@ def view_activity(id_):
     figure = plot.recordings(data_source)
 
     series_choice = bokeh.models.MultiChoice(options=data_source.column_names)
+    series_choice_changed = bokeh.models.CustomJS(
+        args=dict(source=data_source),
+        # FIXME: This does not seem to work because the plot on the client side
+        # expects all series to be present, as defined on the server.
+        # TODO: Find a way to hide some series?
+        code="""
+    console.log(source.data);
+    const data = source.data;
+    const series = cb_obj.value
+    source.data = Object.fromEntries(
+        Object.entries(data).filter(([key]) => key === "heart_rate")
+    )
+    source.change.emit();
+    console.log(source.data);
+""",
+    )
+    series_choice.js_on_change("change:value", series_choice_changed)
+
     column = bokeh.layouts.column
     row = bokeh.layouts.row
     layout_series_choice = row(series_choice)
