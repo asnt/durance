@@ -91,6 +91,9 @@ def view_activity(id_):
         del recordings_series["cadence"]
     data = pd.DataFrame.from_dict(recordings_series)
 
+    # Replace NaN values using neighbors.
+    data = data.interpolate()
+
     # TODO: Add map plot.
     # positions_names = ("position_lat", "position_long")
 
