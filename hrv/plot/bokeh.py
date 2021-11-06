@@ -1,7 +1,10 @@
+from typing import Optional
+
 import bokeh as bk
 import bokeh.layouts
 import bokeh.models
 import bokeh.plotting
+import numpy as np
 import pandas as pd
 
 
@@ -167,5 +170,25 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
         axis.axis_label = measure
         axis.axis_label_text_color = params["style"].get("color", "black")
         figure.add_layout(axis, params["axis"].get("side", "left"))
+
+    return figure
+
+
+def histogram(
+    array: np.ndarray,
+    x_start: Optional[int] = None,
+    x_end: Optional[int] = None,
+) -> bk.plotting.Figure:
+    """Plot the histogram of an array."""
+    figure = bk.plotting.figure()
+    figure.grid.visible = False
+
+    frequencies, edges = np.histogram(array, density=True, bins=64)
+    figure.quad(top=frequencies, bottom=0, left=edges[:-1], right=edges[1:])
+    figure.y_range.start = 0
+    if x_start is not None:
+        figure.x_range.start = x_start
+    if x_end is not None:
+        figure.x_range.end = x_end
 
     return figure

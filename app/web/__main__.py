@@ -129,12 +129,25 @@ def view_activity(id_):
     )
     series_choice.js_on_click(series_choice_clicked)
 
+    if "heart_rate" in recordings_series:
+        heart_rate = data["heart_rate"].values
+        hist_heart_rate = plot.histogram(heart_rate, x_start=90, x_end=200)
+    else:
+        hist_heart_rate = None
+
     column = bokeh.layouts.column
     row = bokeh.layouts.row
     layout_series_choice = row(series_choice)
     layout_figure = row(figure, sizing_mode="stretch_width")
-    layout = column([layout_series_choice, layout_figure],
-                    sizing_mode="stretch_width")
+    layout_figure_hist = row(hist_heart_rate, sizing_mode="stretch_width")
+    layout = column(
+        [
+            layout_series_choice,
+            layout_figure,
+            layout_figure_hist,
+        ],
+        sizing_mode="stretch_width",
+    )
 
     script, div = bokeh.embed.components(layout)
 
