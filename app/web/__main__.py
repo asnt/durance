@@ -12,7 +12,7 @@ import app.model
 flask_app = Flask(__name__)
 
 
-# Make the zip built-in usable inside Jinja templates.
+# Expose the zip built-in inside Jinja templates.
 flask_app.jinja_env.globals.update(zip=zip)
 
 
