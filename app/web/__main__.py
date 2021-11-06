@@ -139,7 +139,7 @@ def view_activity(id_):
     row = bokeh.layouts.row
     layout_series_choice = row(series_choice)
     layout_figure = row(figure, sizing_mode="stretch_width")
-    layout_figure_hist = row(hist_heart_rate, sizing_mode="stretch_width")
+    layout_figure_hist = row(hist_heart_rate)
     layout = column(
         [
             layout_series_choice,
