@@ -45,8 +45,7 @@ def index():
         duration=Activity.duration,
         distance=Activity.distance,
 
-        heartrate_mean=Activity.heartrate_mean,
-        heartrate_median=Activity.heartrate_median,
+        heart_rate_median=Activity.heartrate_median,
     )
     query = select(Activity.id, *fields.values())
     activity_data = session.execute(query).all()
