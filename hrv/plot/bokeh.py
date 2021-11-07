@@ -272,7 +272,7 @@ def histogram(
 ) -> bk.plotting.Figure:
     """Plot the histogram of an array."""
 
-    figure = bk.plotting.figure()
+    figure = bk.plotting.figure(height=128)
     figure.grid.visible = False
 
     if x_start is not None and x_end is not None:

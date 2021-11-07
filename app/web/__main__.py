@@ -136,11 +136,13 @@ def view_activity(id_):
     # )
     # series_choice.js_on_click(series_choice_clicked)
 
-    # if "heart_rate" in recordings_series:
-    #     heart_rate = data["heart_rate"].values
-    #     hist_heart_rate = plot.histogram_heart_rate(heart_rate)
-    # else:
-    #     hist_heart_rate = None
+    if "heart_rate" in recordings_series:
+        heart_rate = data["heart_rate"].values
+        histogram_heart_rate = plot.histogram_heart_rate(heart_rate)
+        histogram_heart_rate.toolbar_location = None
+        histogram_heart_rate.tools = []
+    else:
+        histogram_heart_rate = None
 
     # column = bokeh.layouts.column
     # row = bokeh.layouts.row
@@ -157,8 +159,9 @@ def view_activity(id_):
     # )
 
     figures = plot.recordings(data_source)
+    column = bokeh.layouts.column
     gridplot = bokeh.layouts.gridplot
-    layout = gridplot(figures, ncols=1)
+    layout = column([gridplot(figures, ncols=1), histogram_heart_rate])
 
     script, div = bokeh.embed.components(layout)
 
