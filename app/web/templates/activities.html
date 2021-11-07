@@ -1,47 +1,36 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link
-      rel="stylesheet"
-      href={{ url_for("static", filename="css/bootstrap.min.css") }}>
-</head>
-<body>
-  <title>Activities</title>
-  <table class="table">
-    <thead>
-      <tr>
-        {% for field in activity_fields %}
-        <th>{{ field }}</th>
-        {% endfor %}
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for id_, values in zip(activity_ids, activity_values) %}
-      <tr>
-        {% for field, value in zip(activity_fields, values) %}
-        {% if field == "duration" %}
-        <td>{{ value|seconds_to_dhms }}</td>
-        {% elif field == "distance" %}
-        <td>{{ value|meters_to_km }}</td>
-        {% elif value is none or value == "generic" %}
-        <td>-</td>
-        {% else %}
-        <td>{{ value }}</td>
-        {% endif %}
-        {% endfor %}
-        <td>
-          <a href={{ url_for("view_activity", id_=id_) }}>
-            view
-          </a>
-        </td>
-      </tr>
+{% extends "layout.html" %}
+{% block title %}Activities{% endblock %}
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      {% for field in activity_fields %}
+      <th>{{ field }}</th>
       {% endfor %}
-    </tbody>
-  </table>
-  <script src={{ url_for("static", filename="js/bootstrap.bundle.min.js") }}></script>
-</body>
-</html>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for id_, values in zip(activity_ids, activity_values) %}
+    <tr>
+      {% for field, value in zip(activity_fields, values) %}
+      {% if field == "duration" %}
+      <td>{{ value|seconds_to_dhms }}</td>
+      {% elif field == "distance" %}
+      <td>{{ value|meters_to_km }}</td>
+      {% elif value is none or value == "generic" %}
+      <td>-</td>
+      {% else %}
+      <td>{{ value }}</td>
+      {% endif %}
+      {% endfor %}
+      <td>
+        <a href={{ url_for("view_activity", id_=id_) }}>
+          view
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
