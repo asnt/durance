@@ -99,55 +99,66 @@ def view_activity(id_):
 
     plot = importlib.import_module("hrv.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(data)
-    figure = plot.recordings(data_source)
 
-    series_names = data_source.column_names
-    series_names.remove("index")
-    series_choice = bokeh.models.CheckboxButtonGroup(
-        labels=series_names,
-        active=list(range(len(series_names))),
-    )
-    series_choice_clicked = bokeh.models.CustomJS(
-        args=dict(figure=figure),
-        code="""
-    const labels = this.labels;
-    const active = this.active;
-    let visible = labels.map(_ => false);
-    for (let index of active) {
-        visible[index] = true;
-    }
-    for (let index in labels) {
-        const results = figure.select(labels[index]);
-        if (results.length == 0) {
-            console.error("plot no found");
-            continue;
-        }
-        const plot = results[0];
-        plot.visible = visible[index];
-    }
-""",
-    )
-    series_choice.js_on_click(series_choice_clicked)
+    # figure = plot.recordings_overlay(data_source)
 
-    if "heart_rate" in recordings_series:
-        heart_rate = data["heart_rate"].values
-        hist_heart_rate = plot.histogram_heart_rate(heart_rate)
-    else:
-        hist_heart_rate = None
+    # series_names = data_source.column_names
+    # series_names.remove("index")
+    # default_active_names = ["heart_rate"]
+    # active = [
+    #     series_names.index(name)
+    #     for name in default_active_names
+    #     if name in series_names
+    # ]
+    # series_choice = bokeh.models.CheckboxButtonGroup(
+    #     labels=series_names,
+    #     active=active,
+    # )
+    # series_choice_clicked = bokeh.models.CustomJS(
+    #     args=dict(figure=figure),
+    #     code="""
+    # const labels = this.labels;
+    # const active = this.active;
+    # let visible = labels.map(_ => false);
+    # for (let index of active) {
+    #     visible[index] = true;
+    # }
+    # for (let index in labels) {
+    #     const results = figure.select(labels[index]);
+    #     if (results.length == 0) {
+    #         console.error("plot no found");
+    #         continue;
+    #     }
+    #     const plot = results[0];
+    #     plot.visible = visible[index];
+    # }
+# """,
+    # )
+    # series_choice.js_on_click(series_choice_clicked)
 
-    column = bokeh.layouts.column
-    row = bokeh.layouts.row
-    layout_series_choice = row(series_choice)
-    layout_figure = row(figure, sizing_mode="stretch_width")
-    layout_figure_hist = row(hist_heart_rate)
-    layout = column(
-        [
-            layout_series_choice,
-            layout_figure,
-            layout_figure_hist,
-        ],
-        sizing_mode="stretch_width",
-    )
+    # if "heart_rate" in recordings_series:
+    #     heart_rate = data["heart_rate"].values
+    #     hist_heart_rate = plot.histogram_heart_rate(heart_rate)
+    # else:
+    #     hist_heart_rate = None
+
+    # column = bokeh.layouts.column
+    # row = bokeh.layouts.row
+    # layout_series_choice = row(series_choice)
+    # layout_figure = row(figure, sizing_mode="stretch_width")
+    # layout_figure_hist = row(hist_heart_rate)
+    # layout = column(
+    #     [
+    #         layout_series_choice,
+    #         layout_figure,
+    #         layout_figure_hist,
+    #     ],
+    #     sizing_mode="stretch_width",
+    # )
+
+    figures = plot.recordings(data_source)
+    gridplot = bokeh.layouts.gridplot
+    layout = gridplot(figures, ncols=1)
 
     script, div = bokeh.embed.components(layout)
 

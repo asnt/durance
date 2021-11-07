@@ -98,7 +98,8 @@ def overlay(df: pd.DataFrame) -> bk.models.LayoutDOM:
     return layout
 
 
-def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
+def recordings_overlay(source: bk.models.ColumnDataSource) \
+        -> bk.plotting.Figure:
     """Plot standard recordings of an activity."""
     x_measures = ("distance", "time")
     y_measures = list(source.column_names)
@@ -172,6 +173,83 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
         figure.add_layout(axis, params["axis"].get("side", "left"))
 
     return figure
+
+
+def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
+    """Plot standard recordings of an activity."""
+    x_measures = ("distance", "time")
+    y_measures = list(source.column_names)
+    y_measures.remove("index")
+    for x_measure in x_measures:
+        if x_measure in y_measures:
+            y_measures.remove(x_measure)
+
+    figures = []
+
+    config = dict(
+        altitude=dict(
+            type="line",
+            style=dict(color="gray"),
+            line=dict(line_color="gray", line_width=2),
+            axis=dict(side="left"),
+        ),
+        heart_rate=dict(
+            type="line",
+            style=dict(color="orange"),
+            line=dict(line_color="orange", line_width=2),
+            axis=dict(side="left"),
+        ),
+        cadence=dict(
+            type="scatter",
+            style=dict(color="blue"),
+            axis=dict(side="left"),
+        ),
+        stride_rate=dict(
+            type="scatter",
+            style=dict(color="blue"),
+            axis=dict(side="left"),
+        ),
+    )
+    for measure in y_measures:
+        params = config.get(measure, dict(type="line",
+                                          style=dict(),
+                                          line=dict(),
+                                          axis=dict(side="left")))
+        figure = bk.plotting.figure(height=128)
+        figure.grid.visible = False
+        if params["type"] == "line":
+            figure.line(
+                # XXX: Use time or distance on the x axis.
+                x="index",
+                y=measure,
+                # y_range_name=measure,
+                source=source,
+                name=measure,
+                **params.get("line", {}),
+            )
+        elif params["type"] == "scatter":
+            figure.scatter(
+                # XXX: Use time or distance on the x axis.
+                x="index",
+                y=measure,
+                # y_range_name=measure,
+                source=source,
+                name=measure,
+                **params.get("scatter", {}),
+            )
+        if "range_" in params["axis"]:
+            range_ = params["axis"]["range_"]
+        else:
+            y = source.data[measure]
+            range_ = y.min(), y.max()
+        figure.y_range = bk.models.Range1d(*range_)
+        figure.yaxis[0].axis_label = measure
+        figure.yaxis[0].axis_label_text_color = params["style"].get("color",
+                                                                    "black")
+
+        figures.append(figure)
+
+    return figures
 
 
 def histogram_heart_rate(
