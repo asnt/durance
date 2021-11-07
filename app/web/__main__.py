@@ -102,8 +102,8 @@ def view_activity(id_):
     data_source = bokeh.models.ColumnDataSource(data)
 
     histograms = {
-        name: plot.histogram(array, **plot.histogram_config.get(name, {}))
-        for name, array in recordings_series.items()
+        name: plot.histogram(data[name], **plot.histogram_config.get(name, {}))
+        for name in recordings_series
     }
 
     # figure = plot.recordings_overlay(data_source)
