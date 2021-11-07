@@ -30,7 +30,7 @@
       <td>{{ value.time() }}</td>
       {% elif field == "duration" %}
       <td>{{ value|seconds_to_dhms }}</td>
-      {% elif field == "distance" %}
+      {% elif field.startswith("distance") %}
       <td>{{ value|meters_to_km }}</td>
       {% elif value is none or value == "generic" %}
       <td>-</td>
