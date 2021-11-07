@@ -47,7 +47,8 @@ def index():
 
         heart_rate_median=Activity.heartrate_median,
     )
-    query = select(Activity.id, *fields.values())
+    query = select(Activity.id, *fields.values()) \
+        .order_by(Activity.datetime_start.desc())
     activity_data = session.execute(query).all()
     activity_ids = [values[0] for values in activity_data]
     activity_values = [values[1:] for values in activity_data]
