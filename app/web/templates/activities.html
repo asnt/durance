@@ -1,13 +1,16 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link
       rel="stylesheet"
-      href={{ url_for("static", filename="classless.css") }}>
+      href={{ url_for("static", filename="css/bootstrap.min.css") }}>
 </head>
 <body>
   <title>Activities</title>
-  <table>
+  <table class="table">
     <thead>
       <tr>
         {% for field in activity_fields %}
@@ -39,5 +42,6 @@
       {% endfor %}
     </tbody>
   </table>
+  <script src={{ url_for("static", filename="js/bootstrap.bundle.min.js") }}></script>
 </body>
 </html>
