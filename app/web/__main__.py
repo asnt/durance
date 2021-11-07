@@ -72,7 +72,8 @@ def view_activity(id_):
     recordings_data = dict(recordings_data)
     # XXX: For debugging.
     # for k, v in recordings_data.items():
-    #     print(k, v.shape, v.dtype)
+    #     import numpy as np
+    #     print(k, v.shape, v.dtype, np.isnan(v).sum())
     series_names = ("altitude", "cadence", "heart_rate", "speed")
     recordings_series = {
         name: series
