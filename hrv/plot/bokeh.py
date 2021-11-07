@@ -257,6 +257,14 @@ histogram_config = dict(
         x_start=90,
         x_end=200,
     ),
+    speed=dict(
+        x_start=5,
+        x_end=20,
+    ),
+    stride_rate=dict(
+        x_start=90,
+        x_end=200,
+    ),
 )
 
 
