@@ -184,7 +184,7 @@ def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
         if x_measure in y_measures:
             y_measures.remove(x_measure)
 
-    figures = []
+    figures = {}
 
     config = dict(
         altitude=dict(
@@ -247,21 +247,17 @@ def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
         figure.yaxis[0].axis_label_text_color = params["style"].get("color",
                                                                     "black")
 
-        figures.append(figure)
+        figures[measure] = figure
 
     return figures
 
 
-def histogram_heart_rate(
-    array: np.ndarray,
-    x_start: int = 90,
-    x_end: int = 200,
-) -> bk.plotting.Figure:
-    """Plot the histogram of heart rate values."""
-    assert x_start > 30
-    assert x_end < 220
-
-    return histogram(array, x_start=x_start, x_end=x_end)
+histogram_config = dict(
+    heart_rate=dict(
+        x_start=90,
+        x_end=200,
+    ),
+)
 
 
 def histogram(
@@ -274,6 +270,8 @@ def histogram(
 
     figure = bk.plotting.figure(height=128)
     figure.grid.visible = False
+    figure.toolbar_location = None
+    figure.tools = []
 
     if x_start is not None and x_end is not None:
         bins = np.linspace(x_start, x_end, n_bins + 1)

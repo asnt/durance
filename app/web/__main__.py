@@ -100,6 +100,11 @@ def view_activity(id_):
     plot = importlib.import_module("hrv.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(data)
 
+    histograms = {
+        name: plot.histogram(array, **plot.histogram_config.get(name, {}))
+        for name, array in recordings_series.items()
+    }
+
     # figure = plot.recordings_overlay(data_source)
 
     # series_names = data_source.column_names
@@ -136,32 +141,15 @@ def view_activity(id_):
     # )
     # series_choice.js_on_click(series_choice_clicked)
 
-    if "heart_rate" in recordings_series:
-        heart_rate = data["heart_rate"].values
-        histogram_heart_rate = plot.histogram_heart_rate(heart_rate)
-        histogram_heart_rate.toolbar_location = None
-        histogram_heart_rate.tools = []
-    else:
-        histogram_heart_rate = None
+    lines = plot.recordings(data_source)
 
-    # column = bokeh.layouts.column
-    # row = bokeh.layouts.row
-    # layout_series_choice = row(series_choice)
-    # layout_figure = row(figure, sizing_mode="stretch_width")
-    # layout_figure_hist = row(hist_heart_rate)
-    # layout = column(
-    #     [
-    #         layout_series_choice,
-    #         layout_figure,
-    #         layout_figure_hist,
-    #     ],
-    #     sizing_mode="stretch_width",
-    # )
-
-    figures = plot.recordings(data_source)
-    column = bokeh.layouts.column
     gridplot = bokeh.layouts.gridplot
-    layout = column([gridplot(figures, ncols=1), histogram_heart_rate])
+    layout = gridplot(
+        [
+            [line, histogram]
+            for line, histogram in zip(lines.values(), histograms.values())
+        ],
+    )
 
     script, div = bokeh.embed.components(layout)
 
