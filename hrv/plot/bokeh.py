@@ -174,16 +174,34 @@ def recordings(source: bk.models.ColumnDataSource) -> bk.plotting.Figure:
     return figure
 
 
+def histogram_heart_rate(
+    array: np.ndarray,
+    x_start: int = 90,
+    x_end: int = 200,
+) -> bk.plotting.Figure:
+    """Plot the histogram of heart rate values."""
+    assert x_start > 30
+    assert x_end < 220
+
+    return histogram(array, x_start=x_start, x_end=x_end)
+
+
 def histogram(
     array: np.ndarray,
     x_start: Optional[int] = None,
     x_end: Optional[int] = None,
+    n_bins: int = 64,
 ) -> bk.plotting.Figure:
     """Plot the histogram of an array."""
+
     figure = bk.plotting.figure()
     figure.grid.visible = False
 
-    frequencies, edges = np.histogram(array, density=True, bins=64)
+    if x_start is not None and x_end is not None:
+        bins = np.linspace(x_start, x_end, n_bins + 1)
+    else:
+        bins = n_bins
+    frequencies, edges = np.histogram(array, density=True, bins=bins)
     figure.quad(top=frequencies, bottom=0, left=edges[:-1], right=edges[1:])
     figure.y_range.start = 0
     if x_start is not None:

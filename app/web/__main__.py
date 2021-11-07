@@ -131,7 +131,7 @@ def view_activity(id_):
 
     if "heart_rate" in recordings_series:
         heart_rate = data["heart_rate"].values
-        hist_heart_rate = plot.histogram(heart_rate, x_start=90, x_end=200)
+        hist_heart_rate = plot.histogram_heart_rate(heart_rate)
     else:
         hist_heart_rate = None
 
