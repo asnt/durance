@@ -6,7 +6,12 @@
   <thead>
     <tr>
       {% for field in activity_fields %}
+      {% if field == "datetime" %}
+      <th>date</th>
+      <th>time</th>
+      {% else %}
       <th>{{ field }}</th>
+      {% endif %}
       {% endfor %}
     </tr>
   </thead>
@@ -20,6 +25,9 @@
           {{ value }}
         </a>
       </td>
+      {% elif field == "datetime" %}
+      <td>{{ value.date() }}</td>
+      <td>{{ value.time() }}</td>
       {% elif field == "duration" %}
       <td>{{ value|seconds_to_dhms }}</td>
       {% elif field == "distance" %}

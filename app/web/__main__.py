@@ -34,19 +34,19 @@ def index():
     _ = app.model.make_engine()
     session = app.model.make_session()
     Activity = app.model.Activity
-    fields = dict(
-        datetime_start=Activity.datetime_start,
+    fields = {
+        "datetime": Activity.datetime_start,
 
-        name=Activity.name,
-        sport=Activity.sport,
-        sub_sport=Activity.sub_sport,
-        workout=Activity.workout,
+        "name": Activity.name,
+        "sport": Activity.sport,
+        "sub_sport": Activity.sub_sport,
+        "workout": Activity.workout,
 
-        duration=Activity.duration,
-        distance=Activity.distance,
+        "duration": Activity.duration,
+        "distance (km)": Activity.distance,
 
-        heart_rate_median=Activity.heartrate_median,
-    )
+        "HR (median)": Activity.heartrate_median,
+    }
     query = select(Activity.id, *fields.values()) \
         .order_by(Activity.datetime_start.desc())
     activity_data = session.execute(query).all()
