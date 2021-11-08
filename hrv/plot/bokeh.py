@@ -175,15 +175,11 @@ def recordings_overlay(source: bk.models.ColumnDataSource) \
     return figure
 
 
-def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
+def recordings(
+    source: bk.models.ColumnDataSource,
+    y_measures: list[str],
+) -> list[bk.plotting.Figure]:
     """Plot standard recordings of an activity."""
-    x_measures = ("distance", "time")
-    y_measures = list(source.column_names)
-    y_measures.remove("index")
-    for x_measure in x_measures:
-        if x_measure in y_measures:
-            y_measures.remove(x_measure)
-
     figures = {}
 
     config = dict(
@@ -219,8 +215,7 @@ def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
         figure.grid.visible = False
         if params["type"] == "line":
             figure.line(
-                # XXX: Use time or distance on the x axis.
-                x="index",
+                x="x",
                 y=measure,
                 # y_range_name=measure,
                 source=source,
@@ -229,8 +224,7 @@ def recordings(source: bk.models.ColumnDataSource) -> list[bk.plotting.Figure]:
             )
         elif params["type"] == "scatter":
             figure.scatter(
-                # XXX: Use time or distance on the x axis.
-                x="index",
+                x="x",
                 y=measure,
                 # y_range_name=measure,
                 source=source,
