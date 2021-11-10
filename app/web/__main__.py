@@ -108,7 +108,7 @@ def view_activity(id_):
     data_source = bokeh.models.ColumnDataSource(data)
 
     x_measures = ("distance", "index", "time")
-    allowed_y_measures = ("altitude", "cadence", "heart_rate", "speed")
+    allowed_y_measures = ("altitude", "stride_rate", "heart_rate", "speed")
     y_measures = [
         measure
         for measure in allowed_y_measures
