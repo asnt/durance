@@ -217,7 +217,6 @@ def recordings(
             figure.line(
                 x="x",
                 y=measure,
-                # y_range_name=measure,
                 source=source,
                 name=measure,
                 **params.get("line", {}),
@@ -226,7 +225,6 @@ def recordings(
             figure.scatter(
                 x="x",
                 y=measure,
-                # y_range_name=measure,
                 source=source,
                 name=measure,
                 **params.get("scatter", {}),
