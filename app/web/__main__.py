@@ -161,13 +161,13 @@ def view_activity(id_):
     # )
     # series_choice.js_on_click(series_choice_clicked)
 
-    lines = plot.recordings(data_source, y_measures)
+    plots = plot.recordings(data_source, y_measures)
 
     gridplot = bokeh.layouts.gridplot
     layout = gridplot(
         [
-            [line, histogram]
-            for line, histogram in zip(lines.values(), histograms.values())
+            [plot, histogram]
+            for plot, histogram in zip(plots.values(), histograms.values())
         ],
     )
 
