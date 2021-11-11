@@ -134,10 +134,11 @@ def view_activity(id_):
     }
 
     if "rr" in recordings_data:
-        data_source.add(recordings_data["rr"], "rr")
+        hrv_source = bokeh.models.ColumnDataSource()
+        hrv_source.add(recordings_data["rr"], "rr")
         import numpy as np
-        data_source.add(np.arange(len(recordings_data["rr"])), "rr_x")
-        series_plots["rr"] = plot.series(data_source, y="rr", x="rr_x",
+        hrv_source.add(np.arange(len(recordings_data["rr"])), "x")
+        series_plots["rr"] = plot.series(hrv_source, y="rr",
                                          type_="scatter")
         histograms["rr"] = plot.histogram(recordings_data["rr"])
 
