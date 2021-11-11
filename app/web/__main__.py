@@ -64,6 +64,26 @@ def index():
 def view_activity(id_):
     _ = app.model.make_engine()
     session = app.model.make_session()
+
+    Activity = app.model.Activity
+    fields = {
+        "datetime": Activity.datetime_start,
+
+        "name": Activity.name,
+        "sport": Activity.sport,
+        "sub_sport": Activity.sub_sport,
+        "workout": Activity.workout,
+
+        "duration": Activity.duration,
+        "distance (km)": Activity.distance,
+
+        "HR (median)": Activity.heartrate_median,
+    }
+    query = select(*fields.values()) \
+        .where(Activity.id == id_)
+    activity_values = session.execute(query).one()
+    activity_data = dict(zip(fields.keys(), activity_values))
+
     Recording = app.model.Recording
     query = select(Recording.name, Recording.array) \
         .where(Recording.activity_id == id_)
@@ -217,6 +237,7 @@ def view_activity(id_):
     return render_template(
         "activity.html",
         id_=id_,
+        activity=activity_data,
         script=script,
         div=div,
     )
