@@ -201,6 +201,7 @@ def series(
     type_: str = "line",
     color: str = "black",
     line_width: int = 2,
+    y_range: Optional[tuple[int, int]] = None,
 ) -> list[bk.plotting.Figure]:
     """Plot a series for an activity."""
     figure = bk.plotting.figure(height=128)
@@ -223,7 +224,7 @@ def series(
             color=color,
         )
     y_data = source.data[y]
-    y_range = y_data.min(), y_data.max()
+    y_range = y_range if y_range is not None else (y_data.min(), y_data.max())
     figure.y_range = bk.models.Range1d(*y_range)
     figure.yaxis[0].axis_label = y
     figure.yaxis[0].axis_label_text_color = color
