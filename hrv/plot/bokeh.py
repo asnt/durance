@@ -181,6 +181,7 @@ series_config = dict(
     ),
     heart_rate=dict(
         color="orange",
+        y_range=(90, 200),
     ),
     cadence=dict(
         type_="scatter",
