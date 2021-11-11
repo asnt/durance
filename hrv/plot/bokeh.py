@@ -192,6 +192,9 @@ series_config = dict(
         color="blue",
         y_range=(100, 200),
     ),
+    speed=dict(
+        y_range=(5, 20),
+    ),
 )
 
 
