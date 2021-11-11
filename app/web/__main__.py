@@ -121,7 +121,8 @@ def view_activity(id_):
     # source.add(source.data["distance"], "x")
 
     histograms = {
-        name: plot.histogram(data[name], **plot.histogram_config.get(name, {}))
+        name: plot.histogram(data[name].values,
+                             **plot.histogram_config.get(name, {}))
         for name in y_measures
     }
 
