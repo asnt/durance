@@ -78,25 +78,35 @@ def parse_args():
     return parser.parse_args()
 
 
+def cleanup_hrv_signal(rr_raw, outlier_method="moving_median"):
+    mask_valid = hrv.denoise.find_inliers(rr_raw, method=outlier_method)
+    rr = rr_raw[mask_valid]
+
+    time_relative = np.cumsum(rr)
+    time_relative = time_relative.astype(float)
+
+    return time_relative, rr, mask_valid
+
+
 def main():
     args = parse_args()
 
     plot = importlib.import_module(f"hrv.plot.{args.backend}")
 
     rr_raw = hrv.data.load_rr(args.input)
-    mask_valid = hrv.denoise.find_inliers(rr_raw, method=args.outlier_method)
-    rr = rr_raw[mask_valid]
 
-    if args.rr_average:
-        rr_average = compute_moving_average(rr_raw, average_fn="median")
+    time_relative, rr, mask_valid = cleanup_hrv_signal(
+        rr_raw,
+        outlier_method=args.outlier_method,
+    )
 
     n_valid = mask_valid.sum()
     n_samples = len(mask_valid)
     proportion_valid = n_valid / n_samples
     print(f"proportion valid = {proportion_valid:.2f}")
 
-    time_relative = np.cumsum(rr)
-    time_relative = time_relative.astype(float)
+    if args.rr_average:
+        rr_average = compute_moving_average(rr_raw, average_fn="median")
 
     activity_data, _ = hrv.data.load(args.input)
     datetime_start = np.datetime64(activity_data["datetime_start"])
