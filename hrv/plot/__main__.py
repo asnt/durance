@@ -114,6 +114,27 @@ def main():
     datetimes = datetime_start + timedelta
     time_ = datetimes
 
+    df = pd.DataFrame()
+    df["time"] = time_
+    df["rr"] = rr
+    if args.rr_average:
+        df["rr_average"] = rr_average[mask_valid]
+
+    require_features = (
+        args.dfa1
+        or args.dfa1_motion
+        or args.dfa1_vs_hr
+        or args.sdnn
+        or args.rmssd
+        or args.overlay
+    )
+
+    if require_features:
+        if args.dfa1_mode == "per_window":
+            df_features = hrv.measures.features_from_sliding_window(df)
+        elif args.dfa1_mode == "batch":
+            df_features = hrv.measures.features_from_sliding_window_2(df)
+
     if args.cwt:
         plot.cwt(rr_raw, mask_valid)
 
@@ -140,27 +161,6 @@ def main():
         ax.scatter(np.arange(len(rr_raw)), rr_raw, alpha=0.25,
                    color="orangered")
         ax.plot(rr_average)
-
-    df = pd.DataFrame()
-    df["time"] = time_
-    df["rr"] = rr
-    if args.rr_average:
-        df["rr_average"] = rr_average[mask_valid]
-
-    require_features = (
-        args.dfa1
-        or args.dfa1_motion
-        or args.dfa1_vs_hr
-        or args.sdnn
-        or args.rmssd
-        or args.overlay
-    )
-
-    if require_features:
-        if args.dfa1_mode == "per_window":
-            df_features = hrv.measures.features_from_sliding_window(df)
-        elif args.dfa1_mode == "batch":
-            df_features = hrv.measures.features_from_sliding_window_2(df)
 
     if args.sdnn:
         sdnn = df_features["sdnn"]
