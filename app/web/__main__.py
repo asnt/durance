@@ -138,7 +138,8 @@ def view_activity(id_):
         hrv_source.add(recordings_data["rr"], "rr")
         import numpy as np
         hrv_source.add(np.arange(len(recordings_data["rr"])), "x")
-        series_plots["rr"] = plot.series(hrv_source, y="rr",
+        series_plots["rr"] = plot.series(hrv_source,
+                                         y="rr",
                                          type_="scatter")
         histograms["rr"] = plot.histogram(recordings_data["rr"])
 
