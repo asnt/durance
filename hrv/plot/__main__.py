@@ -84,20 +84,8 @@ def main():
     plot = importlib.import_module(f"hrv.plot.{args.backend}")
 
     rr_raw = hrv.data.load_rr(args.input)
-
-    if args.outlier_method == "deviation":
-        mask_valid = hrv.denoise.inliers_from_deviation(rr_raw)
-        rr = rr_raw[mask_valid]
-    elif args.outlier_method == "deviation_forward":
-        mask_valid = hrv.denoise.inliers_from_deviation_forward(rr_raw)
-        rr = rr_raw[mask_valid]
-    elif args.outlier_method == "moving_median":
-        mask_valid = hrv.denoise.inliers_from_moving_median(rr_raw)
-        rr = rr_raw[mask_valid]
-    elif args.outlier_method == "wavelet":
-        # XXX: Does not work. Loss of details?
-        mask_valid = np.full_like(rr_raw, True)
-        rr = hrv.denoise.inliers_from_swt(rr_raw)
+    mask_valid = hrv.denoise.find_inliers(rr_raw, method=args.outlier_method)
+    rr = rr_raw[mask_valid]
 
     if args.rr_average:
         rr_average = compute_moving_average(rr_raw, average_fn="median")

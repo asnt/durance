@@ -1,6 +1,36 @@
 import numpy as np
 
 
+def find_inliers(rr, method="moving_median"):
+    """Find valid RR signal samples.
+
+    Parameters
+    ----------
+    rr: array-like
+        (n,) Raw signal of RR intervals.
+    method: str, {"moving_median", "deviation", "deviation_forward"}
+        The method to identify outliers.
+
+    Returns
+    -------
+    mask_valid: array-like
+        (n,) boolen mask array of the valid samples.
+    """
+    if method == "deviation":
+        mask_valid = inliers_from_deviation(rr)
+    elif method == "deviation_forward":
+        mask_valid = inliers_from_deviation_forward(rr)
+    elif method == "moving_median":
+        mask_valid = inliers_from_moving_median(rr)
+    elif method == "wavelet":
+        raise NotImplementedError
+        # XXX: Does not work. Loss of details?
+        mask_valid = np.full_like(rr, True)
+    else:
+        raise ValueError(f"invalid method {method}")
+    return mask_valid
+
+
 def inliers_from_deviation_forward(rr):
     """Find valid RR signal samples from the deviation to the next sample.
 
