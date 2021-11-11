@@ -233,24 +233,20 @@ def series(
 
 histogram_config = dict(
     heart_rate=dict(
-        x_start=90,
-        x_end=200,
+        x_range=(90, 200),
     ),
     speed=dict(
-        x_start=5,
-        x_end=20,
+        x_range=(5, 20),
     ),
     stride_rate=dict(
-        x_start=90,
-        x_end=200,
+        x_range=(90, 200),
     ),
 )
 
 
 def histogram(
     array: np.ndarray,
-    x_start: Optional[int] = None,
-    x_end: Optional[int] = None,
+    x_range: Optional[tuple[int, int]] = None,
     n_bins: int = 64,
 ) -> bk.plotting.Figure:
     """Plot the histogram of an array."""
@@ -260,16 +256,14 @@ def histogram(
     figure.toolbar_location = None
     figure.tools = []
 
-    if x_start is not None and x_end is not None:
-        bins = np.linspace(x_start, x_end, n_bins + 1)
+    if x_range is not None:
+        bins = np.linspace(x_range[0], x_range[1], n_bins + 1)
     else:
         bins = n_bins
     frequencies, edges = np.histogram(array, density=True, bins=bins)
     figure.quad(top=frequencies, bottom=0, left=edges[:-1], right=edges[1:])
     figure.y_range.start = 0
-    if x_start is not None:
-        figure.x_range.start = x_start
-    if x_end is not None:
-        figure.x_range.end = x_end
+    if x_range is not None:
+        figure.x_range = bk.models.Range1d(*x_range)
 
     return figure
