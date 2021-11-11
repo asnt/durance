@@ -141,6 +141,8 @@ def view_activity(id_):
                                          type_="scatter")
         histograms["rr"] = plot.histogram(recordings_data["rr"])
 
+    # figure = plot.recordings_overlay(data_source)
+    #
     # series_names = data_source.column_names
     # series_names.remove("index")
     # default_active_names = ["heart_rate"]
