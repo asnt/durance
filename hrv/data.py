@@ -60,10 +60,10 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         ]
         data[message_type] = messages_data
 
-    recordings = pd.DataFrame.from_records(data["record"])
+    recordings_df = pd.DataFrame.from_records(data["record"])
     recordings = {
-        column: recordings[column].values
-        for column in recordings.columns
+        column: recordings_df[column].values
+        for column in recordings_df.columns
     }
 
     def numpy_datetime64_to_timestamp_s(datetime64):
