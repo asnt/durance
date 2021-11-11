@@ -133,7 +133,13 @@ def view_activity(id_):
         for name in y_measures
     }
 
-    # figure = plot.recordings_overlay(data_source)
+    if "rr" in recordings_data:
+        data_source.add(recordings_data["rr"], "rr")
+        import numpy as np
+        data_source.add(np.arange(len(recordings_data["rr"])), "rr_x")
+        series_plots["rr"] = plot.series(data_source, y="rr", x="rr_x",
+                                         type_="scatter")
+        histograms["rr"] = plot.histogram(recordings_data["rr"])
 
     # series_names = data_source.column_names
     # series_names.remove("index")
