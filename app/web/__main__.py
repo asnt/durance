@@ -75,27 +75,26 @@ def view_activity(id_):
     recordings_data["time"] = recordings_data["timestamp"]
     del recordings_data["timestamp"]
 
+    if "speed" in recordings_data:
+        # From m/s to km/h.
+        recordings_data["speed"] *= 1e-3 * 3600
+    if "cadence" in recordings_data:
+        cadence = recordings_data["cadence"]
+        # Cadence [steps/foot/minute] to stride rate [strides/minutes].
+        recordings_data["stride_rate"] = 2 * cadence
+        del recordings_data["cadence"]
+
     # XXX: For debugging.
     # for k, v in recordings_data.items():
     #     import numpy as np
     #     print(k, v.shape, v.dtype, np.isnan(v).sum())
     x_series_names = ("time", "distance")
-    y_series_names = ("altitude", "cadence", "heart_rate", "speed")
+    y_series_names = ("altitude", "stride_rate", "heart_rate", "speed")
     recordings_series = {
         name: series
         for name, series in recordings_data.items()
         if name in x_series_names + y_series_names
     }
-    if "speed" in recordings_series:
-        # From [metres/second] to [kilometres/hour].
-        recordings_series["speed"] *= 1e-3 * 3600
-    if "cadence" in recordings_series:
-        cadence = recordings_series["cadence"]
-        # Cadence [steps/foot/minute]
-        # to
-        # stride rate [steps/minutes] (steps from both feet).
-        recordings_series["stride_rate"] = 2 * cadence
-        del recordings_series["cadence"]
     data = pd.DataFrame.from_dict(recordings_series)
 
     # Replace NaN values using neighbors.
@@ -132,6 +131,20 @@ def view_activity(id_):
                              **plot.histogram_config.get(name, {}))
         for name in y_measures
     }
+
+    # Plot again, focussing the range on the running (i.e. higher frequency).
+    if "stride_rate" in data_source.data:
+        range_stride_running = (150, 200)
+        series_plots["stride_rate_running"] = plot.series(
+            data_source,
+            y="stride_rate",
+            type_="scatter",
+            y_range=range_stride_running,
+        )
+        histograms["stride_rate_running"] = plot.histogram(
+            recordings_data["stride_rate"],
+            x_range=range_stride_running,
+        )
 
     if "rr" in recordings_data:
         hrv_source = bokeh.models.ColumnDataSource()
