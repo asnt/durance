@@ -190,6 +190,7 @@ series_config = dict(
     stride_rate=dict(
         type_="scatter",
         color="blue",
+        y_range=(100, 200),
     ),
 )
 
