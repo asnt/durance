@@ -143,7 +143,7 @@ def view_activity(id_):
                                          type_="scatter")
         histograms["rr"] = plot.histogram(recordings_data["rr"])
 
-        relevant_range = (0.3, 0.6)
+        relevant_range = (0.3, 0.65)
         series_plots["rr_relevant"] = plot.series(
             hrv_source,
             y="rr",
