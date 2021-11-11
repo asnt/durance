@@ -143,6 +143,18 @@ def view_activity(id_):
                                          type_="scatter")
         histograms["rr"] = plot.histogram(recordings_data["rr"])
 
+        relevant_range = (0.3, 0.6)
+        series_plots["rr_relevant"] = plot.series(
+            hrv_source,
+            y="rr",
+            type_="scatter",
+            y_range=relevant_range,
+        )
+        histograms["rr_relevant"] = plot.histogram(
+            recordings_data["rr"],
+            x_range=relevant_range,
+        )
+
     # figure = plot.recordings_overlay(data_source)
     #
     # series_names = data_source.column_names
