@@ -207,9 +207,8 @@ def view_activity(id_):
     gridplot = bokeh.layouts.gridplot
     layout = gridplot(
         [
-            [series, histogram]
-            for series, histogram in zip(series_plots.values(),
-                                         histograms.values())
+            [series_plots[name], histograms[name]]
+            for name in sorted(series_plots.keys())
         ],
     )
 
