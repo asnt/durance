@@ -46,6 +46,15 @@ def load(path: os.PathLike) -> Tuple[Dict, Dict]:
     raise ValueError(f"unsupported activity file format {path}")
 
 
+def _rr_remove_padding(rr_padded):
+    """Get the RR signal from recording segments padded with None values."""
+    rr = np.array(rr_padded)
+    rr = rr.flatten()
+    roi_signal = rr != None
+    rr = rr[roi_signal]
+    return rr.astype(float)
+
+
 def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
     fit_data = fitparse.FitFile(str(path))
 
@@ -65,6 +74,14 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         column: recordings_df[column].values
         for column in recordings_df.columns
     }
+
+    if "hrv" in data:
+        rr_padded = [
+            hrv_record["time"]
+            for hrv_record in data["hrv"]
+        ]
+        rr_raw = _rr_remove_padding(rr_padded)
+        recordings["rr"] = rr_raw
 
     def numpy_datetime64_to_timestamp_s(datetime64):
         unix_epoch = np.datetime64(0, "s")
