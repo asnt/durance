@@ -104,6 +104,11 @@ def view_activity(id_):
     # TODO: Add map plot.
     # positions_names = ("position_lat", "position_long")
 
+    # TODO: Allow to choose the x-axis from the browser.
+    data["x"] = data.index.values
+    # data["x"] = data["time"]
+    # data["x"] = data["distance"]
+
     plot = importlib.import_module("hrv.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(data)
 
@@ -115,10 +120,12 @@ def view_activity(id_):
         if measure in data_source.data
     ]
 
-    # TODO: Allow to choose the x-axis from the browser.
-    data_source.add(data_source.data["index"], "x")
-    # source.add(source.data["time"], "x")
-    # source.add(source.data["distance"], "x")
+    series_plots = {
+        name: plot.series(data_source,
+                          y=name,
+                          **plot.series_config.get(name, {}))
+        for name in y_measures
+    }
 
     histograms = {
         name: plot.histogram(data[name].values,
@@ -162,13 +169,12 @@ def view_activity(id_):
     # )
     # series_choice.js_on_click(series_choice_clicked)
 
-    plots = plot.recordings(data_source, y_measures)
-
     gridplot = bokeh.layouts.gridplot
     layout = gridplot(
         [
-            [plot, histogram]
-            for plot, histogram in zip(plots.values(), histograms.values())
+            [series, histogram]
+            for series, histogram in zip(series_plots.values(),
+                                         histograms.values())
         ],
     )
 

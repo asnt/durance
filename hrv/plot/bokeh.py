@@ -175,73 +175,60 @@ def recordings_overlay(source: bk.models.ColumnDataSource) \
     return figure
 
 
-def recordings(
+series_config = dict(
+    altitude=dict(
+        color="gray",
+    ),
+    heart_rate=dict(
+        color="orange",
+    ),
+    cadence=dict(
+        type_="scatter",
+        color="blue",
+    ),
+    stride_rate=dict(
+        type_="scatter",
+        color="blue",
+    ),
+)
+
+
+def series(
     source: bk.models.ColumnDataSource,
-    y_measures: list[str],
+    *,
+    y: str,
+    x: str = "x",
+    type_: str = "line",
+    color: str = "black",
+    line_width: int = 2,
 ) -> list[bk.plotting.Figure]:
-    """Plot standard recordings of an activity."""
-    figures = {}
+    """Plot a series for an activity."""
+    figure = bk.plotting.figure(height=128)
+    figure.grid.visible = False
 
-    config = dict(
-        altitude=dict(
-            type="line",
-            style=dict(color="gray"),
-            line=dict(line_color="gray", line_width=2),
-            axis=dict(side="left"),
-        ),
-        heart_rate=dict(
-            type="line",
-            style=dict(color="orange"),
-            line=dict(line_color="orange", line_width=2),
-            axis=dict(side="left"),
-        ),
-        cadence=dict(
-            type="scatter",
-            style=dict(color="blue"),
-            axis=dict(side="left"),
-        ),
-        stride_rate=dict(
-            type="scatter",
-            style=dict(color="blue"),
-            axis=dict(side="left"),
-        ),
-    )
-    for measure in y_measures:
-        params = config.get(measure, dict(type="line",
-                                          style=dict(),
-                                          line=dict(),
-                                          axis=dict(side="left")))
-        figure = bk.plotting.figure(height=128)
-        figure.grid.visible = False
-        if params["type"] == "line":
-            figure.line(
-                x="x",
-                y=measure,
-                source=source,
-                name=measure,
-                **params.get("line", {}),
-            )
-        elif params["type"] == "scatter":
-            figure.scatter(
-                x="x",
-                y=measure,
-                source=source,
-                name=measure,
-                **params.get("scatter", {}),
-            )
-        if "range_" in params["axis"]:
-            range_ = params["axis"]["range_"]
-        else:
-            y = source.data[measure]
-            range_ = y.min(), y.max()
-        figure.y_range = bk.models.Range1d(*range_)
-        figure.yaxis[0].axis_label = measure
-        figure.yaxis[0].axis_label_text_color = params["style"].get("color",
-                                                                    "black")
+    if type_ == "line":
+        figure.line(
+            x=x,
+            y=y,
+            source=source,
+            name=y,
+            color=color,
+        )
+    elif type_ == "scatter":
+        figure.scatter(
+            x=x,
+            y=y,
+            source=source,
+            name=y,
+            color=color,
+        )
+    y_data = source.data[y]
+    y_range = y_data.min(), y_data.max()
+    figure.y_range = bk.models.Range1d(*y_range)
+    figure.yaxis[0].axis_label = y
+    figure.yaxis[0].axis_label_text_color = color
 
-        figures[measure] = figure
-
-    return figures
+    return figure
 
 
 histogram_config = dict(
