@@ -230,6 +230,7 @@ def view_activity(id_):
             [series_plots[name], histograms[name]]
             for name in sorted(series_plots.keys())
         ],
+        sizing_mode="stretch_width",
     )
 
     script, div = bokeh.embed.components(layout)
