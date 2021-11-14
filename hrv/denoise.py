@@ -83,8 +83,12 @@ def inliers_from_deviation(rr):
     return mask_valid
 
 
-def inliers_from_moving_median(rr, window_size=31, method="absolute",
-                               threshold: float = 0.015):
+def inliers_from_moving_median(
+    rr: np.ndarray,
+    window_size: int = 31,
+    method: str = "absolute",
+    threshold: float = 0.015,
+) -> np.ndarray:
     """Find valid samples in an RR signal using a moving median.
 
     Parameters
