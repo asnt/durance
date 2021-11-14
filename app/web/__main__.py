@@ -163,7 +163,7 @@ def view_activity(id_):
         )
         histograms["stride_rate_running"] = plot.histogram(
             recordings_data["stride_rate"],
-            x_range=range_stride_running,
+            bins_range=range_stride_running,
         )
 
     if "rr" in recordings_data:
@@ -185,7 +185,7 @@ def view_activity(id_):
         )
         histograms["rr_relevant"] = plot.histogram(
             recordings_data["rr"],
-            x_range=relevant_range,
+            bins_range=relevant_range,
         )
 
     # figure = plot.recordings_overlay(data_source)
@@ -232,6 +232,9 @@ def view_activity(id_):
         ],
         sizing_mode="stretch_width",
     )
+    for histogram in histograms.values():
+        histogram.sizing_mode = "fixed"
+        histogram.width = 128
 
     script, div = bokeh.embed.components(layout)
 

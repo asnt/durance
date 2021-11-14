@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 import bokeh as bk
 import bokeh.layouts
@@ -239,37 +239,56 @@ def series(
 
 histogram_config = dict(
     heart_rate=dict(
-        x_range=(90, 200),
+        bins_range=(90, 200),
     ),
     speed=dict(
-        x_range=(5, 20),
+        bins_range=(5, 20),
     ),
     stride_rate=dict(
-        x_range=(100, 200),
+        bins_range=(100, 200),
     ),
 )
 
 
 def histogram(
     array: np.ndarray,
-    x_range: Optional[tuple[int, int]] = None,
+    bins_range: Optional[tuple[int, int]] = None,
     n_bins: int = 64,
+    direction: str = "horizontal",
 ) -> bk.plotting.Figure:
     """Plot the histogram of an array."""
+    assert direction in ("vertical", "horizontal")
 
     figure = bk.plotting.figure(height=128)
     figure.grid.visible = False
     figure.toolbar_location = None
     figure.tools = []
 
-    if x_range is not None:
-        bins = np.linspace(x_range[0], x_range[1], n_bins + 1)
+    bins: Union[int, np.ndarray]
+    if bins_range is not None:
+        bins = np.linspace(bins_range[0], bins_range[1], n_bins + 1)
     else:
         bins = n_bins
     frequencies, edges = np.histogram(array, density=True, bins=bins)
-    figure.quad(top=frequencies, bottom=0, left=edges[:-1], right=edges[1:])
-    figure.y_range.start = 0
-    if x_range is not None:
-        figure.x_range = bk.models.Range1d(*x_range)
+    if direction == "vertical":
+        bottom = 0
+        top = frequencies
+        left = edges[:-1]
+        right = edges[1:]
+    else:
+        left = 0
+        right = frequencies
+        bottom = edges[:-1]
+        top = edges[1:]
+    figure.quad(top=top, bottom=bottom, left=left, right=right)
+
+    if direction == "vertical":
+        figure.y_range.start = 0
+        if bins_range is not None:
+            figure.x_range = bk.models.Range1d(*bins_range)
+    else:
+        figure.x_range.start = 0
+        if bins_range is not None:
+            figure.y_range = bk.models.Range1d(*bins_range)
 
     return figure
