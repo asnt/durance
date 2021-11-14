@@ -83,7 +83,8 @@ def inliers_from_deviation(rr):
     return mask_valid
 
 
-def inliers_from_moving_median(rr, window_size=31):
+def inliers_from_moving_median(rr, window_size=31, method="absolute",
+                               threshold: float = 0.015):
     """Find valid samples in an RR signal using a moving median.
 
     Parameters
@@ -92,12 +93,22 @@ def inliers_from_moving_median(rr, window_size=31):
         (n,) signal of RR intervals.
     window_size: int
         Size of the moving window.
+    method: {"absolute", "quantile"}
+        Method to determine inliers.
+    threshold: float
+        Maxixum distance from the moving median for an inlier. Maximum
+        deviation in seconds for method 'absolute' (e.g. 0.015). Quantile value
+        (unitless) in (0, 1) for method 'quantile' (e.g. 0.85).
 
     Returns
     -------
     mask_valid: array-like
         (n,) boolen mask array of the valid samples.
     """
+    assert method in ("absolute", "quantile")
+    if method == "quantile":
+        assert 0 < threshold < 1.0
+
     pad_before = window_size // 2
     pad_after = window_size - pad_before - 1
     pad_widths = pad_before, pad_after
@@ -113,20 +124,12 @@ def inliers_from_moving_median(rr, window_size=31):
     medians = np.nanmedian(windows, axis=1)
     deviations = np.abs(rr - medians)
 
-    # Determine the threshold for outliers.
-    # 1) From statistics on the whole signal.
-    #    For Polar H10.
-    # threshold = np.quantile(deviations, 0.80)
-    threshold = np.quantile(deviations, 0.85)
-    #    For Garmin HRM-Dual.
-    # threshold = np.quantile(deviations, 0.90)
-    # 2) From statistics on the past window.
-    #    XXX: Does not seem to work as well as the global statistics on a
-    #    single example 20211011-run-easy.
-    # windows_deviations = np.abs(windows - medians[:, None])
-    # threshold = np.quantile(windows_deviations, 0.8, axis=1)
+    if method == "absolute":
+        threshold_ = threshold
+    elif method == "quantile":
+        threshold_ = np.quantile(deviations, threshold)
 
-    mask_valid = deviations < threshold
+    mask_valid = deviations < threshold_
 
     return mask_valid
 
