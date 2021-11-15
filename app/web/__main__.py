@@ -118,7 +118,10 @@ def view_activity(id_):
     data = pd.DataFrame.from_dict(recordings_series)
 
     # Replace NaN values using neighbors.
+    # Forwards.
     data = data.interpolate()
+    # Backwards.
+    data = data.interpolate(method="backfill")
 
     # TODO: Add map plot.
     # positions_names = ("position_lat", "position_long")
