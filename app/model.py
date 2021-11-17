@@ -95,7 +95,7 @@ def create(engine):
     Base.metadata.create_all(engine)
 
 
-def hash_file(path: os.PathLike) -> bool:
+def hash_file(path: os.PathLike) -> str:
     import hashlib
     digest_size = 16
     hasher = hashlib.blake2b(digest_size=digest_size)
