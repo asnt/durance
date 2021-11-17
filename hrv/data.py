@@ -2,7 +2,7 @@ import collections
 import datetime
 import os
 import pathlib
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import fitparse
 import numpy as np
@@ -115,6 +115,8 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
             datetime_end = data_event["timestamp"]
 
     heartrate = recordings.get("heart_rate")
+    heartrate_mean: Optional[int]
+    heartrate_median: Optional[int]
     if heartrate is not None:
         heartrate_mean = int(np.nanmean(heartrate))
         heartrate_median = int(np.nanmedian(heartrate))
