@@ -52,11 +52,40 @@ def index():
     activity_data = session.execute(query).all()
     activity_ids = [values[0] for values in activity_data]
     activity_values = [values[1:] for values in activity_data]
+
+    pairs = zip(fields, zip(*activity_values))
+    calendar_data = dict(pairs)
+    calendar_data["active"] = [1] * len(list(calendar_data.values())[0])
+    # time = next(zip(*activity_values))
+    # calendar_data = {
+    #     "time": time,
+    #     "active": [1] * len(time),
+    #     "duration":
+    # }
+    import bokeh.models
+    data_source = bokeh.models.ColumnDataSource(calendar_data)
+
+    import bokeh.plotting
+    figure = bokeh.plotting.figure(height=128, sizing_mode="stretch_width",
+                                   x_axis_type="datetime")
+    figure.grid.visible = False
+    scatter = figure.scatter(
+        x="datetime",
+        # y="active",
+        y="duration",
+        # y="HR (median)",
+        source=data_source,
+    )
+    # scatter.xaxis = bokeh.models.DatetimeAxis()
+    script, div = bokeh.embed.components(figure)
+
     return render_template(
         "activities.html",
         activity_ids=activity_ids,
         activity_fields=list(fields.keys()),
         activity_values=activity_values,
+        calendar_div=div,
+        calendar_script=script,
     )
 
 
