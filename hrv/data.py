@@ -131,7 +131,7 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
     duration = duration_s.item()
     distance = recordings["distance"][-1]
 
-    data = dict(
+    activity_data = dict(
         device_manufacturer=device_manufacturer,
         device_model=device_model,
 
@@ -149,7 +149,7 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         heartrate_median=heartrate_median,
     )
 
-    return data, recordings
+    return activity_data, recordings
 
 
 def load_fit_records(path):
