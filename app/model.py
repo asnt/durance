@@ -1,3 +1,4 @@
+import hashlib
 import io
 import os
 
@@ -96,7 +97,6 @@ def create(engine):
 
 
 def hash_file(path: os.PathLike) -> str:
-    import hashlib
     digest_size = 16
     hasher = hashlib.blake2b(digest_size=digest_size)
     with open(path, "rb") as file_:
