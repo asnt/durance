@@ -249,8 +249,7 @@ def _hrmonitorapp_parse_recordings(lines_recordings: list[str]) -> Dict:
     renames = dict(sec="timestamp", hr_bpm="heart_rate")
     headers = [renames.get(header, header) for header in headers]
 
-    values = tokens[1:]
-    values = np.array(values, dtype=float)
+    values = np.array(tokens[1:], dtype=float)
     values = values.T
 
     recordings = {
