@@ -77,9 +77,9 @@ class Recording(Base):
     activity_id = Column(Integer, ForeignKey("activities.id"))
 
 
-def make_engine(path="activities.db"):
+def make_engine(path: str = "activities.db"):
     global engine
-    url = f"sqlite:///{path}"
+    url: str = f"sqlite:///{path}"
     engine = sqlalchemy.create_engine(url)
     return engine
 
