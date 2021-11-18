@@ -47,8 +47,20 @@ def index():
 
         "HR (median)": Activity.heartrate_median,
     }
-    query = sa.select(Activity.id, *fields.values()) \
-        .order_by(Activity.datetime_start.desc())
+    date_min = None
+    date_max = None
+    if date_max is None:
+        date_max = datetime.date.today()
+    if date_min is None:
+        date_min = datetime.date.fromtimestamp(0)
+    query = sa.select(Activity.id, *fields.values())
+    query = query.where(
+        sa.and_(
+            Activity.datetime_start >= date_min,
+            Activity.datetime_start <= date_max,
+        )
+    )
+    query = query.order_by(Activity.datetime_start.desc())
     activity_data = session.execute(query).all()
     activity_ids = [values[0] for values in activity_data]
     activity_values = [values[1:] for values in activity_data]
