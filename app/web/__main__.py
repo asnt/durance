@@ -2,9 +2,9 @@ import datetime
 import importlib
 
 from flask import Flask, render_template
-from sqlalchemy import select
 import bokeh.embed
 import pandas as pd
+import sqlalchemy as sa
 
 import app.model
 
@@ -47,7 +47,7 @@ def index():
 
         "HR (median)": Activity.heartrate_median,
     }
-    query = select(Activity.id, *fields.values()) \
+    query = sa.select(Activity.id, *fields.values()) \
         .order_by(Activity.datetime_start.desc())
     activity_data = session.execute(query).all()
     activity_ids = [values[0] for values in activity_data]
@@ -108,13 +108,13 @@ def view_activity(id_):
 
         "HR (median)": Activity.heartrate_median,
     }
-    query = select(*fields.values()) \
+    query = sa.select(*fields.values()) \
         .where(Activity.id == id_)
     activity_values = session.execute(query).one()
     activity_data = dict(zip(fields.keys(), activity_values))
 
     Recording = app.model.Recording
-    query = select(Recording.name, Recording.array) \
+    query = sa.select(Recording.name, Recording.array) \
         .where(Recording.activity_id == id_)
     recordings_data = session.execute(query).all()
 
