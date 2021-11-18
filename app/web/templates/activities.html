@@ -10,6 +10,15 @@
         crossorigin="anonymous"></script>
 {% endblock %}
 {% block content %}
+<p>
+<form>
+<label for="date_min">From</label>
+<input type="date" name="date_min" id="date_min" value="{{ date_min }}">
+<label for="date_min">To</label>
+<input type="date" name="date_max" id="date_max" value="{{ date_max }}">
+<input type="submit" value="Reload">
+</form>
+</p>
   {{ calendar_div|safe }}
   {{ calendar_script|safe }}
 <table class="table">

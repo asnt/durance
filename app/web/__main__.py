@@ -1,7 +1,7 @@
 import datetime
 import importlib
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import bokeh.embed
 import pandas as pd
 import sqlalchemy as sa
@@ -31,8 +31,21 @@ def format_meters_to_km(meters):
 
 @flask_app.route("/", methods=["GET"])
 def index():
-    _ = app.model.make_engine()
-    session = app.model.make_session()
+    args = request.args
+
+    date_max_str = args.get("date_max", None)
+    if date_max_str is None:
+        date_max = datetime.date.today()
+    else:
+        date_max = datetime.date.fromisoformat(date_max_str)
+    date_max_plus_1_day = date_max + datetime.timedelta(days=1)
+
+    date_min_str = args.get("date_min", None)
+    if date_min_str is None:
+        date_min = date_max - datetime.timedelta(weeks=4)
+    else:
+        date_min = datetime.date.fromisoformat(date_min_str)
+
     Activity = app.model.Activity
     fields = {
         "datetime": Activity.datetime_start,
@@ -47,21 +60,20 @@ def index():
 
         "HR (median)": Activity.heartrate_median,
     }
-    date_min = None
-    date_max = None
-    if date_max is None:
-        date_max = datetime.date.today() + datetime.timedelta(days=1)
-    if date_min is None:
-        date_min = datetime.date.fromtimestamp(0)
+
     query = sa.select(Activity.id, *fields.values())
     query = query.where(
         sa.and_(
             Activity.datetime_start >= date_min,
-            Activity.datetime_start < date_max,
+            Activity.datetime_start < date_max_plus_1_day
         )
     )
     query = query.order_by(Activity.datetime_start.desc())
+
+    _ = app.model.make_engine()
+    session = app.model.make_session()
     activity_data = session.execute(query).all()
+
     activity_ids = [values[0] for values in activity_data]
     activity_values = [values[1:] for values in activity_data]
 
@@ -93,6 +105,8 @@ def index():
 
     return render_template(
         "activities.html",
+        date_min=date_min,
+        date_max=date_max,
         activity_ids=activity_ids,
         activity_fields=list(fields.keys()),
         activity_values=activity_values,
