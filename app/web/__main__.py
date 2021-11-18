@@ -92,13 +92,16 @@ def index():
     import bokeh.plotting
     figure = bokeh.plotting.figure(height=128, sizing_mode="stretch_width",
                                    x_axis_type="datetime")
-    figure.grid.visible = False
-    scatter = figure.scatter(
+    # figure.grid.visible = False
+    figure.vbar(
         x="datetime",
-        # y="active",
-        y="duration",
+        top="duration",
         # y="HR (median)",
         source=data_source,
+        # FIXME: Does not work as indicated in the doc. Bug?
+        # https://docs.bokeh.org/en/latest/docs/reference/plotting/figure.html#bokeh.plotting.Figure.vbar
+        # width=10,
+        line_width=2,
     )
     # scatter.xaxis = bokeh.models.DatetimeAxis()
     script, div = bokeh.embed.components(figure)
