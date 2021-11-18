@@ -50,14 +50,14 @@ def index():
     date_min = None
     date_max = None
     if date_max is None:
-        date_max = datetime.date.today()
+        date_max = datetime.date.today() + datetime.timedelta(days=1)
     if date_min is None:
         date_min = datetime.date.fromtimestamp(0)
     query = sa.select(Activity.id, *fields.values())
     query = query.where(
         sa.and_(
             Activity.datetime_start >= date_min,
-            Activity.datetime_start <= date_max,
+            Activity.datetime_start < date_max,
         )
     )
     query = query.order_by(Activity.datetime_start.desc())
