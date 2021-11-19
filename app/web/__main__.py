@@ -92,6 +92,79 @@ def index():
     import bokeh.plotting
     figure = bokeh.plotting.figure(height=128, sizing_mode="stretch_width",
                                    x_axis_type="datetime")
+
+    dates = [
+        datetime_.date()
+        for datetime_ in calendar_data["datetime"]
+    ]
+
+    import collections
+    dates_per_month = collections.defaultdict(list)
+    for date in dates:
+        month = date.month
+        dates_per_month[month].append(date)
+    print(dates_per_month)
+    def min_date(dates):
+        import functools
+        return functools.reduce(
+            lambda x, y: min(x, y),
+            dates,
+            datetime.date.max,
+        )
+    min_date_per_month = {
+        month: min_date(dates)
+        for month, dates in dates_per_month.items()
+    }
+    print(min_date_per_month)
+    axis_months = bokeh.models.DatetimeAxis()                               # )
+    # XXX: Not sure how to define this. Does not work for less than "11".
+    months_invervals = list(range(11))
+    axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
+    axis_months.formatter.days = ["%m"]
+    axis_months.formatter.months = ["%m"]
+    axis_months.formatter.years = ["%m"]
+    figure.add_layout(axis_months, "below")
+
+    dates_per_year = collections.defaultdict(list)
+    for date in dates:
+        year = date.year
+        dates_per_year[year].append(date)
+    min_date_per_year = {
+        year: min_date(dates)
+        for year, dates in dates_per_year.items()
+    }
+    # TODO: Place a tick on the first day of each yet in the visible range,
+    # and on the first days of the visible range.
+    # axis_years = bokeh.models.Axis()
+    # axis_years.formatter = bokeh.models.()
+    # FIXME: Not sure how to convert a `date` or `datetime` to a float value
+    # that the x axis understands.
+    # date_nums = [
+    #     datetime.datetime(date.year, date.month, date.day).timestamp()
+    #     for date in min_date_per_year.values()
+    # ]
+    # print(date_nums)
+    # axis_years.ticker = bokeh.models.FixedTicker(
+    #     ticks=date_nums,
+    # )
+    axis_years = bokeh.models.DatetimeAxis()
+    # FIXME: I think this puts a tick at each first day of each year only. Not
+    # sure how to adapt place at a late day if the x-axis range does not
+    # contain the first day.
+    # XXX: This might be sufficient for now.
+    axis_years.ticker = bokeh.models.YearsTicker()
+    # XXX: Repeat the year on the first day of each month for now.
+    # axis_years.ticker = bokeh.models.MonthsTicker(
+    axis_years.formatter.days = ["%Y"]
+    axis_years.formatter.months = ["%Y"]
+    axis_years.formatter.years = ["%Y"]
+    figure.add_layout(axis_years, "below")
+
+    figure.xaxis[0].formatter.days = ["%d"]
+    # Note: Cover all "days intervals" for each month.
+    # `list(range(5))` would display tick only for days 1, 2, 3 and 4.
+    days_intervals = list(range(32))
+    figure.xaxis[0].ticker = bokeh.models.DaysTicker(days=days_intervals)
     # figure.grid.visible = False
     figure.vbar(
         x="datetime",
@@ -103,7 +176,6 @@ def index():
         # width=10,
         line_width=2,
     )
-    # scatter.xaxis = bokeh.models.DatetimeAxis()
     script, div = bokeh.embed.components(figure)
 
     return render_template(
