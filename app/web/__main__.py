@@ -182,6 +182,17 @@ def index():
     )
     figure.add_layout(yaxis_right, "right")
 
+    figure.xaxis[0].axis_line_alpha = 0
+    figure.xaxis[0].major_tick_in = 0
+    axis_months.axis_line_alpha = 0
+    axis_months.major_tick_in = 0
+    axis_years.axis_line_alpha = 0
+    axis_years.major_tick_in = 0
+    for axis in figure.yaxis:
+        axis.major_tick_in = 0
+        axis.minor_tick_line_alpha = 0
+        axis.axis_line_alpha = 0
+
     figure.vbar(
         x="datetime",
         top="duration",
