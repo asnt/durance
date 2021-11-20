@@ -169,10 +169,15 @@ def index():
 
     # XXX: Assume time on the y axis.
     time_tick_formatter = bokeh.models.NumeralTickFormatter(format="00:00:00")
+    interval_minutes = 30
+    interval_seconds = interval_minutes * 60
+    time_ticker = bokeh.models.SingleIntervalTicker(interval=interval_seconds)
+
     figure.yaxis[0].formatter = time_tick_formatter
+    figure.yaxis[0].ticker = time_ticker
     # Duplicate y axis on the right for legibility when the plot is wide.
     yaxis_right = bokeh.models.ContinuousAxis(
-        ticker=bokeh.models.BasicTicker(),
+        ticker=time_ticker,
         formatter=time_tick_formatter,
     )
     figure.add_layout(yaxis_right, "right")
