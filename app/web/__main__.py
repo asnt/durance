@@ -166,6 +166,17 @@ def index():
     days_intervals = list(range(32))
     figure.xaxis[0].ticker = bokeh.models.DaysTicker(days=days_intervals)
     # figure.grid.visible = False
+
+    # XXX: Assume time on the y axis.
+    time_tick_formatter = bokeh.models.NumeralTickFormatter(format="00:00:00")
+    figure.yaxis[0].formatter = time_tick_formatter
+    # Duplicate y axis on the right for legibility when the plot is wide.
+    yaxis_right = bokeh.models.ContinuousAxis(
+        ticker=bokeh.models.BasicTicker(),
+        formatter=time_tick_formatter,
+    )
+    figure.add_layout(yaxis_right, "right")
+
     figure.vbar(
         x="datetime",
         top="duration",
