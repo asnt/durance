@@ -314,7 +314,7 @@ def view_activity(id_):
 
     # Plot again, focussing the range on the running (i.e. higher frequency).
     if "stride_rate" in data_source.data:
-        range_stride_running = (150, 200)
+        range_stride_running = (160, 190)
         series_plots["stride_rate_running"] = plot.series(
             data_source,
             y="stride_rate",
