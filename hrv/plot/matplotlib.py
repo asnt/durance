@@ -215,6 +215,7 @@ def overlay(df, cmap="Spectral"):
         heartrate=dict(
             color="orangered",
             alpha=0.25,
+            linewidth=2,
         ),
         sdnn=dict(
             color="darkgray",
