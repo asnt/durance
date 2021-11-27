@@ -20,7 +20,7 @@ Base = sqlalchemy.orm.declarative_base()
 
 
 class NumpyArray(TypeDecorator):
-    """A data type for numpy arrays."""
+    """A SQLAlchemy data type for numpy arrays."""
     # https://docs.sqlalchemy.org/en/13/core/custom_types.html#marshal-json-strings
 
     impl = LargeBinary
