@@ -52,7 +52,7 @@ def index():
         date_min = datetime.date.fromisoformat(date_min_str)
 
     Activity = app.model.Activity
-    fields = {
+    activity_fields = {
         "datetime": Activity.datetime_start,
 
         "name": Activity.name,
@@ -60,13 +60,13 @@ def index():
         "sub_sport": Activity.sub_sport,
         "workout": Activity.workout,
 
+        # TODO: Use summary values instead.
         "duration": Activity.duration,
-        "distance (km)": Activity.distance,
-
-        "HR (median)": Activity.heartrate_median,
+        "km": Activity.distance,
+        "HR": Activity.heartrate_median,
     }
 
-    query = sa.select(Activity.id, *fields.values())
+    query = sa.select(Activity.id, *activity_fields.values())
     query = query.where(
         sa.and_(
             Activity.datetime_start >= date_min,
@@ -79,10 +79,20 @@ def index():
     session = app.model.make_session()
     activity_data = session.execute(query).all()
 
+    # Summary = app.model.Summary
+    # query = sa.select(Summary).where(activity_id == activity_data.id)
+    #     sa.and_(
+    #         Activity.datetime_start >= date_min,
+    #         Activity.datetime_start < date_max_plus_1_day
+    #     )
+    # )
+    # query = query.order_by(Activity.datetime_start.desc())
+    # activity_data = session.execute(query).all()
+
     activity_ids = [values[0] for values in activity_data]
     activity_values = [values[1:] for values in activity_data]
 
-    pairs = zip(fields, zip(*activity_values))
+    pairs = zip(activity_fields, zip(*activity_values))
     calendar_data = dict(pairs)
     calendar_data["active"] = [1] * len(list(calendar_data.values())[0])
     # time = next(zip(*activity_values))
@@ -215,7 +225,7 @@ def index():
         date_min=date_min,
         date_max=date_max,
         activity_ids=activity_ids,
-        activity_fields=list(fields.keys()),
+        activity_fields=list(activity_fields.keys()),
         activity_values=activity_values,
         calendar_div=div,
         calendar_script=script,
@@ -228,7 +238,7 @@ def view_activity(id_):
     session = app.model.make_session()
 
     Activity = app.model.Activity
-    fields = {
+    activity_fields = {
         "datetime": Activity.datetime_start,
 
         "name": Activity.name,
@@ -236,15 +246,15 @@ def view_activity(id_):
         "sub_sport": Activity.sub_sport,
         "workout": Activity.workout,
 
-        "duration": Activity.duration,
-        "distance (km)": Activity.distance,
+        # "duration": Activity.duration,
+        # "distance (km)": Activity.distance,
 
-        "HR (median)": Activity.heartrate_median,
+        # "HR (median)": Activity.heartrate_median,
     }
-    query = sa.select(*fields.values()) \
+    query = sa.select(*activity_fields.values()) \
         .where(Activity.id == id_)
     activity_values = session.execute(query).one()
-    activity_data = dict(zip(fields.keys(), activity_values))
+    activity_data = dict(zip(activity_fields.keys(), activity_values))
 
     Recording = app.model.Recording
     query = sa.select(Recording.name, Recording.array) \

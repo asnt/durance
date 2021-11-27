@@ -68,6 +68,31 @@ class Activity(Base):
     recordings = relationship("Recording")
 
 
+class Summary(Base):
+    """Global scalar statistics for an activity."""
+
+    __tablename__ = "summaries"
+
+    id = Column(Integer, primary_key=True)
+    activity_id = Column(Integer, ForeignKey("activities.id"))
+
+    # Seconds.
+    duration = Column(Integer)
+
+    # Metres.
+    distance = Column(Integer)
+    ascents = Column(Integer)
+    descents = Column(Integer)
+
+    # Median values.
+    # Beats per minute (bpm).
+    heart_rate = Column(Integer)
+    # Steps per minute (spm).
+    step_rate = Column(Integer)
+    # Metres/second.
+    speed = Column(Integer)
+
+
 class Recording(Base):
     __tablename__ = "recordings"
 

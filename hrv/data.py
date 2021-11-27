@@ -114,23 +114,6 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         elif data_event["event_type"] == "stop_all":
             datetime_end = data_event["timestamp"]
 
-    heartrate = recordings.get("heart_rate")
-    heartrate_mean: Optional[int]
-    heartrate_median: Optional[int]
-    if heartrate is not None:
-        heartrate_mean = int(np.nanmean(heartrate))
-        heartrate_median = int(np.nanmedian(heartrate))
-    else:
-        heartrate_mean = None
-        heartrate_median = None
-
-    timestamps = recordings["timestamp"]
-    time_start = timestamps[0]
-    time_end = timestamps[-1]
-    duration_s = time_end - time_start
-    duration = duration_s.item()
-    distance = recordings["distance"][-1]
-
     activity_data = dict(
         device_manufacturer=device_manufacturer,
         device_model=device_model,
@@ -141,12 +124,6 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         name=name,
         sport=sport,
         sub_sport=sub_sport,
-
-        duration=duration,
-        distance=distance,
-
-        heartrate_mean=heartrate_mean,
-        heartrate_median=heartrate_median,
     )
 
     return activity_data, recordings

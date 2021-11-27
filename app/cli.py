@@ -2,6 +2,7 @@ import argparse
 import pathlib
 import os
 
+import hrv.activity
 import hrv.data
 import app.model
 
@@ -24,16 +25,22 @@ def import_activity(path: os.PathLike) -> None:
 
     if app.model.has_activity(path):
         print("activity already imported")
-        return
+        # return
 
     activity_data, recordings_data = hrv.data.load(path)
     activity_data["file_hash"] = app.model.hash_file(path)
+    summary_data = hrv.activity.summarize(recordings_data)
 
     _ = app.model.make_engine()
     session = app.model.make_session()
 
     activity = app.model.Activity(**activity_data)
     session.add(activity)
+    session.commit()
+
+    # Note: Different commit to have an initialized activity id.
+    summary = app.model.Summary(**summary_data, activity_id=activity.id)
+    session.add(summary)
     session.commit()
 
     recordings = [
