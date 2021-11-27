@@ -124,12 +124,7 @@ def recordings_overlay(source: bk.models.ColumnDataSource) \
             line=dict(line_color="orange", line_width=2),
             axis=dict(side="left"),
         ),
-        cadence=dict(
-            type="scatter",
-            style=dict(color="blue"),
-            axis=dict(side="left"),
-        ),
-        stride_rate=dict(
+        step_rate=dict(
             type="scatter",
             style=dict(color="blue"),
             axis=dict(side="left"),
@@ -183,11 +178,7 @@ series_config = dict(
         color="orange",
         y_range=(90, 200),
     ),
-    cadence=dict(
-        type_="scatter",
-        color="blue",
-    ),
-    stride_rate=dict(
+    step_rate=dict(
         type_="scatter",
         color="blue",
         y_range=(100, 200),
