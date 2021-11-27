@@ -1,5 +1,6 @@
 import datetime
 import importlib
+from typing import Optional
 
 from flask import Flask, render_template, request
 import bokeh.embed
@@ -17,7 +18,11 @@ flask_app.jinja_env.globals.update(zip=zip)
 
 
 @flask_app.template_filter("seconds_to_dhms")
-def format_seconds_to_days_hours_minutes_seconds(seconds):
+def format_seconds_to_days_hours_minutes_seconds(
+    seconds: Optional[int],
+) -> Optional[str]:
+    if seconds is None:
+        return None
     duration = datetime.timedelta(seconds=seconds)
     return str(duration)
 
