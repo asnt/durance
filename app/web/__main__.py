@@ -256,17 +256,17 @@ def view_activity(id_):
         # From m/s to km/h.
         recordings_data["speed"] *= 1e-3 * 3600
     if "cadence" in recordings_data:
-        cadence = recordings_data["cadence"]
-        # Cadence [steps/foot/minute] to stride rate [strides/minutes].
-        recordings_data["stride_rate"] = 2 * cadence
-        del recordings_data["cadence"]
+        # strides/minute
+        stride_rate = recordings_data.pop("cadence")
+        # steps/minute
+        recordings_data["step_rate"] = 2 * stride_rate
 
     # XXX: For debugging.
     # for k, v in recordings_data.items():
     #     import numpy as np
     #     print(k, v.shape, v.dtype, np.isnan(v).sum())
     x_series_names = ("time", "distance")
-    y_series_names = ("altitude", "stride_rate", "heart_rate", "speed")
+    y_series_names = ("altitude", "step_rate", "heart_rate", "speed")
     recordings_series = {
         name: series
         for name, series in recordings_data.items()
@@ -292,7 +292,7 @@ def view_activity(id_):
     data_source = bokeh.models.ColumnDataSource(data)
 
     x_measures = ("distance", "index", "time")
-    allowed_y_measures = ("altitude", "stride_rate", "heart_rate", "speed")
+    allowed_y_measures = ("altitude", "step_rate", "heart_rate", "speed")
     y_measures = [
         measure
         for measure in allowed_y_measures
@@ -313,17 +313,17 @@ def view_activity(id_):
     }
 
     # Plot again, focussing the range on the running (i.e. higher frequency).
-    if "stride_rate" in data_source.data:
-        range_stride_running = (160, 190)
-        series_plots["stride_rate_running"] = plot.series(
+    if "step_rate" in data_source.data:
+        range_step_running = (160, 190)
+        series_plots["step_rate_running"] = plot.series(
             data_source,
-            y="stride_rate",
+            y="step_rate",
             type_="scatter",
-            y_range=range_stride_running,
+            y_range=range_step_running,
         )
-        histograms["stride_rate_running"] = plot.histogram(
-            recordings_data["stride_rate"],
-            bins_range=range_stride_running,
+        histograms["step_rate_running"] = plot.histogram(
+            recordings_data["step_rate"],
+            bins_range=range_step_running,
         )
 
     if "rr" in recordings_data:
