@@ -19,6 +19,27 @@ Session = None
 Base = sqlalchemy.orm.declarative_base()
 
 
+class NumpyArray(TypeDecorator):
+    """A data type for numpy arrays."""
+    # https://docs.sqlalchemy.org/en/13/core/custom_types.html#marshal-json-strings
+
+    impl = LargeBinary
+
+    def process_bind_param(self, value, dialect):
+        del dialect
+        if value is not None:
+            buffer = io.BytesIO()
+            np.save(buffer, value)
+        return buffer.getvalue()
+
+    def process_result_value(self, value, dialect):
+        del dialect
+        if value is not None:
+            buffer = io.BytesIO(value)
+            value = np.load(buffer)
+        return value
+
+
 class Activity(Base):
     __tablename__ = "activities"
 
@@ -45,27 +66,6 @@ class Activity(Base):
     # One-to-many: One activity, several recordings.
     # https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html?highlight=relationship#one-to-many
     recordings = relationship("Recording")
-
-
-class NumpyArray(TypeDecorator):
-    """A data type for numpy arrays."""
-    # https://docs.sqlalchemy.org/en/13/core/custom_types.html#marshal-json-strings
-
-    impl = LargeBinary
-
-    def process_bind_param(self, value, dialect):
-        del dialect
-        if value is not None:
-            buffer = io.BytesIO()
-            np.save(buffer, value)
-        return buffer.getvalue()
-
-    def process_result_value(self, value, dialect):
-        del dialect
-        if value is not None:
-            buffer = io.BytesIO(value)
-            value = np.load(buffer)
-        return value
 
 
 class Recording(Base):
