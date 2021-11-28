@@ -26,9 +26,16 @@ def summarize(recordings: Dict) -> Dict:
     duration = duration_s.item()
     distance = recordings["distance"][-1]
 
+    speed_series = recordings.get("speed")
+    speed: Optional[float] = None
+    if speed_series is not None:
+        speed_m_per_sec = np.nanmedian(speed_series)
+        speed = speed_m_per_sec * 1e-3 * 3600
+
     return dict(
         distance=distance,
         duration=duration,
+        speed=speed,
         heart_rate=heart_rate,
         step_rate=step_rate,
     )
