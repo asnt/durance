@@ -216,7 +216,8 @@ def index():
     figure.vbar(
         x="datetime_start",
         top="duration",
-        # y="HR (median)",
+        # top="heart_rate",
+        # top="distance",
         source=data_source,
         # FIXME: Does not work as indicated in the doc. Bug?
         # https://docs.bokeh.org/en/latest/docs/reference/plotting/figure.html#bokeh.plotting.Figure.vbar
