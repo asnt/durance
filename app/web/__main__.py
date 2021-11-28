@@ -281,8 +281,7 @@ def view_activity(id_):
     recordings_data = dict(recordings_data)
 
     # TODO: Add the relative time from the start of the activity.
-    recordings_data["time"] = recordings_data["timestamp"]
-    del recordings_data["timestamp"]
+    recordings_data["time"] = recordings_data.pop("timestamp")
 
     if "speed" in recordings_data:
         # From m/s to km/h.
