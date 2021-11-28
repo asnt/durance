@@ -28,7 +28,6 @@
       <th>time</th>
       <th>name</th>
       <th>sport</th>
-      <th>sub-sport</th>
       <th>duration</th>
       <th>km</th>
       <th>km/h</th>
@@ -46,8 +45,12 @@
           {{ activity.name if activity.name is not none else "unnamed" }}
         </a>
       </td>
-      <td>{{ activity.sport|ignore_generic }}</td>
-      <td>{{ activity.sub_sport|ignore_generic }}</td>
+      <td>
+          {{ activity.sport|ignore_generic }}
+          {% if activity.sub_sport != "generic" %}
+          ({{ (activity.sub_sport) }})
+          {% endif %}
+      </td>
       <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
       <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
       <td>{{ summary.speed|ignore_none }}</td>
