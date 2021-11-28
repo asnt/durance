@@ -36,12 +36,9 @@ def import_activity(path: os.PathLike) -> None:
 
     activity = app.model.Activity(**activity_data)
     session.add(activity)
-    session.commit()
 
-    # Note: Different commit to have an initialized activity id.
-    summary = app.model.Summary(**summary_data, activity_id=activity.id)
+    summary = app.model.Summary(**summary_data, activity=activity)
     session.add(summary)
-    session.commit()
 
     recordings = [
         app.model.Recording(
@@ -53,6 +50,7 @@ def import_activity(path: os.PathLike) -> None:
     ]
     for recording in recordings:
         session.add(recording)
+
     session.commit()
 
 
