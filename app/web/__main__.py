@@ -375,42 +375,6 @@ def view_activity(id_):
             bins_range=relevant_range,
         )
 
-    # figure = plot.recordings_overlay(data_source)
-    #
-    # series_names = data_source.column_names
-    # series_names.remove("index")
-    # default_active_names = ["heart_rate"]
-    # active = [
-    #     series_names.index(name)
-    #     for name in default_active_names
-    #     if name in series_names
-    # ]
-    # series_choice = bokeh.models.CheckboxButtonGroup(
-    #     labels=series_names,
-    #     active=active,
-    # )
-    # series_choice_clicked = bokeh.models.CustomJS(
-    #     args=dict(figure=figure),
-    #     code="""
-    # const labels = this.labels;
-    # const active = this.active;
-    # let visible = labels.map(_ => false);
-    # for (let index of active) {
-    #     visible[index] = true;
-    # }
-    # for (let index in labels) {
-    #     const results = figure.select(labels[index]);
-    #     if (results.length == 0) {
-    #         console.error("plot no found");
-    #         continue;
-    #     }
-    #     const plot = results[0];
-    #     plot.visible = visible[index];
-    # }
-# """,
-    # )
-    # series_choice.js_on_click(series_choice_clicked)
-
     gridplot = bokeh.layouts.gridplot
     layout = gridplot(
         [
