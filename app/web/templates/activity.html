@@ -12,6 +12,9 @@ Activity {{ id_ }} - {{ activity.name }}
         crossorigin="anonymous"></script>
 {% endblock %}
 {% block content %}
+<div class="container">
+<div class="row">
+<div class="col">
 <table class="table">
     <tr>
         <th>date</th>
@@ -34,6 +37,10 @@ Activity {{ id_ }} - {{ activity.name }}
             {% endif %}
         </td>
     </tr>
+</table>
+</div>
+<div class="col">
+<table class="table container">
     <tr>
         <th>duration</th>
         <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
@@ -56,6 +63,10 @@ Activity {{ id_ }} - {{ activity.name }}
     </tr>
     </tr>
 </table>
+</div>
+</div>
+</div>
+
   {{ div | safe }}
   {{ script | safe}}
 {% endblock %}
