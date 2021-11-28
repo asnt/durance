@@ -93,10 +93,18 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         datetimes = recordings["timestamp"]
         recordings["timestamp"] = numpy_datetime64_to_timestamp_s(datetimes)
 
-    data_sport = data["sport"][0]
-    name = data_sport["name"]
-    sport = data_sport["sport"]
-    sub_sport = data_sport["sub_sport"]
+    if "sport" in data:
+        data_sport = data["sport"][0]
+        name = data_sport["name"]
+        sport = data_sport["sport"]
+        sub_sport = data_sport["sub_sport"]
+    else:
+        # XXX: 'sport' record not always present.
+        data_session = data["session"][0]
+        # XXX: No name defined in 'session' record.
+        name = data_session.get("name", None)
+        sport = data_session["sport"]
+        sub_sport = data_session["sub_sport"]
 
     data_file_id = data["file_id"][0]
     device_manufacturer = data_file_id["manufacturer"]
