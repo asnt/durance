@@ -122,7 +122,7 @@ def index():
     for date in dates:
         month = date.month
         dates_per_month[month].append(date)
-    print(dates_per_month)
+
     def min_date(dates):
         import functools
         return functools.reduce(
@@ -130,12 +130,13 @@ def index():
             dates,
             datetime.date.max,
         )
+
     min_date_per_month = {
         month: min_date(dates)
         for month, dates in dates_per_month.items()
     }
-    print(min_date_per_month)
-    axis_months = bokeh.models.DatetimeAxis()                               # )
+
+    axis_months = bokeh.models.DatetimeAxis()
     # XXX: Not sure how to define this. Does not work for less than "11".
     months_invervals = list(range(11))
     axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
