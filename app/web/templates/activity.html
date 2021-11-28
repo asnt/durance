@@ -13,20 +13,48 @@ Activity {{ id_ }} - {{ activity.name }}
 {% endblock %}
 {% block content %}
 <table class="table">
-    {% for field, value in activity.items() %}
     <tr>
-        <th>{{ field }}</th>
-        {% if field == "duration" %}
-        <td>{{ value|seconds_to_dhms }}</td>
-        {% elif field.startswith("distance") %}
-        <td>{{ value|meters_to_km }}</td>
-        {% elif value is none or value == "generic" %}
-        <td>-</td>
-        {% else %}
-        <td>{{ value }}</td>
-        {% endif %}
+        <th>date</th>
+        <td>{{ activity.datetime_start.date()|ignore_none }}</td>
     </tr>
-    {% endfor %}
+    <tr>
+        <th>time</th>
+        <td>{{ activity.datetime_start.time()|ignore_none }}</td>
+    </tr>
+    <tr>
+        <th>name</th>
+        <td>{{ activity.name if activity.name is not none else "unnamed" }}</td>
+    </tr>
+    <tr>
+        <th>sport</th>
+        <td>
+            {{ activity.sport|ignore_generic }}
+            {% if activity.sub_sport != "generic" %}
+            ({{ (activity.sub_sport) }})
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>duration</th>
+        <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
+    </tr>
+    <tr>
+        <th>distance</th>
+        <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
+    </tr>
+    <tr>
+        <th>speed</th>
+        <td>{{ summary.speed|ignore_none }}</td>
+    </tr>
+    <tr>
+        <th>heart_rate</th>
+        <td>{{ summary.heart_rate|ignore_none }}</td>
+    </tr>
+    <tr>
+        <th>step_rate</th>
+        <td>{{ summary.step_rate|ignore_none }}</td>
+    </tr>
+    </tr>
 </table>
   {{ div | safe }}
   {{ script | safe}}

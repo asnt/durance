@@ -263,23 +263,15 @@ def view_activity(id_):
     session = app.model.make_session()
 
     Activity = app.model.Activity
-    activity_fields = {
-        "datetime": Activity.datetime_start,
-
-        "name": Activity.name,
-        "sport": Activity.sport,
-        "sub_sport": Activity.sub_sport,
-        "workout": Activity.workout,
-
-        # "duration": Activity.duration,
-        # "distance (km)": Activity.distance,
-
-        # "HR (median)": Activity.heartrate_median,
-    }
-    query = sa.select(*activity_fields.values()) \
+    Summary = app.model.Summary
+    query = (
+        sa
+        .select(Activity, Summary)
         .where(Activity.id == id_)
-    activity_values = session.execute(query).one()
-    activity_data = dict(zip(activity_fields.keys(), activity_values))
+        .join(Summary)
+    )
+    activity_summary = session.execute(query).one()
+    activity, summary = activity_summary
 
     Recording = app.model.Recording
     query = sa.select(Recording.name, Recording.array) \
@@ -441,7 +433,8 @@ def view_activity(id_):
     return render_template(
         "activity.html",
         id_=id_,
-        activity=activity_data,
+        activity=activity,
+        summary=summary,
         script=script,
         div=div,
     )
