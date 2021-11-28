@@ -6,7 +6,7 @@ import numpy as np
 import sqlalchemy
 import sqlalchemy.orm
 from sqlalchemy import select
-from sqlalchemy import Column, DateTime, Integer, LargeBinary, String
+from sqlalchemy import Column, DateTime, Float, Integer, LargeBinary, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TypeDecorator
@@ -94,7 +94,7 @@ class Summary(Base):
     # Steps per minute (spm).
     step_rate = Column(Integer)
     # Metres/second.
-    speed = Column(Integer)
+    speed = Column(Float)
 
     # One-to-one.
     # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
