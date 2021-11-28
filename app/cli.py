@@ -25,7 +25,7 @@ def import_activity(path: os.PathLike) -> None:
 
     if app.model.has_activity(path):
         print("activity already imported")
-        # return
+        return
 
     activity_data, recordings_data = hrv.data.load(path)
     activity_data["file_hash"] = app.model.hash_file(path)
