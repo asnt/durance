@@ -59,55 +59,52 @@ def index():
         date_min = datetime.date.fromisoformat(date_min_str)
 
     Activity = app.model.Activity
-    activity_fields = {
-        "datetime": Activity.datetime_start,
-
-        "name": Activity.name,
-        "sport": Activity.sport,
-        "sub_sport": Activity.sub_sport,
-        "workout": Activity.workout,
-
-        # TODO: Use summary values instead.
-        "duration": Activity.duration,
-        "km": Activity.distance,
-        "HR": Activity.heartrate_median,
-    }
-
-    query = sa.select(Activity.id, *activity_fields.values())
-    query = query.where(
-        sa.and_(
+    Summary = app.model.Summary
+    query = (
+        sa
+        .select(Activity, Summary)
+        .where(sa.and_(
             Activity.datetime_start >= date_min,
             Activity.datetime_start < date_max_plus_1_day
-        )
+        ))
+        .order_by(Activity.datetime_start.desc())
+        .join(Summary)
     )
-    query = query.order_by(Activity.datetime_start.desc())
 
     _ = app.model.make_engine()
     session = app.model.make_session()
-    activity_data = session.execute(query).all()
+    rows = session.execute(query).all()
 
-    # Summary = app.model.Summary
-    # query = sa.select(Summary).where(activity_id == activity_data.id)
-    #     sa.and_(
-    #         Activity.datetime_start >= date_min,
-    #         Activity.datetime_start < date_max_plus_1_day
-    #     )
-    # )
-    # query = query.order_by(Activity.datetime_start.desc())
-    # activity_data = session.execute(query).all()
+    activities, summaries = zip(*rows)
 
-    activity_ids = [values[0] for values in activity_data]
-    activity_values = [values[1:] for values in activity_data]
+    activity_fields = (
+        "datetime_start",
+        "name",
+        "sport",
+        "sub_sport",
+        "workout",
+    )
+    activity_series = {
+        field: [getattr(activity, field) for activity in activities]
+        for field in activity_fields
+    }
 
-    pairs = zip(activity_fields, zip(*activity_values))
-    calendar_data = dict(pairs)
-    calendar_data["active"] = [1] * len(list(calendar_data.values())[0])
-    # time = next(zip(*activity_values))
-    # calendar_data = {
-    #     "time": time,
-    #     "active": [1] * len(time),
-    #     "duration":
-    # }
+    summary_fields = (
+        "duration",
+        "distance",
+        "speed",
+        "ascents",
+        "descents",
+        "heart_rate",
+        "step_rate",
+    )
+    summary_series = {
+        field: [getattr(summary, field) for summary in summaries]
+        for field in summary_fields
+    }
+
+    calendar_data = activity_series | summary_series
+
     import bokeh.models
     data_source = bokeh.models.ColumnDataSource(calendar_data)
 
@@ -117,7 +114,7 @@ def index():
 
     dates = [
         datetime_.date()
-        for datetime_ in calendar_data["datetime"]
+        for datetime_ in calendar_data["datetime_start"]
     ]
 
     import collections
@@ -216,7 +213,7 @@ def index():
         axis.axis_line_alpha = 0
 
     figure.vbar(
-        x="datetime",
+        x="datetime_start",
         top="duration",
         # y="HR (median)",
         source=data_source,
@@ -231,9 +228,8 @@ def index():
         "activities.html",
         date_min=date_min,
         date_max=date_max,
-        activity_ids=activity_ids,
-        activity_fields=list(activity_fields.keys()),
-        activity_values=activity_values,
+        activities=activities,
+        summaries=summaries,
         calendar_div=div,
         calendar_script=script,
     )

@@ -24,39 +24,29 @@
 <table class="table">
   <thead>
     <tr>
-      {% for field in activity_fields %}
-      {% if field == "datetime" %}
       <th>date</th>
       <th>time</th>
-      {% else %}
-      <th>{{ field }}</th>
-      {% endif %}
-      {% endfor %}
+      <th>name</th>
+      <th>duration</th>
+      <th>distance</th>
+      <th>hr</th>
+      <th>spm</th>
     </tr>
   </thead>
   <tbody>
-    {% for id_, values in zip(activity_ids, activity_values) %}
+    {% for activity, summary in zip(activities, summaries) %}
     <tr>
-      {% for field, value in zip(activity_fields, values) %}
-      {% if field == "name" %}
+      <td>{{ activity.datetime_start.date()|ignore_none }}</td>
+      <td>{{ activity.datetime_start.time()|ignore_none }}</td>
       <td>
-        <a href={{ url_for("view_activity", id_=id_) }}>
-          {{ value }}
+        <a href={{ url_for("view_activity", id_=activity.id) }}>
+          {{ activity.name if activity.name is not none else "unnamed" }}
         </a>
       </td>
-      {% elif field == "datetime" %}
-      <td>{{ value.date() }}</td>
-      <td>{{ value.time() }}</td>
-      {% elif field == "duration" %}
-      <td>{{ value|seconds_to_dhms }}</td>
-      {% elif field.startswith("distance") %}
-      <td>{{ value|meters_to_km }}</td>
-      {% elif value is none or value == "generic" %}
-      <td>-</td>
-      {% else %}
-      <td>{{ value }}</td>
-      {% endif %}
-      {% endfor %}
+      <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
+      <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
+      <td>{{ summary.heart_rate|ignore_none }}</td>
+      <td>{{ summary.step_rate|ignore_none }}</td>
     </tr>
     {% endfor %}
   </tbody>
