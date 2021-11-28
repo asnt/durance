@@ -199,10 +199,8 @@ def index():
         query = query.where(Activity.sport == sport)
     query = (
         query
-        .where(sa.and_(
-            Activity.datetime_start >= date_min,
-            Activity.datetime_start < date_max_plus_1_day
-        ))
+        .where(Activity.datetime_start >= date_min)
+        .where(Activity.datetime_start < date_max_plus_1_day)
         .order_by(Activity.datetime_start.desc())
         .join(Summary)
     )
