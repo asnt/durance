@@ -12,17 +12,17 @@
 {% block content %}
 <p>
 <form>
-<label for="sport">Sport</label>
-<select name="sport" id="sport" value="{{ sport }}">
-  {% for sport_ in sports %}
-  <option value="{{ sport_ }}" {{ "selected" if sport_ == sport }}>{{ sport_ }}</option>
-  {% endfor %}
-</select>
-<label for="date_min">From</label>
-<input type="date" name="date_min" id="date_min" value="{{ date_min }}">
-<label for="date_min">To</label>
-<input type="date" name="date_max" id="date_max" value="{{ date_max }}">
-<input type="submit" value="Reload">
+    <label for="sport">Sport</label>
+    <select name="sport" id="sport" value="{{ sport }}">
+        {% for sport_ in sports %}
+        <option value="{{ sport_ }}" {{ "selected" if sport_ == sport }}>{{ sport_ }}</option>
+        {% endfor %}
+    </select>
+    <label for="date_min">From</label>
+    <input type="date" name="date_min" id="date_min" value="{{ date_min }}">
+    <label for="date_min">To</label>
+    <input type="date" name="date_max" id="date_max" value="{{ date_max }}">
+    <input type="submit" value="Reload">
 </form>
 </p>
   {{ history_div|safe }}
