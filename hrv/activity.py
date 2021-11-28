@@ -31,6 +31,7 @@ def summarize(recordings: Dict) -> Dict:
     if speed_series is not None:
         speed_m_per_sec = np.nanmedian(speed_series)
         speed = speed_m_per_sec * 1e-3 * 3600
+        speed = round(speed, ndigits=1)
 
     altitude_series = recordings.get("altitude")
     ascent: Optional[float] = None
