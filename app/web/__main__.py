@@ -174,6 +174,11 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
 def index():
     args = request.args
 
+    sports = ("", "running", "cycling", "swimming", "generic")
+    sport = args.get("sport", "")
+    if sport not in sports:
+        sport = ""
+
     date_max_str = args.get("date_max", None)
     if date_max_str is None:
         date_max = datetime.date.today()
@@ -189,9 +194,11 @@ def index():
 
     Activity = app.model.Activity
     Summary = app.model.Summary
+    query = sa.select(Activity, Summary)
+    if sport:
+        query = query.where(Activity.sport == sport)
     query = (
-        sa
-        .select(Activity, Summary)
+        query
         .where(sa.and_(
             Activity.datetime_start >= date_min,
             Activity.datetime_start < date_max_plus_1_day
@@ -239,6 +246,8 @@ def index():
 
     return render_template(
         "activities.html",
+        sports=sports,
+        sport=sport,
         date_min=date_min,
         date_max=date_max,
         activities=activities,
