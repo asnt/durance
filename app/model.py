@@ -101,6 +101,10 @@ class Recording(Base):
     array = Column(NumpyArray)
     activity_id = Column(Integer, ForeignKey("activities.id"))
 
+    # One-to-many.
+    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-many
+    activity = relationship("Activity", back_populates="recordings")
+
 
 def make_engine(path: str = "activities.db"):
     global engine
