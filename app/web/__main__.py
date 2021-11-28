@@ -1,6 +1,6 @@
 import datetime
 import importlib
-from typing import Optional
+from typing import Any, Optional
 
 from flask import Flask, render_template, request
 import bokeh.embed
@@ -15,6 +15,13 @@ flask_app = Flask(__name__)
 
 # Expose the zip built-in inside Jinja templates.
 flask_app.jinja_env.globals.update(zip=zip)
+
+
+@flask_app.template_filter("ignore_none")
+def format_none_to_nothing(data: Optional[Any]) -> str:
+    if data is None:
+        return ""
+    return data
 
 
 @flask_app.template_filter("seconds_to_dhms")
