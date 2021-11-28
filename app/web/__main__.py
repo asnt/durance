@@ -387,15 +387,15 @@ def view_activity(id_):
         histogram.sizing_mode = "fixed"
         histogram.width = 128
 
-    script, div = bokeh.embed.components(layout)
+    plots_script, plots_div = bokeh.embed.components(layout)
 
     return render_template(
         "activity.html",
         id_=id_,
         activity=activity,
         summary=summary,
-        script=script,
-        div=div,
+        plots_script=plots_script,
+        plots_div=plots_div,
     )
 
 
