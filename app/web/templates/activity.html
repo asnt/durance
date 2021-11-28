@@ -46,27 +46,27 @@ Activity {{ id_ }} - {{ activity.name }}
         <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
     </tr>
     <tr>
-        <th>distance</th>
+        <th>km</th>
         <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
     </tr>
     <tr>
-        <th>speed</th>
+        <th>km/h</th>
         <td>{{ summary.speed|ignore_none }}</td>
     </tr>
     <tr>
-        <th>heart_rate</th>
+        <th>hr</th>
         <td>{{ summary.heart_rate|ignore_none }}</td>
     </tr>
     <tr>
-        <th>step_rate</th>
+        <th>steps/min</th>
         <td>{{ summary.step_rate|ignore_none }}</td>
     </tr>
     <tr>
-        <th>ascents</th>
+        <th>ascent</th>
         <td>{{ summary.ascents|ignore_none }}</td>
     </tr>
     <tr>
-        <th>descents</th>
+        <th>descent</th>
         <td>{{ summary.descents|ignore_none }}</td>
     </tr>
 </table>
