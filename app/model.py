@@ -63,6 +63,10 @@ class Activity(Base):
     heartrate_mean = Column(Integer)
     heartrate_median = Column(Integer)
 
+    # One-to-one.
+    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
+    summary = relationship("Summary", back_populates="activity", uselist=False)
+
     # One-to-many: One activity, several recordings.
     # https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html?highlight=relationship#one-to-many
     recordings = relationship("Recording")
@@ -91,6 +95,10 @@ class Summary(Base):
     step_rate = Column(Integer)
     # Metres/second.
     speed = Column(Integer)
+
+    # One-to-one.
+    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
+    activity = relationship("Activity", back_populates="summary")
 
 
 class Recording(Base):
