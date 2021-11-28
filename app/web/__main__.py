@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 from flask import Flask, render_template, request
 import bokeh.embed
+import bokeh.model
 import bokeh.plotting
 import pandas as pd
 import sqlalchemy as sa
@@ -257,6 +258,84 @@ def index():
     )
 
 
+def make_activity_plots(series: Dict,
+                        series_hrv: Dict
+                        ) -> bokeh.model.model.Model:
+    plot = importlib.import_module("hrv.plot.bokeh")
+    data_source = bokeh.models.ColumnDataSource(series)
+
+    x_measures = ("distance", "index", "time")
+    allowed_y_measures = ("altitude", "step_rate", "heart_rate", "speed")
+    y_measures = [
+        measure
+        for measure in allowed_y_measures
+        if measure in data_source.data
+    ]
+
+    series_plots = {
+        name: plot.series(data_source,
+                          y=name,
+                          **plot.series_config.get(name, {}))
+        for name in y_measures
+    }
+
+    histograms = {
+        name: plot.histogram(series[name].values,
+                             **plot.histogram_config.get(name, {}))
+        for name in y_measures
+    }
+
+    # Plot again, focussing the range on the running (i.e. higher frequency).
+    if "step_rate" in data_source.data:
+        range_step_running = (160, 190)
+        series_plots["step_rate_running"] = plot.series(
+            data_source,
+            y="step_rate",
+            type_="scatter",
+            y_range=range_step_running,
+        )
+        histograms["step_rate_running"] = plot.histogram(
+            # recordings_data["step_rate"],
+            series["step_rate"],
+            bins_range=range_step_running,
+        )
+
+    if "rr" in series_hrv:
+        rr = series_hrv["rr"]
+        hrv_source = bokeh.models.ColumnDataSource()
+        hrv_source.add(rr, "rr")
+        import numpy as np
+        hrv_source.add(np.arange(len(rr)), "x")
+        series_plots["rr"] = plot.series(hrv_source, y="rr", type_="scatter")
+        histograms["rr"] = plot.histogram(rr)
+
+        relevant_range = (0.3, 0.65)
+        series_plots["rr_relevant"] = plot.series(
+            hrv_source,
+            y="rr",
+            type_="scatter",
+            y_range=relevant_range,
+        )
+        histograms["rr_relevant"] = plot.histogram(
+            rr,
+            bins_range=relevant_range,
+        )
+
+    gridplot = bokeh.layouts.gridplot
+    layout = gridplot(
+        [
+            [series_plots[name], histograms[name]]
+            for name in sorted(series_plots.keys())
+        ],
+        sizing_mode="stretch_width",
+    )
+    for histogram in histograms.values():
+        histogram.sizing_mode = "fixed"
+        histogram.width = 128
+
+    return layout
+
+
 @flask_app.route("/activity/<id_>", methods=["GET"])
 def view_activity(id_):
     _ = app.model.make_engine()
@@ -315,79 +394,13 @@ def view_activity(id_):
     # data["x"] = data["time"]
     # data["x"] = data["distance"]
 
-    plot = importlib.import_module("hrv.plot.bokeh")
-    data_source = bokeh.models.ColumnDataSource(data)
-
-    x_measures = ("distance", "index", "time")
-    allowed_y_measures = ("altitude", "step_rate", "heart_rate", "speed")
-    y_measures = [
-        measure
-        for measure in allowed_y_measures
-        if measure in data_source.data
-    ]
-
-    series_plots = {
-        name: plot.series(data_source,
-                          y=name,
-                          **plot.series_config.get(name, {}))
-        for name in y_measures
-    }
-
-    histograms = {
-        name: plot.histogram(data[name].values,
-                             **plot.histogram_config.get(name, {}))
-        for name in y_measures
-    }
-
-    # Plot again, focussing the range on the running (i.e. higher frequency).
-    if "step_rate" in data_source.data:
-        range_step_running = (160, 190)
-        series_plots["step_rate_running"] = plot.series(
-            data_source,
-            y="step_rate",
-            type_="scatter",
-            y_range=range_step_running,
-        )
-        histograms["step_rate_running"] = plot.histogram(
-            recordings_data["step_rate"],
-            bins_range=range_step_running,
-        )
-
+    series = data.to_dict(orient="series")
+    series_hrv = dict()
     if "rr" in recordings_data:
-        hrv_source = bokeh.models.ColumnDataSource()
-        hrv_source.add(recordings_data["rr"], "rr")
-        import numpy as np
-        hrv_source.add(np.arange(len(recordings_data["rr"])), "x")
-        series_plots["rr"] = plot.series(hrv_source,
-                                         y="rr",
-                                         type_="scatter")
-        histograms["rr"] = plot.histogram(recordings_data["rr"])
+        series_hrv["rr"] = recordings_data["rr"]
 
-        relevant_range = (0.3, 0.65)
-        series_plots["rr_relevant"] = plot.series(
-            hrv_source,
-            y="rr",
-            type_="scatter",
-            y_range=relevant_range,
-        )
-        histograms["rr_relevant"] = plot.histogram(
-            recordings_data["rr"],
-            bins_range=relevant_range,
-        )
-
-    gridplot = bokeh.layouts.gridplot
-    layout = gridplot(
-        [
-            [series_plots[name], histograms[name]]
-            for name in sorted(series_plots.keys())
-        ],
-        sizing_mode="stretch_width",
-    )
-    for histogram in histograms.values():
-        histogram.sizing_mode = "fixed"
-        histogram.width = 128
-
-    plots_script, plots_div = bokeh.embed.components(layout)
+    model = make_activity_plots(series, series_hrv)
+    plots_script, plots_div = bokeh.embed.components(model)
 
     return render_template(
         "activity.html",
