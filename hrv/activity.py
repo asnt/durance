@@ -33,21 +33,21 @@ def summarize(recordings: Dict) -> Dict:
         speed = speed_m_per_sec * 1e-3 * 3600
 
     altitude_series = recordings.get("altitude")
-    ascents: Optional[float] = None
-    descents: Optional[float] = None
+    ascent: Optional[float] = None
+    descent: Optional[float] = None
     if altitude_series is not None:
         diff = np.diff(altitude_series)
-        mask_ascents = diff > 0
-        ascents = round(diff[mask_ascents].sum())
-        mask_descents = diff < 0
-        descents = round(diff[mask_descents].sum())
+        mask_ascent = diff > 0
+        ascent = round(diff[mask_ascent].sum())
+        mask_descent = diff < 0
+        descent = round(diff[mask_descent].sum())
 
     return dict(
         distance=distance,
         duration=duration,
         speed=speed,
-        ascents=ascents,
-        descents=descents,
+        ascent=ascent,
+        descent=descent,
         heart_rate=heart_rate,
         step_rate=step_rate,
     )

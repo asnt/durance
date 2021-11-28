@@ -85,8 +85,8 @@ class Summary(Base):
 
     # Metres.
     distance = Column(Integer)
-    ascents = Column(Integer)
-    descents = Column(Integer)
+    ascent = Column(Integer)
+    descent = Column(Integer)
 
     # Median values.
     # Beats per minute (bpm).

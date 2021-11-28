@@ -230,8 +230,8 @@ def index():
         "duration",
         "distance",
         "speed",
-        "ascents",
-        "descents",
+        "ascent",
+        "descent",
         "heart_rate",
         "step_rate",
     )
