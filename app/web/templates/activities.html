@@ -31,6 +31,7 @@
       <th>sub-sport</th>
       <th>duration</th>
       <th>km</th>
+      <th>km/h</th>
       <th>hr</th>
       <th>spm</th>
     </tr>
@@ -49,6 +50,7 @@
       <td>{{ activity.sub_sport|ignore_generic }}</td>
       <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
       <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
+      <td>{{ summary.speed|ignore_none }}</td>
       <td>{{ summary.heart_rate|ignore_none }}</td>
       <td>{{ summary.step_rate|ignore_none }}</td>
     </tr>
