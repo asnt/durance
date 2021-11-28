@@ -159,7 +159,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     import bokeh.models
     source = bokeh.models.ColumnDataSource(series_shown)
 
-    return figure.vbar(
+    figure.vbar(
         x=x,
         top=y,
         source=source,
@@ -168,6 +168,8 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         # width=10,
         line_width=2,
     )
+
+    return figure
 
 
 @flask_app.route("/", methods=["GET"])
