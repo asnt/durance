@@ -212,38 +212,44 @@ def index():
     session = app.model.make_session()
     rows = session.execute(query).all()
 
-    activities, summaries = zip(*rows)
-
-    activity_fields = (
-        "datetime_start",
-        "name",
-        "sport",
-        "sub_sport",
-        "workout",
+    activity_series = dict(
+        datetime_start=[],
+        name=[],
+        sport=[],
+        sub_sport=[],
+        workout=[],
     )
-    activity_series = {
-        field: [getattr(activity, field) for activity in activities]
-        for field in activity_fields
-    }
 
-    summary_fields = (
-        "duration",
-        "distance",
-        "speed",
-        "ascent",
-        "descent",
-        "heart_rate",
-        "step_rate",
+    summary_series = dict(
+        duration=[],
+        distance=[],
+        speed=[],
+        ascent=[],
+        descent=[],
+        heart_rate=[],
+        step_rate=[],
     )
-    summary_series = {
-        field: [getattr(summary, field) for summary in summaries]
-        for field in summary_fields
-    }
 
-    data_series = activity_series | summary_series
+    activities = []
+    summaries = []
+    script = ""
+    div = ""
 
-    figure = make_figure_activities_history(data_series)
-    script, div = bokeh.embed.components(figure)
+    if rows:
+        activities, summaries = zip(*rows)
+        for field in activity_series:
+            activity_series[field] = [
+                getattr(activity, field) for activity in activities
+            ]
+        for field in summary_series:
+            summary_series[field] = [
+                getattr(summary, field) for summary in summaries
+            ]
+
+        data_series = activity_series | summary_series
+
+        figure = make_figure_activities_history(data_series)
+        script, div = bokeh.embed.components(figure)
 
     return render_template(
         "activities.html",
