@@ -1,9 +1,10 @@
 import datetime
 import importlib
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from flask import Flask, render_template, request
 import bokeh.embed
+import bokeh.plotting
 import pandas as pd
 import sqlalchemy as sa
 
@@ -20,6 +21,13 @@ flask_app.jinja_env.globals.update(zip=zip)
 @flask_app.template_filter("ignore_none")
 def format_none_to_nothing(data: Optional[Any]) -> str:
     if data is None:
+        return ""
+    return data
+
+
+@flask_app.template_filter("ignore_generic")
+def format_genertic_to_nothing(data: Optional[Any]) -> Optional[Any]:
+    if data == "generic":
         return ""
     return data
 
@@ -41,81 +49,12 @@ def format_meters_to_km(meters):
     return f"{meters / 1000:.1f}"
 
 
-@flask_app.route("/", methods=["GET"])
-def index():
-    args = request.args
-
-    date_max_str = args.get("date_max", None)
-    if date_max_str is None:
-        date_max = datetime.date.today()
-    else:
-        date_max = datetime.date.fromisoformat(date_max_str)
-    date_max_plus_1_day = date_max + datetime.timedelta(days=1)
-
-    date_min_str = args.get("date_min", None)
-    if date_min_str is None:
-        date_min = date_max - datetime.timedelta(weeks=4)
-    else:
-        date_min = datetime.date.fromisoformat(date_min_str)
-
-    Activity = app.model.Activity
-    Summary = app.model.Summary
-    query = (
-        sa
-        .select(Activity, Summary)
-        .where(sa.and_(
-            Activity.datetime_start >= date_min,
-            Activity.datetime_start < date_max_plus_1_day
-        ))
-        .order_by(Activity.datetime_start.desc())
-        .join(Summary)
-    )
-
-    _ = app.model.make_engine()
-    session = app.model.make_session()
-    rows = session.execute(query).all()
-
-    activities, summaries = zip(*rows)
-
-    activity_fields = (
-        "datetime_start",
-        "name",
-        "sport",
-        "sub_sport",
-        "workout",
-    )
-    activity_series = {
-        field: [getattr(activity, field) for activity in activities]
-        for field in activity_fields
-    }
-
-    summary_fields = (
-        "duration",
-        "distance",
-        "speed",
-        "ascents",
-        "descents",
-        "heart_rate",
-        "step_rate",
-    )
-    summary_series = {
-        field: [getattr(summary, field) for summary in summaries]
-        for field in summary_fields
-    }
-
-    calendar_data = activity_series | summary_series
-
-    import bokeh.models
-    data_source = bokeh.models.ColumnDataSource(calendar_data)
-
+def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     import bokeh.plotting
     figure = bokeh.plotting.figure(height=128, sizing_mode="stretch_width",
                                    x_axis_type="datetime")
 
-    dates = [
-        datetime_.date()
-        for datetime_ in calendar_data["datetime_start"]
-    ]
+    dates = [datetime_.date() for datetime_ in series["datetime_start"]]
 
     import collections
     dates_per_month = collections.defaultdict(list)
@@ -213,17 +152,89 @@ def index():
         axis.minor_tick_line_alpha = 0
         axis.axis_line_alpha = 0
 
-    figure.vbar(
-        x="datetime_start",
-        top="duration",
-        # top="heart_rate",
-        # top="distance",
-        source=data_source,
+    # Only transmit plotted series.
+    x = "datetime_start"
+    y = "duration"
+    series_shown = {field: series[field] for field in (x, y)}
+    import bokeh.models
+    source = bokeh.models.ColumnDataSource(series_shown)
+
+    return figure.vbar(
+        x=x,
+        top=y,
+        source=source,
         # FIXME: Does not work as indicated in the doc. Bug?
         # https://docs.bokeh.org/en/latest/docs/reference/plotting/figure.html#bokeh.plotting.Figure.vbar
         # width=10,
         line_width=2,
     )
+
+
+@flask_app.route("/", methods=["GET"])
+def index():
+    args = request.args
+
+    date_max_str = args.get("date_max", None)
+    if date_max_str is None:
+        date_max = datetime.date.today()
+    else:
+        date_max = datetime.date.fromisoformat(date_max_str)
+    date_max_plus_1_day = date_max + datetime.timedelta(days=1)
+
+    date_min_str = args.get("date_min", None)
+    if date_min_str is None:
+        date_min = date_max - datetime.timedelta(weeks=4)
+    else:
+        date_min = datetime.date.fromisoformat(date_min_str)
+
+    Activity = app.model.Activity
+    Summary = app.model.Summary
+    query = (
+        sa
+        .select(Activity, Summary)
+        .where(sa.and_(
+            Activity.datetime_start >= date_min,
+            Activity.datetime_start < date_max_plus_1_day
+        ))
+        .order_by(Activity.datetime_start.desc())
+        .join(Summary)
+    )
+
+    _ = app.model.make_engine()
+    session = app.model.make_session()
+    rows = session.execute(query).all()
+
+    activities, summaries = zip(*rows)
+
+    activity_fields = (
+        "datetime_start",
+        "name",
+        "sport",
+        "sub_sport",
+        "workout",
+    )
+    activity_series = {
+        field: [getattr(activity, field) for activity in activities]
+        for field in activity_fields
+    }
+
+    summary_fields = (
+        "duration",
+        "distance",
+        "speed",
+        "ascents",
+        "descents",
+        "heart_rate",
+        "step_rate",
+    )
+    summary_series = {
+        field: [getattr(summary, field) for summary in summaries]
+        for field in summary_fields
+    }
+
+    data_series = activity_series | summary_series
+
+    figure = make_figure_activities_history(data_series)
     script, div = bokeh.embed.components(figure)
 
     return render_template(
@@ -232,8 +243,8 @@ def index():
         date_max=date_max,
         activities=activities,
         summaries=summaries,
-        calendar_div=div,
-        calendar_script=script,
+        history_div=div,
+        history_script=script,
     )
 
 

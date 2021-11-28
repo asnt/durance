@@ -19,14 +19,16 @@
 <input type="submit" value="Reload">
 </form>
 </p>
-  {{ calendar_div|safe }}
-  {{ calendar_script|safe }}
+  {{ history_div|safe }}
+  {{ history_script|safe }}
 <table class="table">
   <thead>
     <tr>
       <th>date</th>
       <th>time</th>
       <th>name</th>
+      <th>sport</th>
+      <th>sub-sport</th>
       <th>duration</th>
       <th>distance</th>
       <th>hr</th>
@@ -43,6 +45,8 @@
           {{ activity.name if activity.name is not none else "unnamed" }}
         </a>
       </td>
+      <td>{{ activity.sport|ignore_generic }}</td>
+      <td>{{ activity.sub_sport|ignore_generic }}</td>
       <td>{{ summary.duration|seconds_to_dhms|ignore_none }}</td>
       <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
       <td>{{ summary.heart_rate|ignore_none }}</td>
