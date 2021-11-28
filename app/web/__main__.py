@@ -292,10 +292,6 @@ def view_activity(id_):
         # steps/minute
         recordings_data["step_rate"] = 2 * stride_rate
 
-    # XXX: For debugging.
-    # for k, v in recordings_data.items():
-    #     import numpy as np
-    #     print(k, v.shape, v.dtype, np.isnan(v).sum())
     x_series_names = ("time", "distance")
     y_series_names = ("altitude", "step_rate", "heart_rate", "speed")
     recordings_series = {
