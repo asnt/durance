@@ -1,5 +1,3 @@
-import app.cli
-
-
 if __name__ == "__main__":
-    app.cli.main()
+    from app.cli.__main__ import main
+    main()
