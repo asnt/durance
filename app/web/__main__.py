@@ -52,7 +52,8 @@ def format_meters_to_km(meters):
 
 def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     import bokeh.plotting
-    figure = bokeh.plotting.figure(height=128, sizing_mode="stretch_width",
+    figure = bokeh.plotting.figure(height=128,
+                                   sizing_mode="stretch_width",
                                    x_axis_type="datetime")
 
     dates = [datetime_.date() for datetime_ in series["datetime_start"]]
