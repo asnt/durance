@@ -44,7 +44,7 @@ def format_seconds_to_days_hours_minutes_seconds(
 
 
 @flask_app.template_filter("meters_to_km")
-def format_meters_to_km(meters):
+def format_meters_to_km(meters: int) -> str:
     if meters == 0 or meters is None:
         return ""
     return f"{meters / 1000:.1f}"
