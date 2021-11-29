@@ -189,7 +189,7 @@ def index():
         .where(Activity.datetime_start >= date_min)
         .where(Activity.datetime_start < date_max_plus_1_day)
         .order_by(Activity.datetime_start.desc())
-        .join(Summary)
+        .outerjoin(Summary)
     )
 
     _ = app.model.make_engine()
@@ -337,7 +337,7 @@ def view_activity(id_):
         sa
         .select(Activity, Summary)
         .where(Activity.id == id_)
-        .join(Summary)
+        .outerjoin(Summary)
     )
     activity_summary = session.execute(query).one()
     activity, summary = activity_summary
