@@ -1,7 +1,11 @@
 # Data
 
-Activity <-> Summary
-Activity --> Recordings
+activity
+summary
+recordings
+
+activity <-> summary
+activity --> recordings
 
 # Components
 
