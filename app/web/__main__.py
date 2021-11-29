@@ -63,19 +63,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         month = date.month
         dates_per_month[month].append(date)
 
-    def min_date(dates):
-        import functools
-        return functools.reduce(
-            lambda x, y: min(x, y),
-            dates,
-            datetime.date.max,
-        )
-
-    min_date_per_month = {
-        month: min_date(dates)
-        for month, dates in dates_per_month.items()
-    }
-
     axis_months = bokeh.models.DatetimeAxis()
     # XXX: Not sure how to define this. Does not work for less than "11".
     months_invervals = list(range(11))
@@ -89,10 +76,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     for date in dates:
         year = date.year
         dates_per_year[year].append(date)
-    min_date_per_year = {
-        year: min_date(dates)
-        for year, dates in dates_per_year.items()
-    }
     # TODO: Place a tick on the first day of each yet in the visible range,
     # and on the first days of the visible range.
     # axis_years = bokeh.models.Axis()
