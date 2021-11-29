@@ -77,7 +77,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     for date in dates:
         year = date.year
         dates_per_year[year].append(date)
-    # TODO: Place a tick on the first day of each yet in the visible range,
+    # TODO: Place a tick on the first day of each year in the visible range,
     # and on the first days of the visible range.
     # axis_years = bokeh.models.Axis()
     # axis_years.formatter = bokeh.models.()
