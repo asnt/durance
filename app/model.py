@@ -57,12 +57,6 @@ class Activity(Base):
     sub_sport = Column(String)
     workout = Column(String)
 
-    duration = Column(Integer)
-    distance = Column(Integer)
-
-    heartrate_mean = Column(Integer)
-    heartrate_median = Column(Integer)
-
     # One-to-one.
     # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
     summary = relationship("Summary", back_populates="activity", uselist=False)
