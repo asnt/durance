@@ -78,10 +78,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     axis_months = _make_axis_months()
     figure.add_layout(axis_months, "below")
 
-    dates_per_year = collections.defaultdict(list)
-    for date in dates:
-        year = date.year
-        dates_per_year[year].append(date)
     # TODO: Place a tick on the first day of each year in the visible range,
     # and on the first days of the visible range.
     # axis_years = bokeh.models.Axis()
