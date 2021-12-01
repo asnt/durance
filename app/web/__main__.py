@@ -163,7 +163,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         # FIXME: Does not work as indicated in the doc. Bug?
         # https://docs.bokeh.org/en/latest/docs/reference/plotting/figure.html#bokeh.plotting.Figure.vbar
         # width=10,
-        line_width=2,
+        line_width=3,
     )
 
     return figure
