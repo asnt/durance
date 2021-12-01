@@ -80,6 +80,9 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
 
     # TODO: Place a tick on the first day of each year in the visible range,
     # and on the first days of the visible range.
+    #
+    # Alternative 1. (Does not work.)
+    #
     # axis_years = bokeh.models.Axis()
     # axis_years.formatter = bokeh.models.()
     # FIXME: Not sure how to convert a `date` or `datetime` to a float value
@@ -92,6 +95,9 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     # axis_years.ticker = bokeh.models.FixedTicker(
     #     ticks=date_nums,
     # )
+    #
+    # Alternative 2. (Partial solution. Temporary.)
+    #
     axis_years = bokeh.models.DatetimeAxis()
     # FIXME: I think this puts a tick at each first day of each year only. Not
     # sure how to adapt place at a late day if the x-axis range does not
