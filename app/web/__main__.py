@@ -65,7 +65,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         dates_per_month[month].append(date)
 
     axis_months = bokeh.models.DatetimeAxis()
-    # XXX: Not sure how to define this. Does not work for less than "11".
+    # XXX: Not sure how to define this. Does not work for less than "12".
     months_invervals = list(range(12))
     axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
     axis_months.formatter.days = ["%m"]
