@@ -61,25 +61,9 @@ def _make_axis_months() -> bokeh.models.DatetimeAxis:
     return axis_months
 
 
-def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
-    import bokeh.plotting
-    figure = bokeh.plotting.figure(height=128,
-                                   sizing_mode="stretch_width",
-                                   x_axis_type="datetime")
-
-    dates = [datetime_.date() for datetime_ in series["datetime_start"]]
-
-    import collections
-    dates_per_month = collections.defaultdict(list)
-    for date in dates:
-        month = date.month
-        dates_per_month[month].append(date)
-
-    axis_months = _make_axis_months()
-    figure.add_layout(axis_months, "below")
-
-    # TODO: Place a tick on the first day of each year in the visible range,
-    # and on the first days of the visible range.
+def _make_axis_years() -> bokeh.models.DatetimeAxis:
+    # TODO: Goal: Place a tick on the first day of each year in the visible
+    # range,and on the first days of the visible range.
     #
     # Alternative 1. (Does not work.)
     #
@@ -109,6 +93,27 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     axis_years.formatter.days = ["%Y"]
     axis_years.formatter.months = ["%Y"]
     axis_years.formatter.years = ["%Y"]
+    return axis_years
+
+
+def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
+    import bokeh.plotting
+    figure = bokeh.plotting.figure(height=128,
+                                   sizing_mode="stretch_width",
+                                   x_axis_type="datetime")
+
+    dates = [datetime_.date() for datetime_ in series["datetime_start"]]
+
+    import collections
+    dates_per_month = collections.defaultdict(list)
+    for date in dates:
+        month = date.month
+        dates_per_month[month].append(date)
+
+    axis_months = _make_axis_months()
+    figure.add_layout(axis_months, "below")
+
+    axis_years = _make_axis_years()
     figure.add_layout(axis_years, "below")
 
     figure.xaxis[0].formatter.days = ["%d"]
