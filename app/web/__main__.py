@@ -50,6 +50,17 @@ def format_meters_to_km(meters: int) -> str:
     return f"{meters / 1000:.1f}"
 
 
+def _make_axis_months() -> bokeh.models.DatetimeAxis:
+    axis_months = bokeh.models.DatetimeAxis()
+    # XXX: Not sure how to define this. Does not work for less than "12".
+    months_invervals = list(range(12))
+    axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
+    axis_months.formatter.days = ["%m"]
+    axis_months.formatter.months = ["%m"]
+    axis_months.formatter.years = ["%m"]
+    return axis_months
+
+
 def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     import bokeh.plotting
     figure = bokeh.plotting.figure(height=128,
@@ -64,13 +75,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         month = date.month
         dates_per_month[month].append(date)
 
-    axis_months = bokeh.models.DatetimeAxis()
-    # XXX: Not sure how to define this. Does not work for less than "12".
-    months_invervals = list(range(12))
-    axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
-    axis_months.formatter.days = ["%m"]
-    axis_months.formatter.months = ["%m"]
-    axis_months.formatter.years = ["%m"]
+    axis_months = _make_axis_months()
     figure.add_layout(axis_months, "below")
 
     dates_per_year = collections.defaultdict(list)
