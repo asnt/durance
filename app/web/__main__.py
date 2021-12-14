@@ -208,7 +208,7 @@ def index():
     session = app.model.make_session()
     rows = session.execute(query).all()
 
-    activity_series = dict(
+    activity_history = dict(
         datetime_start=[],
         name=[],
         sport=[],
@@ -216,7 +216,7 @@ def index():
         workout=[],
     )
 
-    summary_series = dict(
+    summary_history = dict(
         duration=[],
         distance=[],
         speed=[],
@@ -233,18 +233,18 @@ def index():
 
     if rows:
         activities, summaries = zip(*rows)
-        for field in activity_series:
-            activity_series[field] = [
+        for field in activity_history:
+            activity_history[field] = [
                 getattr(activity, field) for activity in activities
             ]
-        for field in summary_series:
-            summary_series[field] = [
+        for field in summary_history:
+            summary_history[field] = [
                 getattr(summary, field) for summary in summaries
             ]
 
-        data_series = activity_series | summary_series
+        data_history = activity_history | summary_history
 
-        figure = make_figure_activities_history(data_series)
+        figure = make_figure_activities_history(data_history)
         script, div = bokeh.embed.components(figure)
 
     return render_template(
