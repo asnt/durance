@@ -383,9 +383,9 @@ def view_activity(id_):
     data = pd.DataFrame.from_dict(recordings_series)
 
     # Replace NaN values using neighbors.
-    # Forwards.
+    # Need both forwards and backwards interpolation to handle missing
+    # extremities.
     data = data.interpolate()
-    # Backwards.
     data = data.interpolate(method="backfill")
 
     # TODO: Add map plot.
