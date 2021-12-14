@@ -1,6 +1,7 @@
 import argparse
 import pathlib
 import os
+from typing import Sequence
 
 import hrv.activity
 import hrv.data
@@ -13,9 +14,13 @@ def init_db(args) -> None:
     app.model.create(engine)
 
 
-def import_activities(args) -> None:
-    print(f"importing {len(args.files)} activities")
-    for path in args.files:
+def cmd_import_activities(args) -> None:
+    import_activities(args.files)
+
+
+def import_activities(paths: Sequence[os.PathLike]) -> None:
+    print(f"importing {len(paths)} activities")
+    for path in paths:
         import_activity(path)
 
 
@@ -64,7 +69,7 @@ def parse_args():
     parser_init.set_defaults(func=init_db)
 
     parser_import = subparsers.add_parser("import")
-    parser_import.set_defaults(func=import_activities)
+    parser_import.set_defaults(func=cmd_import_activities)
     parser_import.add_argument("files",
                                nargs="+",
                                type=pathlib.Path,
