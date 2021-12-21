@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
+def dfa(pp, scale_min=16, scale_max=64, n_scales_max=16):
     assert scale_min < scale_max
 
     n_scales = scale_max - scale_min + 1
@@ -51,8 +51,8 @@ def dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
     return alpha
 
 
-def dfa_batch(rr, window_size=2 ** 8, scale_min=16, scale_max=32,
-              n_scales_max=None):
+def dfa_batch(rr, window_size=2 ** 8, scale_min=16, scale_max=64,
+              n_scales_max=16):
     assert scale_min < scale_max
 
     n_scales = scale_max - scale_min + 1
