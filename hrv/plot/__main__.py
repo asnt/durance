@@ -142,7 +142,8 @@ def main():
         plot.swt(rr_raw, mask_valid)
 
     if args.pointcarre:
-        plot.pointcarre(rr_raw, mask_valid)
+        plot.pointcarre(rr_raw, mask_valid=mask_valid)
+        plot.pointcarre(rr)
 
     if args.rr:
         plot.rr(rr_raw, mask_valid)

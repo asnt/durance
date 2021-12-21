@@ -26,9 +26,15 @@ def rr_cumsum(rr, mask_valid, cmap="hsv"):
     ax.plot(x, rr_valid_cumsum_masked, color="black")
 
 
-def pointcarre(rr, mask_valid, cmap="hsv"):
+def pointcarre(rr, mask_valid=None, cmap="hsv"):
     fig, ax = plt.subplots()
-    ax.scatter(rr[:-1], rr[1:], c=rr[:-1], cmap=cmap)
+    if mask_valid is not None:
+        colors = np.full((len(rr) - 1, 3), (.8, .3, .3), dtype=float)
+        mask_valid_ = mask_valid[:-1] & mask_valid[1:]
+        colors[mask_valid_] = (0, 0, 0)
+    else:
+        colors = None
+    ax.scatter(rr[:-1], rr[1:], c=colors)
 
 
 def scatter(rr, mask_valid, cmap="hsv"):
