@@ -27,7 +27,7 @@ def dfa(pp, scale_min=16, scale_max=32, n_scales_max=None):
 
         A0 = np.arange(0, width).reshape(-1, 1)
         ones = np.ones((len(A0), 1))
-        # Zero-th order polynomial. The same a centred moving average (CMA)
+        # Zero-th order polynomial. The same as centred moving average (CMA)
         # method.
         # A = ones
         # First order polynomial
