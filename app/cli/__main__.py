@@ -1,4 +1,5 @@
 import argparse
+import logging
 import pathlib
 import os
 from typing import Sequence
@@ -6,6 +7,9 @@ from typing import Sequence
 import hrv.activity
 import hrv.data
 import app.model
+
+
+logger = logging.getLogger(__name__)
 
 
 def init_db(args) -> None:
@@ -19,17 +23,17 @@ def cmd_import_activities(args) -> None:
 
 
 def import_activities(paths: Sequence[os.PathLike]) -> None:
-    print(f"importing {len(paths)} activities")
+    logger.debug(f"importing {len(paths)} activities")
     for path in paths:
         import_activity(path)
 
 
 def import_activity(path: os.PathLike) -> None:
     path = pathlib.Path(path)
-    print(f"importing {path}")
+    logger.debug(f"importing {path}")
 
     if app.model.has_activity(path):
-        print("activity already imported")
+        logger.debug("activity already imported")
         return
 
     activity_data, recordings_data = hrv.data.load(path)
@@ -62,6 +66,8 @@ def import_activity(path: os.PathLike) -> None:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--db", type=pathlib.Path, default="activities.db")
+    parser.add_argument("--logging", choices=["info", "debug", "warning"],
+                        default="info")
 
     subparsers = parser.add_subparsers()
 
@@ -80,6 +86,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    logging.basicConfig(level=getattr(logging, args.logging.upper()))
 
     args.func(args)
 
