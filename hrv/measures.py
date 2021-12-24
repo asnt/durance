@@ -161,22 +161,43 @@ def features_from_sliding_window(df):
     return df_features
 
 
+def _pad_like(a, b, align="center"):
+    """Pad `a` to the length of `b` with NaN's and horizontal alignment.
+
+    If `len(a) >= len(b)`, return `a` unmodified.
+    """
+    assert align == "center"
+    gap = len(b) - len(a)
+    if gap <= 0:
+        # Cannot pad: `a` longer than or the same size as `b`.
+        return a
+    pad_left = int(gap / 2)
+    pad_right = gap - pad_left
+    pad_width = (pad_left, pad_right)
+    return np.pad(a, pad_width=pad_width, constant_values=np.nan)
+
+
 def features_from_sliding_window_2(df):
     features = []
     window_size = 2 ** 8
     step = 1
     n_scales_max = 16
 
+    # TODO: Ensure downsampling is handled correctly below when padding the
+    # signals back to the original length.
+    assert step == 1, "downsampling not yet supported"
+
     rr_s = df["rr"].values
-    times = df["time"].values
+    times = df["time"].values.astype(float)
 
     rr_ms = rr_s * 1000
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
     rr_windows = sliding_window_view(rr_ms, window_size)
     rr_windows = rr_windows.astype(float)
 
-    rr_windows = rr_windows[::step]
-    times = times[:-window_size:step]
+    if step > 1:
+        rr_windows = rr_windows[::step]
+        times = times[int(window_size / 2)::step]
 
     heartrate = 60_000 / np.mean(rr_windows, axis=1)
     nn_diff = np.abs(np.diff(rr_windows, axis=1))
@@ -187,20 +208,20 @@ def features_from_sliding_window_2(df):
     alpha1 = dfa_batch(rr, n_scales_max=n_scales_max)
     n_samples = min(len(alpha1), len(times))
 
-    times = times[:n_samples]
-    heartrate = heartrate[:n_samples]
-    rmssd = rmssd[:n_samples]
-    sdnn = sdnn[:n_samples]
-    alpha1 = alpha1[:n_samples]
 
     features = {
-        "index": np.arange(n_samples, dtype=int),
         "time": times,
         "heartrate": heartrate,
         "rmssd": rmssd,
         "sdnn": sdnn,
         "alpha1": alpha1,
     }
+
+    features = {
+        name: _pad_like(signal, rr_ms, align="center")
+        for name, signal in features.items()
+    }
+    features["index"] = np.arange(len(rr_ms), dtype=int)
 
     df_features = pd.DataFrame(features)
 
