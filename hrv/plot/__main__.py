@@ -94,6 +94,7 @@ def main():
     plot = importlib.import_module(f"hrv.plot.{args.backend}")
 
     rr_raw = hrv.data.load_rr(args.input)
+    activity_data, recordings = hrv.data.load(args.input)
 
     time_relative, rr, mask_valid = cleanup_hrv_signal(
         rr_raw,
@@ -208,7 +209,7 @@ def main():
         plot.df_alpha1_vs_hr(df_features)
 
     if args.overlay:
-        plot.overlay(df_features)
+        plot.overlay(df_features, recordings)
 
     plot.show()
 

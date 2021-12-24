@@ -188,7 +188,7 @@ def df_alpha1(df, cmap="Spectral"):
     ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
 
 
-def overlay(df, cmap="Spectral"):
+def overlay(df, recordings=None, cmap="Spectral"):
     dfa_thresholds = [0.5, 0.75, 1.0]
     color_normalizer = mpl.colors.Normalize(vmin=dfa_thresholds[0],
                                             vmax=dfa_thresholds[-1])
@@ -199,13 +199,35 @@ def overlay(df, cmap="Spectral"):
 
     fig, ax = plt.subplots()
 
+    #
+    # Raw recordings.
+    #
+
+    if recordings is not None:
+        # Altitude.
+        ax_ = ax.twinx()
+        # ax_.spines.left.set_position(("axes", 0 - 1 / 10))
+        y = recordings["altitude"]
+        x = recordings["timestamp"] * 1e9
+        plot_, = ax_.plot(x, y, color="lightgray")
+        ax_.fill_between(x, y.min(), y, color="lightgray")
+        # ax_.set_ylabel("altitude")
+        # ax_.yaxis.label.set_color(plot_.get_color())
+        # ax_.tick_params(axis="y", colors=plot_.get_color())
+
+    #
+    # Processed signals derived from HRV data.
+    #
+
     time = df["time"].values
 
     alpha1 = df["alpha1"].values
     color_alpha1 = "dimgray"
 
-    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
-    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    # Create separated axes in order to draw over the axes of the recordings.
+    ax_ = ax.twinx()
+    plot_dfa1, = ax_.plot(time, alpha1, color=color_alpha1, zorder=2.5)
+    ax_.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
 
     ax.set_xlabel("time")
     ax.set_ylabel("DFA1")
