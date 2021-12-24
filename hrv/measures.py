@@ -191,7 +191,6 @@ def features_from_sliding_window_2(df):
     heartrate = heartrate[:n_samples]
     rmssd = rmssd[:n_samples]
     sdnn = sdnn[:n_samples]
-    heartrate = heartrate[:n_samples]
     alpha1 = alpha1[:n_samples]
 
     features = {
