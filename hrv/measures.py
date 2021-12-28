@@ -208,7 +208,6 @@ def features_from_sliding_window_2(df):
     alpha1 = dfa_batch(rr, n_scales_max=n_scales_max)
     n_samples = min(len(alpha1), len(times))
 
-
     features = {
         "time": times,
         "heartrate": heartrate,
