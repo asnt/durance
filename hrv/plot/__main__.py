@@ -136,6 +136,33 @@ def main():
         elif args.dfa1_mode == "batch":
             df_features = hrv.measures.features_from_sliding_window_2(df)
 
+        def unmask(x: np.ndarray, mask: np.ndarray):
+            """Upsample to the length of the raw HRV signal by inserting NaN's.
+
+            Arguments
+            ---------
+            x: Downsampled signal matching clean part of HRV signal.
+            mask: Mask of clean part of HRV signal.
+
+            Returns
+            -------
+            Upsampled signal matching length of raw (corrupted) HRV signal.
+            """
+            y = np.full_like(mask, np.nan, dtype=float)
+            y[mask] = x
+            return y
+
+        features = {
+            # FIXME: The upsampling restores the length of the raw HRV signal
+            # but does not match the sampling of the other recordings.
+            # TODO: Match the time samples features["timestamp"] of the HRV
+            # signals to the independently recorded recordings["timestamp"].
+            # Probably need to add up durations of skipped beats in
+            # features["timestamp"].
+            name: unmask(signal, mask_valid)
+            for name, signal in df_features.items()
+        }
+
     if args.cwt:
         plot.cwt(rr_raw, mask_valid)
 
@@ -209,7 +236,7 @@ def main():
         plot.df_alpha1_vs_hr(df_features)
 
     if args.overlay:
-        plot.overlay(df_features, recordings)
+        plot.overlay(features, recordings)
 
     plot.show()
 

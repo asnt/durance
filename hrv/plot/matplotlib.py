@@ -194,9 +194,6 @@ def overlay(df, recordings=None, cmap="Spectral"):
                                             vmax=dfa_thresholds[-1])
     dfa_ticks = dfa_thresholds + [1.5, 2.0]
 
-    time = df["time"]
-    alpha1 = df["alpha1"].values
-
     fig, ax = plt.subplots()
 
     #
@@ -219,9 +216,9 @@ def overlay(df, recordings=None, cmap="Spectral"):
     # Processed signals derived from HRV data.
     #
 
-    time = df["time"].values
+    time = df["time"]
 
-    alpha1 = df["alpha1"].values
+    alpha1 = df["alpha1"]
     color_alpha1 = "dimgray"
 
     # Create separated axes in order to draw over the axes of the recordings.
@@ -258,7 +255,7 @@ def overlay(df, recordings=None, cmap="Spectral"):
     for index, feature in enumerate(params):
         ax_ = ax.twinx()
         ax_.spines.right.set_position(("axes", 1 + index / 10))
-        y = df[feature].values
+        y = df[feature]
         plot_, = ax_.plot(time, y, **params[feature])
         ax_.set_ylabel(feature)
         ax_.yaxis.label.set_color(plot_.get_color())
