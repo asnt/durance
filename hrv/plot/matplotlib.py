@@ -195,6 +195,9 @@ def overlay(df, recordings=None, cmap="Spectral"):
     dfa_ticks = dfa_thresholds + [1.5, 2.0]
 
     fig, ax = plt.subplots()
+    # The default y-axis is not used. Twinned axes are used instead, with a
+    # common x-axis.
+    ax.yaxis.set_visible(False)
 
     #
     # Raw recordings.
@@ -203,14 +206,15 @@ def overlay(df, recordings=None, cmap="Spectral"):
     if recordings is not None:
         # Altitude.
         ax_ = ax.twinx()
-        # ax_.spines.left.set_position(("axes", 0 - 1 / 10))
+        ax_.spines.left.set_position(("axes", 0))
+        ax_.yaxis.set_label_position("left")
+        ax_.yaxis.tick_left()
         y = recordings["altitude"]
         x = recordings["timestamp"] * 1e9
-        plot_, = ax_.plot(x, y, color="lightgray")
-        ax_.fill_between(x, y.min(), y, color="lightgray")
-        # ax_.set_ylabel("altitude")
-        # ax_.yaxis.label.set_color(plot_.get_color())
-        # ax_.tick_params(axis="y", colors=plot_.get_color())
+        color_altitude = "#eee"
+        plot_, = ax_.plot(x, y, color=color_altitude)
+        ax_.fill_between(x, y.min(), y, color=color_altitude)
+        ax_.set_ylabel("altitude (metres)")
 
     #
     # Processed signals derived from HRV data.
@@ -223,18 +227,21 @@ def overlay(df, recordings=None, cmap="Spectral"):
 
     # Create separated axes in order to draw over the axes of the recordings.
     ax_ = ax.twinx()
+    ax_.spines.left.set_position(("axes", 0 - 1 / 10))
+    ax_.yaxis.set_label_position("left")
+    ax_.yaxis.tick_left()
     plot_dfa1, = ax_.plot(time, alpha1, color=color_alpha1, zorder=2.5)
     ax_.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
 
-    ax.set_xlabel("time")
-    ax.set_ylabel("DFA1")
-    ax.set_ylim((0, dfa_ticks[-1]))
+    ax_.set_xlabel("time")
+    ax_.set_ylabel("DFA1")
+    ax_.set_ylim((0, dfa_ticks[-1]))
     fig.autofmt_xdate()
-    ax.yaxis.label.set_color(plot_dfa1.get_color())
-    ax.tick_params(axis="y", colors=plot_dfa1.get_color())
-    ax.yaxis.set_major_locator(mpl.ticker.FixedLocator(dfa_ticks))
-    ax.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
-    ax.yaxis.grid(which="major", color="lightgray")
+    ax_.yaxis.label.set_color(plot_dfa1.get_color())
+    ax_.tick_params(axis="y", colors=plot_dfa1.get_color())
+    ax_.yaxis.set_major_locator(mpl.ticker.FixedLocator(dfa_ticks))
+    ax_.yaxis.set_minor_locator(mpl.ticker.MultipleLocator(base=0.1))
+    ax_.yaxis.grid(which="major", color="lightgray")
 
     params = dict(
         heartrate=dict(
