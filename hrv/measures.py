@@ -156,6 +156,23 @@ def features_from_sliding_window(hrv_signals):
         features.append(curr_features)
     print()
 
+    def zipdicts(*dicts):
+        """Zip the values of the common keys of a sequence of dicts.
+
+        Reference: https://stackoverflow.com/a/16458780
+        """
+        if not dicts:
+            return
+        common_keys = set(dicts[0]).intersection(*dicts[1:2])
+        for key in common_keys:
+            yield key, tuple(d[key] for d in dicts)
+
+    features = dict(zipdicts(*features))
+    features = {
+        name: np.stack(values)
+        for name, values in features.items()
+    }
+
     return features
 
 

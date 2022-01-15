@@ -137,11 +137,6 @@ def main():
     )
 
     if require_features:
-        if args.dfa1_mode == "per_window":
-            features = hrv.measures.features_from_sliding_window(df)
-        elif args.dfa1_mode == "batch":
-            features = hrv.measures.features_from_sliding_window_2(df)
-
         def unmask(x: np.ndarray, mask: np.ndarray):
             """Upsample to the length of the raw HRV signal by inserting NaN's.
 
@@ -158,16 +153,21 @@ def main():
             y[mask] = x
             return y
 
-        features = {
-            # FIXME: The upsampling restores the length of the raw HRV signal
-            # but does not match the sampling of the regular signals.
-            # TODO: Match the time samples features["timestamp"] of the HRV
-            # signals to the independently recorded signals["timestamp"].
-            # Probably need to add up durations of skipped beats in
-            # features["timestamp"].
-            name: unmask(signal, mask_valid)
-            for name, signal in features.items()
-        }
+        if args.dfa1_mode == "per_window":
+            features = hrv.measures.features_from_sliding_window(hrv_signals)
+        elif args.dfa1_mode == "batch":
+            features = hrv.measures.features_from_sliding_window_2(hrv_signals)
+            features = {
+                # FIXME: The upsampling restores the length of the raw HRV
+                # signal but does not match the sampling of the regular
+                # signals.
+                # TODO: Match the time samples features["timestamp"] of the HRV
+                # signals to the independently recorded signals["timestamp"].
+                # Probably need to add up durations of skipped beats in
+                # features["timestamp"].
+                name: unmask(signal, mask_valid)
+                for name, signal in features.items()
+            }
 
     if args.cwt:
         plot.cwt(rr_raw, mask_valid)
