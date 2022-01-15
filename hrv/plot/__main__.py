@@ -77,7 +77,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def cleanup_hrv_signal(rr_raw, outlier_method="moving_median"):
+def cleanup_rr_signal(rr_raw, outlier_method="moving_median"):
     mask_valid = hrv.denoise.find_inliers(rr_raw, method=outlier_method)
     rr = rr_raw[mask_valid]
 
@@ -95,7 +95,7 @@ def main():
     rr_raw = hrv.data.load_rr(args.input)
     activity_data, signals = hrv.data.load(args.input)
 
-    hrv_relative_time_s, rr, mask_valid = cleanup_hrv_signal(
+    hrv_relative_time_s, rr, mask_valid = cleanup_rr_signal(
         rr_raw,
         outlier_method=args.outlier_method,
     )
