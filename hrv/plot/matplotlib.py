@@ -219,10 +219,7 @@ def overlay(signals=None, hrv_signals=None, cmap="Spectral"):
     # Processed signals derived from HRV data.
     #
 
-    # Pandas stores nanosecond timestamps. Convert back to datetimes for
-    # compatibility with the non-HRV recordings.
-    timestamp_ns = hrv_signals["datetime"]
-    hrv_datetime = timestamp_ns.astype("datetime64[ns]")
+    hrv_datetime = hrv_signals["datetime"]
 
     alpha1 = hrv_signals["alpha1"]
     color_alpha1 = "dimgray"
