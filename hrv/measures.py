@@ -116,20 +116,20 @@ def dfa_batch(rr, window_size=2 ** 8, scale_min=16, scale_max=64,
     return alpha
 
 
-def features_from_sliding_window(df):
+def features_from_sliding_window(hrv_signals):
     features = []
     window_size = 2 ** 8
     step = 16
     n_scales_max = 16
 
-    rr = df["rr"].values
-    times = df["time"].values
+    rr = hrv_signals["rr"]
+    datetime = hrv_signals["datetime"]
 
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
     rr_windows_ms = sliding_window_view(rr, window_size)
 
     rr_windows_ms = rr_windows_ms[::step]
-    times = times[round(step // 2)::step]
+    datetime = datetime[round(step // 2)::step]
 
     n_windows = len(rr_windows_ms)
     for index, rr_window_ms in enumerate(rr_windows_ms):
@@ -146,7 +146,7 @@ def features_from_sliding_window(df):
 
         curr_features = {
             'index': index,
-            'time': times[index],
+            'datetime': datetime[index],
             'heartrate': heartrate,
             'rmssd': rmssd,
             'sdnn': sdnn,
@@ -175,7 +175,7 @@ def _pad_like(a, b, align="center"):
     return np.pad(a, pad_width=pad_width, constant_values=np.nan)
 
 
-def features_from_sliding_window_2(df):
+def features_from_sliding_window_2(hrv_signals):
     features = []
     window_size = 2 ** 8
     step = 1
@@ -185,9 +185,9 @@ def features_from_sliding_window_2(df):
     # signals back to the original length.
     assert step == 1, "downsampling not yet supported"
 
-    rr_s = df["rr"].values
-    relative_time_s = df["relative_time_s"].values.astype(float)
-    datetime = df["datetime"].values
+    rr_s = hrv_signals["rr"]
+    relative_time_s = hrv_signals["relative_time_s"]
+    datetime = hrv_signals["datetime"]
 
     rr_ms = rr_s * 1000
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
@@ -205,8 +205,7 @@ def features_from_sliding_window_2(df):
     rmssd = np.sqrt(np.mean(nn_diff ** 2, axis=1))
     sdnn = np.std(rr_windows, axis=1)
 
-    rr = df["rr"]
-    alpha1 = dfa_batch(rr, n_scales_max=n_scales_max)
+    alpha1 = dfa_batch(rr_s, n_scales_max=n_scales_max)
 
     features = {
         "datetime": datetime,
