@@ -59,7 +59,6 @@ def parse_args():
     parser.add_argument("--dfa1-mode", default="per_window",
                         choices=["per_window", "batch"])
     parser.add_argument("--dfa1", action="store_true")
-    parser.add_argument("--dfa1-motion", action="store_true")
     parser.add_argument("--dfa1-vs-hr", action="store_true")
     parser.add_argument("--features", action="store_true")
     parser.add_argument("--overlay", action="store_true")
@@ -130,7 +129,6 @@ def main():
 
     require_features = (
         args.dfa1
-        or args.dfa1_motion
         or args.dfa1_vs_hr
         or args.sdnn
         or args.rmssd
@@ -220,22 +218,6 @@ def main():
         print(f"mean alpha1 = {mean_alpha1:.2f}")
 
         plot.df_alpha1(features)
-
-    # Filter further based on SDNN to remove the moments standing still.
-
-    if args.dfa1_motion:
-        # Based on visual inspection of the data.
-        threshold_sdnn = 10
-
-        mask_motion = df_features['sdnn'] < threshold_sdnn
-        df_features_motion = df_features.loc[mask_motion]
-
-        print(df_features_motion.head())
-
-        mean_alpha1_motion = round(np.mean(df_features_motion['alpha1']), 2)
-        print(f"mean alpha1 in motion = {mean_alpha1_motion:.2f}")
-
-        plot.df_alpha1(df_features_motion)
 
     if args.dfa1_vs_hr:
         plot.df_alpha1_vs_hr(features)
