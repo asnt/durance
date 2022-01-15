@@ -210,7 +210,7 @@ def overlay(df, recordings=None, cmap="Spectral"):
         ax_.yaxis.set_label_position("left")
         ax_.yaxis.tick_left()
         y = recordings["altitude"]
-        x = recordings["timestamp"] * 1e9
+        x = recordings["datetime"]
         color_altitude = "#eee"
         plot_, = ax_.plot(x, y, color=color_altitude)
         ax_.fill_between(x, y.min(), y, color=color_altitude)
@@ -220,7 +220,10 @@ def overlay(df, recordings=None, cmap="Spectral"):
     # Processed signals derived from HRV data.
     #
 
-    time = df["time"]
+    # Pandas stores nanosecond timestamps. Convert back to datetimes for
+    # compatibility with the non-HRV recordings.
+    timestamp_ns = df["datetime"]
+    hrv_datetime = timestamp_ns.astype("datetime64[ns]")
 
     alpha1 = df["alpha1"]
     color_alpha1 = "dimgray"
@@ -230,8 +233,9 @@ def overlay(df, recordings=None, cmap="Spectral"):
     ax_.spines.left.set_position(("axes", 0 - 1 / 10))
     ax_.yaxis.set_label_position("left")
     ax_.yaxis.tick_left()
-    plot_dfa1, = ax_.plot(time, alpha1, color=color_alpha1, zorder=2.5)
-    ax_.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    plot_dfa1, = ax_.plot(hrv_datetime, alpha1, color=color_alpha1, zorder=2.5)
+    ax_.scatter(hrv_datetime, alpha1, c=alpha1, norm=color_normalizer,
+                cmap=cmap)
 
     ax_.set_xlabel("time")
     ax_.set_ylabel("DFA1")
@@ -263,7 +267,7 @@ def overlay(df, recordings=None, cmap="Spectral"):
         ax_ = ax.twinx()
         ax_.spines.right.set_position(("axes", 1 + index / 10))
         y = df[feature]
-        plot_, = ax_.plot(time, y, **params[feature])
+        plot_, = ax_.plot(hrv_datetime, y, **params[feature])
         ax_.set_ylabel(feature)
         ax_.yaxis.label.set_color(plot_.get_color())
         ax_.tick_params(axis="y", colors=plot_.get_color())

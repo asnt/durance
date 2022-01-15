@@ -188,7 +188,7 @@ def features_from_sliding_window_2(df):
     assert step == 1, "downsampling not yet supported"
 
     rr_s = df["rr"].values
-    times = df["time"].values.astype(float)
+    relative_time_s = df["relative_time_s"].values.astype(float)
 
     rr_ms = rr_s * 1000
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
@@ -197,7 +197,9 @@ def features_from_sliding_window_2(df):
 
     if step > 1:
         rr_windows = rr_windows[::step]
-        times = times[int(window_size / 2)::step]
+        # TODO: Check this is correct.
+        relative_time_s = relative_time_s[int(window_size / 2)::step]
+        datetime = datetime[int(window_size / 2)::step]
 
     heartrate = 60_000 / np.mean(rr_windows, axis=1)
     nn_diff = np.abs(np.diff(rr_windows, axis=1))
@@ -208,7 +210,8 @@ def features_from_sliding_window_2(df):
     alpha1 = dfa_batch(rr, n_scales_max=n_scales_max)
 
     features = {
-        "time": times,
+        "datetime": df["datetime"].values,
+        "relative_time_s": relative_time_s,
         "heartrate": heartrate,
         "rmssd": rmssd,
         "sdnn": sdnn,

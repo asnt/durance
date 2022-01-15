@@ -96,7 +96,7 @@ def main():
     rr_raw = hrv.data.load_rr(args.input)
     activity_data, recordings = hrv.data.load(args.input)
 
-    time_relative, rr, mask_valid = cleanup_hrv_signal(
+    hrv_relative_time_s, rr, mask_valid = cleanup_hrv_signal(
         rr_raw,
         outlier_method=args.outlier_method,
     )
@@ -110,13 +110,20 @@ def main():
         rr_average = compute_moving_average(rr_raw, average_fn="median")
 
     activity_data, _ = hrv.data.load(args.input)
-    datetime_start = np.datetime64(activity_data["datetime_start"])
-    timedelta = time_relative.astype("timedelta64[s]")
-    datetimes = datetime_start + timedelta
-    time_ = datetimes
+
+    timestamps_s = recordings["timestamp"]
+    timestamps_ms = 1000 * timestamps_s
+    recordings_datetime = timestamps_ms.astype("datetime64[ms]")
+    recordings["datetime"] = recordings_datetime
+
+    start_datetime = recordings_datetime[0:1]
+    hrv_relative_time_ms = 1000 * hrv_relative_time_s
+    hrv_timedelta = hrv_relative_time_ms.astype("timedelta64[ms]")
+    hrv_datetime = start_datetime + hrv_timedelta
 
     df = pd.DataFrame()
-    df["time"] = time_
+    df["datetime"] = hrv_datetime
+    df["relative_time_s"] = hrv_relative_time_s
     df["rr"] = rr
     if args.rr_average:
         df["rr_average"] = rr_average[mask_valid]
