@@ -157,6 +157,7 @@ def main():
             features = hrv.measures.features_from_sliding_window(hrv_signals)
         elif args.dfa1_mode == "batch":
             features = hrv.measures.features_from_sliding_window_2(hrv_signals)
+            # TODO: Apply a similar upsampling on the 'per_window' mode above.
             features = {
                 # FIXME: The upsampling restores the length of the raw HRV
                 # signal but does not match the sampling of the regular
