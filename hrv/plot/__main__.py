@@ -93,7 +93,7 @@ def main():
     plot = importlib.import_module(f"hrv.plot.{args.backend}")
 
     rr_raw = hrv.data.load_rr(args.input)
-    activity_data, recordings = hrv.data.load(args.input)
+    activity_data, signals = hrv.data.load(args.input)
 
     hrv_relative_time_s, rr, mask_valid = cleanup_hrv_signal(
         rr_raw,
@@ -110,12 +110,12 @@ def main():
 
     activity_data, _ = hrv.data.load(args.input)
 
-    timestamps_s = recordings["timestamp"]
+    timestamps_s = signals["timestamp"]
     timestamps_ms = 1000 * timestamps_s
-    recordings_datetime = timestamps_ms.astype("datetime64[ms]")
-    recordings["datetime"] = recordings_datetime
+    datetime = timestamps_ms.astype("datetime64[ms]")
+    signals["datetime"] = datetime
 
-    start_datetime = recordings_datetime[0:1]
+    start_datetime = datetime[0:1]
     hrv_relative_time_ms = 1000 * hrv_relative_time_s
     hrv_timedelta = hrv_relative_time_ms.astype("timedelta64[ms]")
     hrv_datetime = start_datetime + hrv_timedelta
@@ -159,9 +159,9 @@ def main():
 
         features = {
             # FIXME: The upsampling restores the length of the raw HRV signal
-            # but does not match the sampling of the other recordings.
+            # but does not match the sampling of the regular signals.
             # TODO: Match the time samples features["timestamp"] of the HRV
-            # signals to the independently recorded recordings["timestamp"].
+            # signals to the independently recorded signals["timestamp"].
             # Probably need to add up durations of skipped beats in
             # features["timestamp"].
             name: unmask(signal, mask_valid)
@@ -223,7 +223,7 @@ def main():
         plot.df_alpha1_vs_hr(features)
 
     if args.overlay:
-        plot.overlay(features, recordings)
+        plot.overlay(signals, features)
 
     plot.show()
 
