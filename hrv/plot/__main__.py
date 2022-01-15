@@ -81,10 +81,10 @@ def cleanup_hrv_signal(rr_raw, outlier_method="moving_median"):
     mask_valid = hrv.denoise.find_inliers(rr_raw, method=outlier_method)
     rr = rr_raw[mask_valid]
 
-    time_relative = np.cumsum(rr)
-    time_relative = time_relative.astype(float)
+    relative_time = np.cumsum(rr)
+    relative_time = relative_time.astype(float)
 
-    return time_relative, rr, mask_valid
+    return relative_time, rr, mask_valid
 
 
 def main():
