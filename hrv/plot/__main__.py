@@ -120,12 +120,6 @@ def main():
     hrv_timedelta = hrv_relative_time_ms.astype("timedelta64[ms]")
     hrv_datetime = start_datetime + hrv_timedelta
 
-    # df = pd.DataFrame()
-    # df["datetime"] = hrv_datetime
-    # df["relative_time_s"] = hrv_relative_time_s
-    # df["rr"] = rr
-    # if args.rr_average:
-    #     df["rr_average"] = rr_average[mask_valid]
     hrv_signals = dict(
         datetime=hrv_datetime,
         relative_time_s=hrv_relative_time_s,
