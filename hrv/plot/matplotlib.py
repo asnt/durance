@@ -225,7 +225,7 @@ def overlay(df, recordings=None, cmap="Spectral"):
     alpha1 = df["alpha1"]
     color_alpha1 = "dimgray"
 
-    # Create separated axes in order to draw over the axes of the recordings.
+    # Create new separate axes to draw over the axes of the recordings.
     ax_ = ax.twinx()
     ax_.spines.left.set_position(("axes", 0 - 1 / 10))
     ax_.yaxis.set_label_position("left")
