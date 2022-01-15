@@ -139,9 +139,9 @@ def main():
 
     if require_features:
         if args.dfa1_mode == "per_window":
-            df_features = hrv.measures.features_from_sliding_window(df)
+            features = hrv.measures.features_from_sliding_window(df)
         elif args.dfa1_mode == "batch":
-            df_features = hrv.measures.features_from_sliding_window_2(df)
+            features = hrv.measures.features_from_sliding_window_2(df)
 
         def unmask(x: np.ndarray, mask: np.ndarray):
             """Upsample to the length of the raw HRV signal by inserting NaN's.
@@ -167,7 +167,7 @@ def main():
             # Probably need to add up durations of skipped beats in
             # features["timestamp"].
             name: unmask(signal, mask_valid)
-            for name, signal in df_features.items()
+            for name, signal in features.items()
         }
 
     if args.cwt:
@@ -199,29 +199,27 @@ def main():
         ax.plot(rr_average)
 
     if args.sdnn:
-        sdnn = df_features["sdnn"]
-        time = df_features["time"]
-        fig, ax = plot.series(sdnn, x=time)
+        sdnn = features["sdnn"]
+        datetime = features["datetime"]
+        fig, ax = plot.series(sdnn, x=datetime)
         fig.autofmt_xdate()
         ax.set_title("sdnn")
         ax.set_ylabel("sdnn")
 
     if args.rmssd:
-        rmssd = df_features["rmssd"]
-        time = df_features["time"]
-        fig, ax = plot.series(rmssd, x=time)
+        rmssd = features["rmssd"]
+        datetime = features["datetime"]
+        fig, ax = plot.series(rmssd, x=datetime)
         fig.autofmt_xdate()
         ax.set_title("rmssd")
         ax.set_ylabel("rmssd")
 
     if args.dfa1:
-        print(df_features.head())
-
         # Assuming a constant effort.
-        mean_alpha1 = round(np.mean(df_features['alpha1']), 2)
+        mean_alpha1 = round(np.nanmean(features['alpha1']), 2)
         print(f"mean alpha1 = {mean_alpha1:.2f}")
 
-        plot.df_alpha1(df_features)
+        plot.df_alpha1(features)
 
     # Filter further based on SDNN to remove the moments standing still.
 
@@ -240,7 +238,7 @@ def main():
         plot.df_alpha1(df_features_motion)
 
     if args.dfa1_vs_hr:
-        plot.df_alpha1_vs_hr(df_features)
+        plot.df_alpha1_vs_hr(features)
 
     if args.overlay:
         plot.overlay(features, recordings)

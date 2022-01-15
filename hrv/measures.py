@@ -156,9 +156,7 @@ def features_from_sliding_window(df):
         features.append(curr_features)
     print()
 
-    df_features = pd.DataFrame(features)
-
-    return df_features
+    return features
 
 
 def _pad_like(a, b, align="center"):
@@ -225,6 +223,4 @@ def features_from_sliding_window_2(df):
     }
     features["index"] = np.arange(len(rr_ms), dtype=int)
 
-    df_features = pd.DataFrame(features)
-
-    return df_features
+    return features

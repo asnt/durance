@@ -161,14 +161,13 @@ def df_alpha1(df, cmap="Spectral"):
 
     fig, ax = plt.subplots()
 
-    time = df["time"].values
-    # time = mpl.dates.num2timedelta(time)
-    # time = mpl.dates.date2num(time)
+    relative_time = df["relative_time_s"]
 
-    alpha1 = df["alpha1"].values
+    alpha1 = df["alpha1"]
     color_alpha1 = "dimgray"
-    plot_dfa1, = ax.plot(time, alpha1, color=color_alpha1)
-    ax.scatter(time, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
+    plot_dfa1, = ax.plot(relative_time, alpha1, color=color_alpha1)
+    ax.scatter(relative_time, alpha1,
+               c=alpha1, norm=color_normalizer, cmap=cmap)
     ax.set_xlabel("time")
     ax.set_ylabel("DFA-alpha1")
     ax.set_ylim((0, 1.5))
@@ -180,9 +179,9 @@ def df_alpha1(df, cmap="Spectral"):
     ax.yaxis.grid(which="major", color="lightgray")
 
     ax_hr = ax.twinx()
-    hr = df["heartrate"].values
+    hr = df["heartrate"]
     color_hr = "orangered"
-    plot_hr, = ax_hr.plot(time, hr, color=color_hr, alpha=0.25)
+    plot_hr, = ax_hr.plot(relative_time, hr, color=color_hr, alpha=0.25)
     ax_hr.set_ylabel("heartrate")
     ax_hr.yaxis.label.set_color(plot_hr.get_color())
     ax_hr.tick_params(axis="y", colors=plot_hr.get_color())
@@ -282,8 +281,8 @@ def df_alpha1_vs_hr(df, cmap="Spectral"):
 
     fig, ax = plt.subplots()
 
-    hr = df["heartrate"].values
-    alpha1 = df["alpha1"].values
+    hr = df["heartrate"]
+    alpha1 = df["alpha1"]
     ax.scatter(hr, alpha1, c=alpha1, norm=color_normalizer, cmap=cmap)
     ax.set_xlabel("heartrate")
     ax.set_ylabel("DFA-alpha1")
