@@ -92,9 +92,9 @@ def main():
 
     plot = importlib.import_module(f"hrv.plot.{args.backend}")
 
-    rr_raw = hrv.data.load_rr(args.input)
     activity_data, signals = hrv.data.load(args.input)
 
+    rr_raw = hrv.data.load_rr(args.input)
     hrv_relative_time_s, rr, mask_valid = cleanup_rr_signal(
         rr_raw,
         outlier_method=args.outlier_method,
