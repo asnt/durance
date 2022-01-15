@@ -149,7 +149,7 @@ def main():
             -------
             Upsampled signal matching length of raw (corrupted) HRV signal.
             """
-            y = np.full_like(mask, np.nan, dtype=float)
+            y = np.full_like(mask, np.nan, dtype=x.dtype)
             y[mask] = x
             return y
 
