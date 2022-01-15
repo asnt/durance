@@ -189,6 +189,7 @@ def features_from_sliding_window_2(df):
 
     rr_s = df["rr"].values
     relative_time_s = df["relative_time_s"].values.astype(float)
+    datetime = df["datetime"].values
 
     rr_ms = rr_s * 1000
     sliding_window_view = np.lib.stride_tricks.sliding_window_view
@@ -210,7 +211,7 @@ def features_from_sliding_window_2(df):
     alpha1 = dfa_batch(rr, n_scales_max=n_scales_max)
 
     features = {
-        "datetime": df["datetime"].values,
+        "datetime": datetime,
         "relative_time_s": relative_time_s,
         "heartrate": heartrate,
         "rmssd": rmssd,
