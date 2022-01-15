@@ -27,7 +27,7 @@ def format_none_to_nothing(data: Optional[Any]) -> str:
 
 
 @flask_app.template_filter("ignore_generic")
-def format_genertic_to_nothing(data: Optional[Any]) -> Optional[Any]:
+def format_generic_to_nothing(data: Optional[Any]) -> Optional[Any]:
     if data == "generic":
         return ""
     return data
