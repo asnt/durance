@@ -169,6 +169,38 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     return figure
 
 
+def _activity_records_to_arrays(activity_records):
+    activity_arrays = dict(
+        datetime_start=[],
+        name=[],
+        sport=[],
+        sub_sport=[],
+        workout=[],
+    )
+    for field in activity_arrays:
+        activity_arrays[field] = [
+            getattr(activity, field) for activity in activity_records
+        ]
+    return activity_arrays
+
+
+def _summary_records_to_arrays(summary_records):
+    summary_arrays = dict(
+        duration=[],
+        distance=[],
+        speed=[],
+        ascent=[],
+        descent=[],
+        heart_rate=[],
+        step_rate=[],
+    )
+    for field in summary_arrays:
+        summary_arrays[field] = [
+            getattr(summary, field) for summary in summary_records
+        ]
+    return summary_arrays
+
+
 @flask_app.route("/", methods=["GET"])
 def index():
     args = request.args
@@ -208,43 +240,19 @@ def index():
     session = app.model.make_session()
     rows = session.execute(query).all()
 
-    activity_history = dict(
-        datetime_start=[],
-        name=[],
-        sport=[],
-        sub_sport=[],
-        workout=[],
-    )
-
-    summary_history = dict(
-        duration=[],
-        distance=[],
-        speed=[],
-        ascent=[],
-        descent=[],
-        heart_rate=[],
-        step_rate=[],
-    )
-
     activities = []
     summaries = []
     script = ""
     div = ""
 
     if rows:
-        activities, summaries = zip(*rows)
-        for field in activity_history:
-            activity_history[field] = [
-                getattr(activity, field) for activity in activities
-            ]
-        for field in summary_history:
-            summary_history[field] = [
-                getattr(summary, field) for summary in summaries
-            ]
+        activity_records, summary_records = zip(*rows)
+        activities = _activity_records_to_arrays(activity_records)
+        summaries = _summary_records_to_arrays(summary_records)
 
-        data_history = activity_history | summary_history
+        history = activities | summaries
 
-        figure = make_figure_activities_history(data_history)
+        figure = make_figure_activities_history(history)
         script, div = bokeh.embed.components(figure)
 
     return render_template(
@@ -253,8 +261,8 @@ def index():
         sport=sport,
         date_min=date_min,
         date_max=date_max,
-        activities=activities,
-        summaries=summaries,
+        activities=activity_records,
+        summaries=summary_records,
         history_div=div,
         history_script=script,
     )
