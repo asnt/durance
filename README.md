@@ -1,9 +1,16 @@
-# Endurance training
+# Endurance training data analysis
 
-Monitor the evolution of your endurance.
+Retrieve and analyse training data from .FIT files in Python.
 
-This package includes:
+# Goals
 
-- analysis of heart rate variability (HRV) data,
-- a web app,
-- a library of routines for analysis.
+- Focus on endurance training.
+- Only enssentials trends and metrics.
+- Exploit heartrate variation (HRV) signals.
+- Web interface.
+
+# See also
+
+- [ActivityLog2](https://github.com/alex-hhh/ActivityLog2)
+
+  Exhaustive feature set. Desktop.
