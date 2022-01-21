@@ -100,7 +100,7 @@ def overlay(df: pd.DataFrame) -> bk.models.LayoutDOM:
 
 def recordings_overlay(source: bk.models.ColumnDataSource) \
         -> bk.plotting.Figure:
-    """Plot standard recordings of an activity."""
+    """Plot standard recordings (i.e. non-HRV) of an activity."""
     x_measures = ("distance", "time")
     y_measures = list(source.column_names)
     y_measures.remove("index")
