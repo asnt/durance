@@ -102,7 +102,10 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
                                    sizing_mode="stretch_width",
                                    x_axis_type="datetime")
 
-    dates = [datetime_.date() for datetime_ in series["datetime_start"]]
+    # Align activity on date, not on precise time.
+    dates = [datetime_.replace(hour=0, minute=0, second=0)
+             for datetime_ in series["datetime_start"]]
+    series["date"] = dates
 
     import collections
     dates_per_month = collections.defaultdict(list)
@@ -150,7 +153,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
         axis.axis_line_alpha = 0
 
     # Only transmit plotted series.
-    x = "datetime_start"
+    x = "date"
     y = "duration"
     series_shown = {field: series[field] for field in (x, y)}
     import bokeh.models
