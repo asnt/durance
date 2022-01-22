@@ -99,7 +99,7 @@ def _make_axis_years() -> bokeh.models.DatetimeAxis:
 
 def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     import bokeh.plotting
-    figure = bokeh.plotting.figure(height=128,
+    figure = bokeh.plotting.figure(height=192,
                                    sizing_mode="stretch_width",
                                    x_axis_type="datetime")
 
