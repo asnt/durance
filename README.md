@@ -5,7 +5,7 @@ Retrieve and analyse training data from .FIT files in Python.
 # Goals
 
 - Focus on endurance training.
-- Only enssentials trends and metrics.
+- Only enssential trends and metrics.
 - Exploit heartrate variation (HRV) signals.
 - Web interface.
 
