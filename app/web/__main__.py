@@ -6,6 +6,7 @@ from flask import Flask, render_template, request
 import bokeh.embed
 import bokeh.model
 import bokeh.plotting
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 
@@ -155,10 +156,19 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     # Only transmit plotted series.
     x = "date"
     y = "duration"
-    series_shown = {field: series[field] for field in (x, y)}
+    y_background = "duration_cumulated"
+    fields = (x, y, y_background)
+    series_shown = {field: series[field] for field in fields}
     import bokeh.models
     source = bokeh.models.ColumnDataSource(series_shown)
 
+    figure.vbar(
+        x=x,
+        top=y_background,
+        source=source,
+        width=datetime.timedelta(days=0.8),
+        color="lightgray",
+    )
     figure.vbar(
         x=x,
         top=y,
@@ -252,7 +262,22 @@ def index():
 
         history = activities | summaries
 
-        figure = make_figure_activities_history(history)
+        # Resample with a frequency of one day (i.e. add missing days).
+        df = pd.DataFrame(history)
+        resampler = df.resample("1D", on="datetime_start")
+        df_daily = resampler.apply(dict(
+            # XXX: Insert daily aggregation for other columns here when needed.
+            # Only displaying duration for now.
+            duration=np.sum,
+        ))
+        df_daily = df_daily.reset_index()
+        # Compute cumulated duration of past 7 days.
+        rolling_week = df_daily.rolling("7D", on="datetime_start")
+        df_daily["duration_cumulated"] = rolling_week["duration"].sum()
+
+        history_daily = df_daily.to_dict(orient="list")
+
+        figure = make_figure_activities_history(history_daily)
         script, div = bokeh.embed.components(figure)
 
     return render_template(
