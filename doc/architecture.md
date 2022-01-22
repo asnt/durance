@@ -17,6 +17,6 @@ Elements:
 - web_backend
 - web_frontend
 
-Relations
+Relations:
 - storage <-> CLI
 - storage --> web_backend <-> web_frontend
