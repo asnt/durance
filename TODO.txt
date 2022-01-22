@@ -1,3 +1,0 @@
-- Add possibility to mark a heart rate recording as invalid.
-- Add possibility to mark part of a heart rate recording as invalid, i.e.
-  define a mask on the invalid portions.
