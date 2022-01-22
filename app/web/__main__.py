@@ -129,7 +129,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
 
     # XXX: Assume time on the y axis.
     time_tick_formatter = bokeh.models.NumeralTickFormatter(format="00:00:00")
-    interval_minutes = 30
+    interval_minutes = 60
     interval_seconds = interval_minutes * 60
     time_ticker = bokeh.models.SingleIntervalTicker(interval=interval_seconds)
 
