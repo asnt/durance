@@ -12,5 +12,6 @@ Retrieve and analyse training data from .FIT files in Python.
 # See also
 
 - [ActivityLog2](https://github.com/alex-hhh/ActivityLog2)
-
-  Exhaustive feature set. Desktop.
+  Endurance and triathlon activity analysis.
+  Exhaustive feature set.
+  Desktop.
