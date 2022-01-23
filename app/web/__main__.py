@@ -70,6 +70,7 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     interval_seconds = interval_minutes * 60
     time_ticker = bokeh.models.SingleIntervalTicker(interval=interval_seconds)
 
+    figure.yaxis[0].axis_label = "duration"
     figure.yaxis[0].formatter = time_tick_formatter
     figure.yaxis[0].ticker = time_ticker
     # Duplicate y axis on the right for legibility when the plot is wide.
