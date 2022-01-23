@@ -177,7 +177,9 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     return figure
 
 
-def _activity_records_to_arrays(activity_records):
+def _activity_records_to_arrays(
+    activity_records: list[Dict],
+) -> Dict[str, np.ndarray]:
     activity_arrays = dict(
         datetime_start=[],
         name=[],
@@ -192,7 +194,9 @@ def _activity_records_to_arrays(activity_records):
     return activity_arrays
 
 
-def _summary_records_to_arrays(summary_records):
+def _summary_records_to_arrays(
+    summary_records: list[Dict],
+) -> Dict[str, np.ndarray]:
     summary_arrays = dict(
         duration=[],
         distance=[],
