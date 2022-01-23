@@ -295,9 +295,10 @@ def index():
     )
 
 
-def make_activity_plots(series: Dict,
-                        series_hrv: Dict
-                        ) -> bokeh.model.model.Model:
+def make_activity_plots(
+    series: Dict[str, np.ndarray],
+    series_hrv: Dict[str, np.ndarray],
+) -> bokeh.model.model.Model:
     plot = importlib.import_module("hrv.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(series)
 
