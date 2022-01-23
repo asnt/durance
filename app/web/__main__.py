@@ -1,10 +1,11 @@
+import collections
 import datetime
 import importlib
 from typing import Any, Dict, Optional
 
 from flask import Flask, render_template, request
 import bokeh.embed
-import bokeh.model
+import bokeh.models
 import bokeh.plotting
 import numpy as np
 import pandas as pd
@@ -98,7 +99,6 @@ def _make_axis_years() -> bokeh.models.DatetimeAxis:
 
 
 def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
-    import bokeh.plotting
     figure = bokeh.plotting.figure(height=192,
                                    sizing_mode="stretch_width",
                                    x_axis_type="datetime")
@@ -108,7 +108,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
              for datetime_ in series["datetime_start"]]
     series["date"] = dates
 
-    import collections
     dates_per_month = collections.defaultdict(list)
     for date in dates:
         month = date.month
@@ -159,7 +158,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     y_background = "duration_cumulated"
     fields = (x, y, y_background)
     series_shown = {field: series[field] for field in fields}
-    import bokeh.models
     source = bokeh.models.ColumnDataSource(series_shown)
 
     figure.vbar(
@@ -339,7 +337,6 @@ def make_activity_plots(series: Dict,
         rr = series_hrv["rr"]
         hrv_source = bokeh.models.ColumnDataSource()
         hrv_source.add(rr, "rr")
-        import numpy as np
         hrv_source.add(np.arange(len(rr)), "x")
         series_plots["rr"] = plot.series(hrv_source, y="rr", type_="scatter")
         histograms["rr"] = plot.histogram(rr)
