@@ -9,6 +9,10 @@ Retrieve and analyse training data from .FIT files in Python.
 - Exploit heartrate variation (HRV) signals.
 - Web interface.
 
+# License
+
+GNU GPL v3
+
 # See also
 
 - [ActivityLog2](https://github.com/alex-hhh/ActivityLog2)
