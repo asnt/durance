@@ -52,52 +52,6 @@ def format_meters_to_km(meters: int) -> str:
     return f"{meters / 1000:.1f}"
 
 
-def _make_axis_months() -> bokeh.models.DatetimeAxis:
-    axis_months = bokeh.models.DatetimeAxis()
-    # XXX: Not sure how to define this. Does not work for less than "12".
-    months_invervals = list(range(12))
-    axis_months.ticker = bokeh.models.MonthsTicker(months=months_invervals)
-    axis_months.formatter.days = ["%m"]
-    axis_months.formatter.months = ["%m"]
-    axis_months.formatter.years = ["%m"]
-    return axis_months
-
-
-def _make_axis_years() -> bokeh.models.DatetimeAxis:
-    # TODO: Goal: Place a tick on the first day of each year in the visible
-    # range,and on the first days of the visible range.
-    #
-    # Alternative 1. (Does not work.)
-    #
-    # axis_years = bokeh.models.Axis()
-    # axis_years.formatter = bokeh.models.()
-    # FIXME: Not sure how to convert a `date` or `datetime` to a float value
-    # that the x axis understands.
-    # date_nums = [
-    #     datetime.datetime(date.year, date.month, date.day).timestamp()
-    #     for date in min_date_per_year.values()
-    # ]
-    # print(date_nums)
-    # axis_years.ticker = bokeh.models.FixedTicker(
-    #     ticks=date_nums,
-    # )
-    #
-    # Alternative 2. (Partial solution. Temporary.)
-    #
-    axis_years = bokeh.models.DatetimeAxis()
-    # FIXME: I think this puts a tick at each first day of each year only. Not
-    # sure how to adapt place at a late day if the x-axis range does not
-    # contain the first day.
-    # XXX: This might be sufficient for now.
-    axis_years.ticker = bokeh.models.YearsTicker()
-    # XXX: Repeat the year on the first day of each month for now.
-    # axis_years.ticker = bokeh.models.MonthsTicker(
-    axis_years.formatter.days = ["%Y"]
-    axis_years.formatter.months = ["%Y"]
-    axis_years.formatter.years = ["%Y"]
-    return axis_years
-
-
 def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     figure = bokeh.plotting.figure(height=192,
                                    sizing_mode="stretch_width",
@@ -112,19 +66,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     for date in dates:
         month = date.month
         dates_per_month[month].append(date)
-
-    axis_months = _make_axis_months()
-    figure.add_layout(axis_months, "below")
-
-    axis_years = _make_axis_years()
-    figure.add_layout(axis_years, "below")
-
-    figure.xaxis[0].formatter.days = ["%d"]
-    # Note: Cover all "days intervals" for each month.
-    # `list(range(5))` would display tick only for days 1, 2, 3 and 4.
-    days_intervals = list(range(32))
-    figure.xaxis[0].ticker = bokeh.models.DaysTicker(days=days_intervals)
-    # figure.grid.visible = False
 
     # XXX: Assume time on the y axis.
     time_tick_formatter = bokeh.models.NumeralTickFormatter(format="00:00:00")
@@ -143,10 +84,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
 
     figure.xaxis[0].axis_line_alpha = 0
     figure.xaxis[0].major_tick_in = 0
-    axis_months.axis_line_alpha = 0
-    axis_months.major_tick_in = 0
-    axis_years.axis_line_alpha = 0
-    axis_years.major_tick_in = 0
     for axis in figure.yaxis:
         axis.major_tick_in = 0
         axis.minor_tick_line_alpha = 0
