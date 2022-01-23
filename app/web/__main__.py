@@ -260,8 +260,17 @@ def index():
 
         history = activities | summaries
 
-        # Resample with a frequency of one day (i.e. add missing days).
         df = pd.DataFrame(history)
+        # Insert a dummy activity for today if none exists, for the resampling
+        # and cumulated statistics below to be computed until today.
+        last_date = df["datetime_start"].nlargest(1).dt.date.values[0]
+        today = datetime.date.today()
+        if today > last_date:
+            df = df.append(
+                {"datetime_start": datetime.datetime.today()},
+                ignore_index=True,
+            )
+        # Resample with a frequency of one day (i.e. add missing days).
         resampler = df.resample("1D", on="datetime_start")
         df_daily = resampler.apply(dict(
             # XXX: Insert daily aggregation for other columns here when needed.
