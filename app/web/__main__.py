@@ -177,27 +177,23 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
     return figure
 
 
-def _activity_records_to_arrays(
-    activity_records: list[Dict],
-) -> Dict[str, np.ndarray]:
-    activity_arrays = dict(
+def _activity_records_to_arrays(records: list[Dict]) -> Dict[str, np.ndarray]:
+    arrays = dict(
         datetime_start=[],
         name=[],
         sport=[],
         sub_sport=[],
         workout=[],
     )
-    for field in activity_arrays:
-        activity_arrays[field] = [
-            getattr(activity, field) for activity in activity_records
+    for field in arrays:
+        arrays[field] = [
+            getattr(activity, field) for activity in records
         ]
-    return activity_arrays
+    return arrays
 
 
-def _summary_records_to_arrays(
-    summary_records: list[Dict],
-) -> Dict[str, np.ndarray]:
-    summary_arrays = dict(
+def _summary_records_to_arrays(records: list[Dict]) -> Dict[str, np.ndarray]:
+    arrays = dict(
         duration=[],
         distance=[],
         speed=[],
@@ -206,11 +202,11 @@ def _summary_records_to_arrays(
         heart_rate=[],
         step_rate=[],
     )
-    for field in summary_arrays:
-        summary_arrays[field] = [
-            getattr(summary, field) for summary in summary_records
+    for field in arrays:
+        arrays[field] = [
+            getattr(summary, field) for summary in records
         ]
-    return summary_arrays
+    return arrays
 
 
 @flask_app.route("/", methods=["GET"])
