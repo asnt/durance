@@ -62,11 +62,6 @@ def make_figure_activities_history(series: Dict) -> bokeh.plotting.Figure:
              for datetime_ in series["datetime_start"]]
     series["date"] = dates
 
-    dates_per_month = collections.defaultdict(list)
-    for date in dates:
-        month = date.month
-        dates_per_month[month].append(date)
-
     # XXX: Assume time on the y axis.
     time_tick_formatter = bokeh.models.NumeralTickFormatter(format="00:00:00")
     interval_minutes = 60
