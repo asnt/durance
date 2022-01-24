@@ -40,11 +40,12 @@
       <th>km</th>
       <th>km/h</th>
       <th>hr</th>
+      <th></th>
       <th>spm</th>
     </tr>
   </thead>
   <tbody>
-    {% for activity, summary in zip(activities, summaries) %}
+    {% for activity, summary, array_hr in zip(activities, summaries, arrays_hr) %}
     <tr>
       <td>{{ activity.datetime_start.date()|ignore_none }}</td>
       <td>{{ activity.datetime_start.time()|ignore_none }}</td>
@@ -63,6 +64,57 @@
       <td>{{ summary.distance|meters_to_km|ignore_none }}</td>
       <td>{{ summary.speed|ignore_none }}</td>
       <td>{{ summary.heart_rate|ignore_none }}</td>
+      <td>
+          {% if array_hr is not none %}
+          <svg version="1.1"
+               xmlns="http://www.w3.org/2000/svg"
+               xmlns:xlink="http://www.w3.org/1999/xlink"
+               class="chart"
+               height="15"
+               width="{{arrays_hr[0].size}}"
+               aria-labelledby="title"
+               role="img">
+              <title id="title">Distribution of heart rate</title>
+
+              <rect
+                y="-1"
+                height="16"
+                x="{{hr_zones_segments[0, 0]}}"
+                width="{{hr_zones_segments[0, 1]}}"
+                fill="#6ec"
+                >
+              </rect>
+              <rect
+                y="-1"
+                height="16"
+                x="{{hr_zones_segments[1, 0]}}"
+                width="{{hr_zones_segments[1, 1]}}"
+                fill="#ec6"
+                >
+              </rect>
+              <rect
+                y="-1"
+                height="16"
+                x="{{hr_zones_segments[2, 0]}}"
+                width="{{hr_zones_segments[2, 1]}}"
+                fill="#e66"
+                >
+              </rect>
+
+              {% for hr in array_hr %}
+              <rect
+                y="{{0.5 * (15 - 100 * hr)}}"
+                height="{{100 * hr}}"
+                x="{{loop.index}}"
+                width="1"
+                stroke="#222"
+                fill="#222"
+                >
+              </rect>
+              {% endfor %}
+          </svg>
+          {% endif %}
+      </td>
       <td>{{ summary.step_rate|ignore_none }}</td>
     </tr>
     {% endfor %}

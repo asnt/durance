@@ -179,9 +179,26 @@ def index():
         .outerjoin(Summary)
     )
 
+    # TODO: Check if this query could be combined with the above one.
+    # Get only the heart rate signal associated to each activity to display an
+    # inline chart.
+    Recording = app.model.Recording
+    query_hr = sa.select(Recording).select_from(Activity)
+    if sport:
+        query_hr = query_hr.where(Activity.sport == sport)
+    query_hr = (
+        query_hr
+        .where(Activity.datetime_start >= date_min)
+        .where(Activity.datetime_start < date_max_plus_1_day)
+        .order_by(Activity.datetime_start.desc())
+        # https://docs.sqlalchemy.org/en/14/orm/queryguide.html#augmenting-built-in-on-clauses
+        .outerjoin(Activity.recordings.and_(Recording.name == "heart_rate"))
+    )
+
     _ = app.model.make_engine()
     session = app.model.make_session()
     rows = session.execute(query).all()
+    rows_hr = session.execute(query_hr).all()
 
     activities = []
     summaries = []
@@ -224,6 +241,33 @@ def index():
         figure = make_figure_activities_history(history_daily)
         script, div = bokeh.embed.components(figure)
 
+    if rows_hr:
+        # TODO: Make these configurable parameters.
+        hr_bounds = [120, 180]
+        hr_zones = [
+            # 3-zone model.
+            # aerobic
+            [120, 150],
+            # onset of anaerobic system
+            [150, 160],
+            # anaerobic
+            [160, 180],
+        ]
+
+        arrays_hr = [
+            recording.array if recording is not None else None
+            for recording in list(zip(*rows_hr))[0]
+        ]
+        n_bins = hr_bounds[1] - hr_bounds[0]
+        arrays_hr = [
+            np.histogram(array, bins=n_bins, range=hr_bounds, density=True)[0]
+            if array is not None
+            else None
+            for array in arrays_hr
+        ]
+        hr_zones_segments = np.array(hr_zones) - hr_bounds[0]
+        hr_zones_segments[:, 1] -= hr_zones_segments[:, 0]
+
     return render_template(
         "activities.html",
         sports=sports,
@@ -232,6 +276,8 @@ def index():
         date_max=date_max,
         activities=activity_records,
         summaries=summary_records,
+        arrays_hr=arrays_hr,
+        hr_zones_segments=hr_zones_segments,
         history_div=div,
         history_script=script,
     )
