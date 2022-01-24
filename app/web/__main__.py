@@ -185,6 +185,8 @@ def index():
 
     activities = []
     summaries = []
+    activity_records = {}
+    summary_records = {}
     script = ""
     div = ""
 
