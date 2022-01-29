@@ -75,6 +75,7 @@
                role="img">
               <title id="title">Distribution of heart rate</title>
 
+              {# Draw the HR zone areas as colored rects in the background. #}
               <rect
                 y="-1"
                 height="16"
@@ -100,6 +101,9 @@
                 >
               </rect>
 
+              {# Draw the histrogram over the background zone areas as a series
+              of thin vertical rects, one per HR value. #}
+              <g stroke="#2d7f9d" fill="#2d7f9d">
               {% for hr in array_hr %}
               <rect
                 y="{{0.5 * (15 - 100 * hr)}}"
