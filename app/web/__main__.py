@@ -181,7 +181,7 @@ def index():
 
     # TODO: Check if this query could be combined with the above one.
     # Get only the heart rate signal associated with each activity to display
-    # an inline chart.
+    # an inline histogram.
     Recording = app.model.Recording
     query_hr = sa.select(Recording).select_from(Activity)
     if sport:
