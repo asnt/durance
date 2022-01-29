@@ -283,6 +283,7 @@ def index():
         summaries=summary_records,
         arrays_hr=arrays_hr,
         hr_zones_segments=hr_zones_segments,
+        hr_zones_stops=hr_zones_stops,
         history_div=div,
         history_script=script,
     )

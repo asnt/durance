@@ -73,7 +73,8 @@
                width="{{array_hr.size}}"
                aria-labelledby="title"
                role="img">
-              <title id="title">Distribution of heart rate</title>
+              <title id="title">Distribution of heart rate
+{{hr_zones_stops | length - 1}} zones: {{hr_zones_stops}}</title>
 
               {# Draw the HR zone areas as colored rects in the background. #}
               <rect
