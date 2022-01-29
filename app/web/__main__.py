@@ -243,15 +243,20 @@ def index():
 
     if rows_hr:
         # TODO: Make these configurable parameters.
+        # Upper and lower bounds for presentation.
         hr_bounds = [120, 180]
+        # Inner stops for a 3-zone model.
+        hr_aerobic_threshold = 150
+        hr_anaerobic_threshold = 160
+        hr_zones_stops = [
+            hr_bounds[0],
+            hr_aerobic_threshold,
+            hr_anaerobic_threshold,
+            hr_bounds[1],
+        ]
         hr_zones = [
-            # 3-zone model.
-            # aerobic
-            [120, 150],
-            # onset of anaerobic system
-            [150, 160],
-            # anaerobic
-            [160, 180],
+            [hr_zones_stops[i], hr_zones_stops[i + 1]]
+            for i in range(len(hr_zones_stops) - 1)
         ]
 
         arrays_hr = [
