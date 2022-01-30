@@ -80,11 +80,7 @@ def parse_args():
 def cleanup_rr_signal(rr_raw, outlier_method="moving_median"):
     mask_valid = hrv.denoise.find_inliers(rr_raw, method=outlier_method)
     rr = rr_raw[mask_valid]
-
-    relative_time = np.cumsum(rr)
-    relative_time = relative_time.astype(float)
-
-    return relative_time, rr, mask_valid
+    return rr, mask_valid
 
 
 def main():
@@ -95,10 +91,11 @@ def main():
     activity_data, signals = hrv.data.load(args.input)
 
     rr_raw = hrv.data.load_rr(args.input)
-    hrv_relative_time_s, rr, mask_valid = cleanup_rr_signal(
+    rr, mask_valid = cleanup_rr_signal(
         rr_raw,
         outlier_method=args.outlier_method,
     )
+    hrv_relative_time_s = np.cumsum(rr_raw).astype(float)[mask_valid]
 
     n_valid = mask_valid.sum()
     n_samples = len(mask_valid)
