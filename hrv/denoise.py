@@ -1,20 +1,19 @@
 import numpy as np
 
 
-def find_inliers(rr, method="moving_median"):
+def find_inliers(rr: np.ndarray, method: str = "moving_median") -> np.ndarray:
     """Find valid RR signal samples.
 
     Parameters
     ----------
-    rr: array-like
-        (n,) Raw signal of RR intervals.
-    method: str, {"moving_median", "deviation", "deviation_forward"}
-        The method to identify outliers.
+    rr:
+        Raw signal of RR intervals. Shape (n,).
+    method: {"moving_median", "deviation", "deviation_forward"}
+        Method to identify outliers.
 
     Returns
     -------
-    mask_valid: array-like
-        (n,) boolen mask array of the valid samples.
+    Boolen mask of valid samples. Shape (n,).
     """
     if method == "deviation":
         mask_valid = inliers_from_deviation(rr)
