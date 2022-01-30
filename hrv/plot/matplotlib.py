@@ -212,7 +212,9 @@ def overlay(signals=None, hrv_signals=None, cmap="Spectral"):
         x = signals["datetime"]
         color_altitude = "#eee"
         plot_, = ax_.plot(x, y, color=color_altitude)
-        ax_.fill_between(x, y.min(), y, color=color_altitude)
+        y_bottom = np.nanmin(y)
+        y_top = y
+        ax_.fill_between(x, y_bottom, y_top, color=color_altitude)
         ax_.set_ylabel("altitude (metres)")
 
     #
