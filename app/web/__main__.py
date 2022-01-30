@@ -148,6 +148,8 @@ def _summary_records_to_arrays(records: list[Dict]) -> Dict[str, np.ndarray]:
 def index():
     args = request.args
 
+    cumulated_days = 7
+
     sports = ("", "running", "cycling", "swimming", "generic")
     sport = args.get("sport", "")
     if sport not in sports:
@@ -165,6 +167,9 @@ def index():
         date_min = date_max - datetime.timedelta(weeks=4)
     else:
         date_min = datetime.date.fromisoformat(date_min_str)
+    date_min_minus_cumulated_days = (
+        date_min - datetime.timedelta(days=cumulated_days)
+    )
 
     Activity = app.model.Activity
     Summary = app.model.Summary
@@ -173,7 +178,7 @@ def index():
         query = query.where(Activity.sport == sport)
     query = (
         query
-        .where(Activity.datetime_start >= date_min)
+        .where(Activity.datetime_start >= date_min_minus_cumulated_days)
         .where(Activity.datetime_start < date_max_plus_1_day)
         .order_by(Activity.datetime_start.desc())
         .outerjoin(Summary)
@@ -188,7 +193,7 @@ def index():
         query_hr = query_hr.where(Activity.sport == sport)
     query_hr = (
         query_hr
-        .where(Activity.datetime_start >= date_min)
+        .where(Activity.datetime_start >= date_min_minus_cumulated_days)
         .where(Activity.datetime_start < date_max_plus_1_day)
         .order_by(Activity.datetime_start.desc())
         # https://docs.sqlalchemy.org/en/14/orm/queryguide.html#augmenting-built-in-on-clauses
@@ -232,9 +237,14 @@ def index():
             duration=np.sum,
         ))
         df_daily = df_daily.reset_index()
-        # Compute cumulated duration of past 7 days.
-        rolling_week = df_daily.rolling("7D", on="datetime_start")
-        df_daily["duration_cumulated"] = rolling_week["duration"].sum()
+        # Compute cumulated duration.
+        str_window_size = f"{cumulated_days}D"
+        windows = df_daily.rolling(str_window_size, on="datetime_start")
+        duration_cumulated = windows["duration"].sum()
+        # Remove initial extra days used for correct cumulation.
+        # df_daily["duration_cumulated"] = duration_cumulated[cumulated_days:]
+        df_daily["duration_cumulated"] = duration_cumulated
+        df_daily = df_daily[cumulated_days:]
 
         history_daily = df_daily.to_dict(orient="list")
 
