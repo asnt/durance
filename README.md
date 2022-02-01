@@ -1,13 +1,13 @@
-# Endurance training data analysis
+# Training data analysis
 
-Retrieve and analyse training data from .FIT files in Python.
+Generate statistics and graphical reports of training data for analysis.
 
 # Goals
 
 - Focus on endurance training.
-- Only enssential trends and metrics.
-- Exploit heartrate variation (HRV) signals.
-- Web interface.
+- Focus on essential trends and statistics.
+- Handle heartrate variation (HRV).
+- Provide a web interface.
 
 # License
 
