@@ -346,7 +346,9 @@ def make_activity_plots(
         rr = series_hrv["rr"]
         hrv_source = bokeh.models.ColumnDataSource()
         hrv_source.add(rr, "rr")
-        hrv_source.add(np.arange(len(rr)), "x")
+        # FIXME: More or less matches the span of non-HRV signals, but not
+        # exactly. Not sure whether some alignment is needed.
+        hrv_source.add(np.cumsum(rr), "x")
         series_plots["rr"] = plot.series(hrv_source, y="rr", type_="scatter")
         histograms["rr"] = plot.histogram(rr)
 
