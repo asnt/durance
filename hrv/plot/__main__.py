@@ -95,7 +95,7 @@ def main():
         rr_raw,
         outlier_method=args.outlier_method,
     )
-    hrv_relative_time_s = np.cumsum(rr_raw).astype(float)[mask_valid]
+    hrv_relative_time_s = np.cumsum(rr_raw)[mask_valid].astype(float)
 
     n_valid = mask_valid.sum()
     n_samples = len(mask_valid)
