@@ -54,7 +54,7 @@ def import_activity_if_new(path: os.PathLike) -> bool:
     return True
 
 
-def import_activity(path: os.PathLike):
+def import_activity(path: os.PathLike) -> None:
     path = pathlib.Path(path)
     logger.debug(f"importing {path}")
 
