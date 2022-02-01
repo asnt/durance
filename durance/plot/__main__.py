@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import hrv.data
-import hrv.denoise
-import hrv.measures
+import durance.data
+import durance.denoise
+import durance.measures
 
 
 def compute_moving_average(x, window_size=31, average_fn="mean"):
@@ -78,7 +78,7 @@ def parse_args():
 
 
 def cleanup_rr_signal(rr_raw, outlier_method="moving_median"):
-    mask_valid = hrv.denoise.find_inliers(rr_raw, method=outlier_method)
+    mask_valid = durance.denoise.find_inliers(rr_raw, method=outlier_method)
     rr = rr_raw[mask_valid]
     return rr, mask_valid
 
@@ -86,11 +86,11 @@ def cleanup_rr_signal(rr_raw, outlier_method="moving_median"):
 def main():
     args = parse_args()
 
-    plot = importlib.import_module(f"hrv.plot.{args.backend}")
+    plot = importlib.import_module(f"durance.plot.{args.backend}")
 
-    activity_data, signals = hrv.data.load(args.input)
+    activity_data, signals = durance.data.load(args.input)
 
-    rr_raw = hrv.data.load_rr(args.input)
+    rr_raw = durance.data.load_rr(args.input)
     rr, mask_valid = cleanup_rr_signal(
         rr_raw,
         outlier_method=args.outlier_method,
@@ -105,7 +105,7 @@ def main():
     if args.rr_average:
         rr_average = compute_moving_average(rr_raw, average_fn="median")
 
-    activity_data, _ = hrv.data.load(args.input)
+    activity_data, _ = durance.data.load(args.input)
 
     timestamps_s = signals["timestamp"]
     timestamps_ms = 1000 * timestamps_s
@@ -151,9 +151,9 @@ def main():
             return y
 
         if args.dfa1_mode == "per_window":
-            features = hrv.measures.features_from_sliding_window(hrv_signals)
+            features = durance.measures.features_from_sliding_window(hrv_signals)
         elif args.dfa1_mode == "batch":
-            features = hrv.measures.features_from_sliding_window_2(hrv_signals)
+            features = durance.measures.features_from_sliding_window_2(hrv_signals)
             # TODO: Apply a similar upsampling on the 'per_window' mode above.
             features = {
                 # FIXME: The upsampling restores the length of the raw HRV

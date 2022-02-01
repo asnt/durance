@@ -303,7 +303,7 @@ def make_activity_plots(
     series: Dict[str, np.ndarray],
     series_hrv: Dict[str, np.ndarray],
 ) -> bokeh.model.Model:
-    plot = importlib.import_module("hrv.plot.bokeh")
+    plot = importlib.import_module("durance.plot.bokeh")
     data_source = bokeh.models.ColumnDataSource(series)
 
     x_measures = ("distance", "index", "time")

@@ -4,8 +4,8 @@ import pathlib
 import os
 from typing import Sequence
 
-import hrv.activity
-import hrv.data
+import durance.activity
+import durance.data
 import app.model
 
 
@@ -58,9 +58,9 @@ def import_activity(path: os.PathLike) -> None:
     path = pathlib.Path(path)
     logger.debug(f"importing {path}")
 
-    activity_data, recordings_data = hrv.data.load(path)
+    activity_data, recordings_data = durance.data.load(path)
     activity_data["file_hash"] = app.model.hash_file(path)
-    summary_data = hrv.activity.summarize(recordings_data)
+    summary_data = durance.activity.summarize(recordings_data)
 
     _ = app.model.make_engine()
     session = app.model.make_session()
