@@ -1,29 +1,91 @@
+from typing import Dict
+
 import numpy as np
 import pandas as pd
 
 
-def dfa(pp, scale_min=16, scale_max=64, n_scales_max=16):
+def dfa(
+    signal: np.ndarray,
+    scale_min: int = 16,
+    scale_max: int = 64,
+    n_scales_max: int = 16,
+) -> float:
+    """Estimate self-correlations with detrended fluctuation analysis (DFA).
+
+    Detrend with polynomials of order 1 (DFA1).
+
+    Returned exponent alpha > 0:
+    - alpha < 0.5: anti-correlated
+    - alpha = 0.5: uncorrelated (white noise)
+    - alpha > 0.5: correlated
+    - alpha = 1.0: 1/f-noise (pink noise)
+    - alpha > 1.0: non-stationary, unbounded
+    - alpha = 1.5: 1/f^2-noise (Brownian noise)
+
+    Parameters
+    ----------
+    signal : float[n]
+    scale_min :
+        Minimum scale, i.e. smallest window width for detrending.
+    scale_max :
+        Maximum scale, i.e. largest window width for detrending.
+    n_scales_max :
+        Maximum number of intermediate scales between `scale_min` and
+        `scale_max`.
+
+    Returns
+    -------
+    alpha
+        Scaling exponent indicating self-correlations of signal.
+
+    References
+    ----------
+    .. [1] Peng, C-K., et al. "Mosaic organization of DNA nucleotides."
+       Physical review e 49.2 (1994): 1685.
+    .. [2] https://en.wikipedia.org/wiki/Detrended_fluctuation_analysis
+    """
+    # Steps:
+    # - Detrend at different scales:
+    #     - set width of sub-window: width := scale (= time period),
+    #     - compute trend in each (non-overlapping) sub-window (i.e. fit
+    #       polynomial of given order),
+    #     - compute residuals from trend in each sub-window.
+    # - Compute fluctuation at each scale, i.e. root-mean-square of residuals
+    #   from all sub-windows at given scale.
+    # - Estimate exponent alpha of observed fluctutations, assuming power-law
+    #   distribution of fluctuations across scales, i.e. fit function
+    #       f(scale; alpha) = scale^alpha
+    #   to observations
+    #       f_k = f[scale_k],
+    #   but in log space, to transform problem into linear regression,
+    #       log(f(scale; alpha)) = log(scale^alpha) = alpha log(scale).
+    # - Alpha indicates self-correlations.
+
     assert scale_min < scale_max
+    assert n_scales_max > 2
+    # TODO: Check how longer than largest window (scale_max) signal needs to be
+    # for computation to make sense.
+    assert len(signal) > 2 * scale_max
 
     n_scales = scale_max - scale_min + 1
     if n_scales_max is not None:
         n_scales = min(n_scales_max, n_scales)
 
-    start = np.log(scale_min) / np.log(10)
-    stop = np.log(scale_max) / np.log(10)
-    scales = np.logspace(start, stop, n_scales)
+    start = np.log2(scale_min)
+    stop = np.log2(scale_max)
+    scales = np.logspace(start, stop, n_scales, base=2)
     scales = np.round(scales).astype(int)
 
     fluctuations = np.zeros(n_scales)
     count = 0
 
-    y_n = np.cumsum(pp - np.mean(pp))
+    cumulated_signal = np.cumsum(signal - np.mean(signal))
 
     for scale in scales:
         width = scale
 
         sliding_window_view = np.lib.stride_tricks.sliding_window_view
-        y = sliding_window_view(y_n, width)
+        y = sliding_window_view(cumulated_signal, width)
 
         A0 = np.arange(0, width).reshape(-1, 1)
         ones = np.ones((len(A0), 1))
@@ -45,33 +107,57 @@ def dfa(pp, scale_min=16, scale_max=64, n_scales_max=16):
         fluctuations[count] = rmse
         count = count + 1
 
-    coeffs = np.polyfit(np.log2(scales), np.log2(fluctuations), 1)
+    coeffs = np.polyfit(np.log(scales), np.log(fluctuations), 1)
     alpha = coeffs[0]
 
     return alpha
 
 
-def dfa_batch(rr, window_size=2 ** 8, scale_min=16, scale_max=64,
-              n_scales_max=16):
+def dfa_batch(
+    signal: np.ndarray,
+    window_size: int = 2 ** 8,
+    scale_min: int = 16,
+    scale_max: int = 64,
+    n_scales_max: int = 16,
+) -> np.ndarray:
+    """Estimate self-correlations in windows around each point of a signal.
+
+    Accelerate computation of DFA by dentrending once in all sliding windows of
+    stride one at all scales.
+
+    Parameters
+    ----------
+    signal : float[n]
+    scale_min :
+    scale_max :
+    n_scales_max :
+
+    Returns
+    -------
+    float[n]
+        Exponents alpha indicating self-correlations.
+    """
     assert scale_min < scale_max
 
     n_scales = scale_max - scale_min + 1
     if n_scales_max is not None:
         n_scales = min(n_scales_max, n_scales)
 
-    start = np.log(scale_min) / np.log(10)
-    stop = np.log(scale_max) / np.log(10)
-    scales = np.logspace(start, stop, n_scales)
+    start = np.log2(scale_min)
+    stop = np.log2(scale_max)
+    scales = np.logspace(start, stop, n_scales, base=2)
     scales = np.round(scales).astype(int)
 
-    y_n = np.cumsum(rr - np.mean(rr))
+    cumulated_signal = np.cumsum(signal - np.mean(signal))
 
     errors_per_scale = []
     for scale in scales:
         width = scale
 
         sliding_window_view = np.lib.stride_tricks.sliding_window_view
-        y = sliding_window_view(y_n, width)
+        y = sliding_window_view(cumulated_signal, width)
+        # Note: sliding_window_view outputs dtype=object. Need explicit casting
+        # to dtype=float for operations below to work, e.g. np.nanmean.
         y = y.astype(float)
 
         A0 = np.arange(width).reshape(-1, 1)
@@ -111,12 +197,37 @@ def dfa_batch(rr, window_size=2 ** 8, scale_min=16, scale_max=64,
     A = np.hstack((log2_scales[:, None], ones))
     x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
 
-    alpha = x[0]
+    alphas = x[0]
 
-    return alpha
+    return alphas
 
 
-def features_from_sliding_window(hrv_signals):
+def features_from_sliding_window(
+    hrv_signals: Dict[str, np.ndarray],
+) -> Dict[str, np.ndarray]:
+    """Compute HRV features in sliding window over HRV signal.
+
+    Parameters
+    ----------
+    hrv_signals
+        rr : float[n]
+            RR signal, i.e. heartbeat intervals (seconds).
+        datetime : datetime[n]
+            Datetime of samples.
+
+    Returns
+    -------
+    hrv_features
+
+        Features from k overlapping windows over the input signal.
+
+        index : int[k]
+        datetime : datetime[k]
+        heartrate : float[k]
+        rmssd : float[k]
+        sdnn : float[k]
+        alpha1 : float[k]
+    """
     features = []
     window_size = 2 ** 8
     step = 16
@@ -176,12 +287,25 @@ def features_from_sliding_window(hrv_signals):
     return features
 
 
-def _pad_like(a, b, align="center"):
-    """Pad `a` to the length of `b` with NaN's and horizontal alignment.
+def _pad_like(
+    a: np.ndarray,
+    b: np.ndarray,
+    align: str = "center",
+) -> np.ndarray:
+    """Pad `a` with NaN's to length of `b`, with horizontal alignment.
 
     If `len(a) >= len(b)`, return `a` unmodified.
+
+    Parameters
+    ----------
+    a : Any[n]
+    b : Any[m]
+    align : {"center"}
+        Alignment of input array into padded array.
     """
+    # TODO: Implement left and right alignment whenever needed.
     assert align == "center"
+
     gap = len(b) - len(a)
     if gap <= 0:
         # Cannot pad: `a` longer than or the same size as `b`.
@@ -192,7 +316,25 @@ def _pad_like(a, b, align="center"):
     return np.pad(a, pad_width=pad_width, constant_values=np.nan)
 
 
-def features_from_sliding_window_2(hrv_signals):
+def features_from_sliding_window_2(
+    hrv_signals: Dict[str, np.ndarray],
+) -> Dict[str, np.ndarray]:
+    """Compute HRV features in sliding window over HRV signal.
+
+    Parameters
+    ----------
+    hrv_signals
+        rr : float[n]
+            RR signal, i.e. duration of intervals between heartbeats.
+        datetime : datetime[n]
+            Datetime of samples.
+        relative_time_s : float[n]
+            Relative time (seconds) since first sample.
+
+    Returns
+    -------
+    hrv_features
+    """
     features = []
     window_size = 2 ** 8
     step = 1
