@@ -179,15 +179,20 @@ def dfa_batch(
         for errors in errors_windows
     ]
 
-    n_samples_min = np.amin([
-        fluctuations.shape[0]
-        for fluctuations in fluctuations_per_scale
-    ])
-
-    fluctuations_per_scale = np.stack([
-        fluctuations[:n_samples_min]
-        for fluctuations in fluctuations_per_scale
-    ])
+    # Crop signals symmetrically to length of smallest signal (largest window
+    # size).
+    min_length = len(fluctuations_per_scale[-1])
+    crop_widths = []
+    for array in fluctuations_per_scale:
+        length = len(array)
+        excess = length - min_length
+        crop_left = excess // 2
+        crop_right = excess - crop_left
+        crop_widths.append((crop_left, crop_right))
+    fluctuations_per_scale = [
+        array[crop[0]:-crop[1]] if crop[1] > 0 else array[crop[0]:]
+        for crop, array in zip(crop_widths, fluctuations_per_scale)
+    ]
 
     log2_scales = np.log2(scales)
     log2_fluctuations = np.log2(fluctuations_per_scale)
