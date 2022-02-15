@@ -54,7 +54,8 @@ def parse_args():
     parser.add_argument("input", type=pathlib.Path)
     parser.add_argument("--backend", default="matplotlib",
                         choices=["bokeh", "matplotlib"])
-    parser.add_argument("--cwt", action="store_true")
+    parser.add_argument("--cwt-pywt", action="store_true")
+    parser.add_argument("--cwt-scipy", action="store_true")
     parser.add_argument("--swt", action="store_true")
     parser.add_argument("--dfa1-mode", default="per_window",
                         choices=["per_window", "batch"])
@@ -167,8 +168,11 @@ def main():
                 for name, signal in features.items()
             }
 
-    if args.cwt:
-        plot.cwt(rr_raw, mask_valid)
+    if args.cwt_pywt:
+        plot.cwt_pywt(rr_raw, mask_valid)
+
+    if args.cwt_scipy:
+        plot.cwt_scipy(rr_raw, mask_valid)
 
     if args.swt:
         plot.swt(rr_raw, mask_valid)

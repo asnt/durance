@@ -67,7 +67,7 @@ def series(y, mask_valid=True, x=None, cmap="hsv"):
     return fig, ax
 
 
-def cwt(rr, mask_valid, cmap="hsv"):
+def cwt_pywt(rr, mask_valid, cmap="hsv"):
     import pywt
     rr_valid = np.copy(rr)
     rr_valid[~mask_valid] = np.nan
@@ -78,6 +78,40 @@ def cwt(rr, mask_valid, cmap="hsv"):
     plt.subplots()
     plt.imshow(coef, cmap='PRGn', aspect='auto',
                vmax=abs(coef).max(), vmin=-abs(coef).max())
+
+
+def cwt_scipy(rr, mask_valid):
+        from scipy import signal
+        # t = np.linspace(-1, 1, 200, endpoint=False)
+        # sig  = np.cos(2 * np.pi * 7 * t) + signal.gausspulse(t - 0.4, fc=2)
+        # rr = sig
+        # rr = rr_raw[mask_valid]
+        # rr = rr_raw
+        # rr = rr[rr < 0.6]
+        # crop = 64
+        # rr = rr[crop:-crop]
+        # max_width = 1001
+        # step = 32
+        max_width = 31
+        step = 1
+        widths = np.arange(1, max_width, step)
+        cwtmatr = signal.cwt(rr, signal.ricker, widths)
+        _, ax = plt.subplots(2)
+        ax[0].plot(rr)
+        ax[0].set_xlim(0, len(rr))
+        cwtmatr = np.sign(cwtmatr) * np.log(np.abs(cwtmatr))
+        print(cwtmatr.shape)
+        ax[1].imshow(
+            cwtmatr,
+            extent=[0, len(rr), 1, max_width],
+            cmap="PRGn",
+            aspect="auto",
+            vmax=abs(cwtmatr).max(),
+            # vmin=-abs(cwtmatr).max(),
+            vmin=cwtmatr.min(),
+            # vmax=abs(cwtmatr.min()),
+            # vmin=-abs(cwtmatr.min()),
+        )
 
 
 def swt(rr, mask_valid, cmap="hsv"):
