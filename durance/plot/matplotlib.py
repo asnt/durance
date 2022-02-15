@@ -202,7 +202,12 @@ def overlay(signals=None, hrv_signals=None, cmap="Spectral"):
     # Raw recordings.
     #
 
-    if signals is not None:
+    has_altitude = (
+        signals is not None
+        and "altitude" in signals
+        and "datetime" in signals
+    )
+    if has_altitude:
         # Altitude.
         ax_ = ax.twinx()
         ax_.spines.left.set_position(("axes", 0))
