@@ -58,9 +58,10 @@ def import_activity(path: os.PathLike) -> None:
     path = pathlib.Path(path)
     logger.debug(f"importing {path}")
 
-    activity_data, recordings_data = durance.data.load(path)
+    session_data, activity_data, recordings_data = durance.data.load(path)
     activity_data["file_hash"] = app.model.hash_file(path)
-    summary_data = durance.activity.summarize(recordings_data)
+    summary_data = durance.activity.summarize(recordings_data,
+                                              session=session_data)
 
     _ = app.model.make_engine()
     session = app.model.make_session()

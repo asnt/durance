@@ -3,7 +3,7 @@ from typing import Dict, Optional
 import numpy as np
 
 
-def summarize(recordings: Dict) -> Dict:
+def summarize(recordings: Dict, session: Dict = None) -> Dict:
     heart_rate_series = recordings.get("heart_rate")
     heart_rate: Optional[int]
     if heart_rate_series is not None:
@@ -19,12 +19,18 @@ def summarize(recordings: Dict) -> Dict:
     else:
         step_rate = None
 
-    timestamps = recordings["timestamp"]
-    time_start = timestamps[0]
-    time_end = timestamps[-1]
-    duration_s = time_end - time_start
-    duration = duration_s.item()
-    distance = recordings["distance"][-1]
+    timestamp_series = recordings.get("timestamp", None)
+    duration: Optional[float] = None
+    if timestamp_series is not None:
+        time_start = timestamp_series[0]
+        time_end = timestamp_series[-1]
+        duration_s = time_end - time_start
+        duration = duration_s.item()
+
+    distance_series = recordings.get("distance", None)
+    distance: Optional[float] = None
+    if distance_series is not None:
+        distance = distance_series[-1]
 
     speed_series = recordings.get("speed")
     speed: Optional[float] = None
@@ -42,6 +48,11 @@ def summarize(recordings: Dict) -> Dict:
         ascent = round(diff[mask_ascent].sum())
         mask_descent = diff < 0
         descent = round(diff[mask_descent].sum())
+
+    # Fall back on precomputed values.
+    if session is not None:
+        if duration is None:
+            duration = session.get("total_moving_time", None)
 
     return dict(
         distance=distance,

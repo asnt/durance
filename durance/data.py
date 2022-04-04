@@ -55,7 +55,7 @@ def _rr_remove_padding(rr_padded):
     return rr.astype(float)
 
 
-def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
+def load_fit(path: os.PathLike) -> Tuple[Dict, Dict, Dict]:
     fit_data = fitparse.FitFile(str(path))
 
     messages = fit_data.messages
@@ -68,6 +68,12 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
             for message in fit_data.get_messages(message_type)
         ]
         data[message_type] = messages_data
+
+    session_data = data.get("session", {})
+    if isinstance(session_data, list):
+        # XXX: Not sure why in a list. Could there be multiple sessions per
+        # activity?
+        session_data = session_data[0]
 
     recordings_df = pd.DataFrame.from_records(data["record"])
     recordings = {
@@ -121,6 +127,14 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
             datetime_start = data_event["timestamp"]
         elif data_event["event_type"] == "stop_all":
             datetime_end = data_event["timestamp"]
+    # Fall back on precomputed start and end times.
+    if session_data is not None:
+        if datetime_start is None:
+            datetime_start = session_data.get("start_time", None)
+        if datetime_end is None:
+            # XXX: End time seems to be named 'timestamp', at least in an
+            # activity created manually in Garmin Connect.
+            datetime_end = session_data.get("timestamp", None)
 
     activity_data = dict(
         device_manufacturer=device_manufacturer,
@@ -134,7 +148,7 @@ def load_fit(path: os.PathLike) -> Tuple[Dict, Dict]:
         sub_sport=sub_sport,
     )
 
-    return activity_data, recordings
+    return session_data, activity_data, recordings
 
 
 def load_fit_records(path):
