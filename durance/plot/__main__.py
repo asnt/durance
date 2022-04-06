@@ -106,8 +106,6 @@ def main():
     if args.rr_average:
         rr_average = compute_moving_average(rr_raw, average_fn="median")
 
-    activity_data, _ = durance.data.load(args.input)
-
     timestamps_s = signals["timestamp"]
     timestamps_ms = 1000 * timestamps_s
     datetime = timestamps_ms.astype("datetime64[ms]")
