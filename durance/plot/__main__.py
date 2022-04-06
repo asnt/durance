@@ -89,7 +89,7 @@ def main():
 
     plot = importlib.import_module(f"durance.plot.{args.backend}")
 
-    activity_data, signals = durance.data.load(args.input)
+    session_data, activity_data, signals = durance.data.load(args.input)
 
     rr_raw = durance.data.load_rr(args.input)
     rr, mask_valid = cleanup_rr_signal(
