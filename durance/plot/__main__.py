@@ -92,6 +92,13 @@ def main():
     session_data, activity_data, signals = durance.data.load(args.input)
 
     rr_raw = durance.data.load_rr(args.input)
+    has_rr_signal = rr_raw.size > 0
+    if not has_rr_signal:
+        import sys
+        print(f"error: no RR signal", file=sys.stderr)
+        print(f"aborting", file=sys.stderr)
+        sys.exit(1)
+
     rr, mask_valid = cleanup_rr_signal(
         rr_raw,
         outlier_method=args.outlier_method,
