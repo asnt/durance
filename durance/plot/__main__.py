@@ -84,7 +84,7 @@ def cleanup_rr_signal(rr_raw, outlier_method="moving_median"):
     return rr, mask_valid
 
 
-def main():
+def main() -> None:
     args = parse_args()
 
     plot = importlib.import_module(f"durance.plot.{args.backend}")
