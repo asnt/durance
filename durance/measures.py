@@ -260,12 +260,12 @@ def features_from_sliding_window(
         alpha1 = dfa(rr_window_s.copy(), n_scales_max=n_scales_max)
 
         curr_features = {
-            'index': index,
-            'datetime': datetime[index],
-            'heartrate': heartrate,
-            'rmssd': rmssd,
-            'sdnn': sdnn,
-            'alpha1': alpha1,
+            "index": index,
+            "datetime": datetime[index],
+            "heartrate": heartrate,
+            "rmssd": rmssd,
+            "sdnn": sdnn,
+            "alpha1": alpha1,
         }
 
         features.append(curr_features)
