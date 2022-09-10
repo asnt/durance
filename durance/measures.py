@@ -150,11 +150,12 @@ def dfa_batch(
 
     cumulated_signal = np.cumsum(signal - np.mean(signal))
 
+    sliding_window_view = np.lib.stride_tricks.sliding_window_view
+
     errors_per_scale = []
     for scale in scales:
         width = scale
 
-        sliding_window_view = np.lib.stride_tricks.sliding_window_view
         y = sliding_window_view(cumulated_signal, width)
         # Note: sliding_window_view outputs dtype=object. Need explicit casting
         # to dtype=float for operations below to work, e.g. np.nanmean.
