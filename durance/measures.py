@@ -164,7 +164,7 @@ def dfa_batch(
         ones = np.ones((len(A0), 1))
         A = np.hstack((A0, ones))
         B = y.T
-        x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
+        x, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
 
         errors = A @ x - B
         errors_per_scale.append(errors.T)
@@ -200,7 +200,7 @@ def dfa_batch(
     B = log2_fluctuations
     ones = np.ones((len(log2_scales), 1))
     A = np.hstack((log2_scales[:, None], ones))
-    x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
+    x, _, _, _ = np.linalg.lstsq(A, B, rcond=None)
 
     alphas = x[0]
 
