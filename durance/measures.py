@@ -103,7 +103,7 @@ def dfa(
         x, residuals, rank, singular = np.linalg.lstsq(A, B, rcond=None)
 
         errors = A @ x - B
-        rmse = np.sqrt(np.mean(errors ** 2, axis=None))
+        rmse = np.sqrt(np.mean(errors**2, axis=None))
         fluctuations[count] = rmse
         count = count + 1
 
@@ -115,7 +115,7 @@ def dfa(
 
 def dfa_batch(
     signal: np.ndarray,
-    window_size: int = 2 ** 8,
+    window_size: int = 2**8,
     scale_min: int = 16,
     scale_max: int = 64,
     n_scales_max: int = 16,
@@ -176,7 +176,7 @@ def dfa_batch(
     ]
 
     fluctuations_per_scale = [
-        np.sqrt(np.nanmean(errors ** 2, axis=(1, 2)))
+        np.sqrt(np.nanmean(errors**2, axis=(1, 2)))
         for errors in errors_windows
     ]
 
@@ -235,7 +235,7 @@ def features_from_sliding_window(
         alpha1 : float[k]
     """
     features = []
-    window_size = 2 ** 8
+    window_size = 2**8
     step = 16
     n_scales_max = 16
 
@@ -257,7 +257,7 @@ def features_from_sliding_window(
 
         heartrate = 60000 / np.mean(rr_window_s)
         nn_diff = np.abs(np.diff(rr_window_s))
-        rmssd = np.sqrt(np.mean(nn_diff ** 2))
+        rmssd = np.sqrt(np.mean(nn_diff**2))
         sdnn = np.std(rr_window_s)
         alpha1 = dfa(rr_window_s.copy(), n_scales_max=n_scales_max)
 
@@ -342,7 +342,7 @@ def features_from_sliding_window_2(
     hrv_features
     """
     features = []
-    window_size = 2 ** 8
+    window_size = 2**8
     step = 1
     n_scales_max = 16
 
@@ -367,7 +367,7 @@ def features_from_sliding_window_2(
 
     heartrate = 60_000 / np.mean(rr_windows, axis=1)
     nn_diff = np.abs(np.diff(rr_windows, axis=1))
-    rmssd = np.sqrt(np.mean(nn_diff ** 2, axis=1))
+    rmssd = np.sqrt(np.mean(nn_diff**2, axis=1))
     sdnn = np.std(rr_windows, axis=1)
 
     alpha1 = dfa_batch(rr_s, n_scales_max=n_scales_max)
