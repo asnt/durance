@@ -208,8 +208,7 @@ def dfa_batch(
 
 
 def features_from_sliding_window(
-    hrv_signals: Dict[str, np.ndarray],
-) -> Dict[str, np.ndarray]:
+        hrv_signals: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
     """Compute HRV features in sliding window over HRV signal.
 
     Parameters
@@ -284,10 +283,7 @@ def features_from_sliding_window(
             yield key, tuple(d[key] for d in dicts)
 
     features = dict(zipdicts(*features))
-    features = {
-        name: np.stack(values)
-        for name, values in features.items()
-    }
+    features = {name: np.stack(values) for name, values in features.items()}
 
     return features
 
@@ -322,8 +318,7 @@ def _pad_like(
 
 
 def features_from_sliding_window_2(
-    hrv_signals: Dict[str, np.ndarray],
-) -> Dict[str, np.ndarray]:
+        hrv_signals: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
     """Compute HRV features in sliding window over HRV signal.
 
     Parameters
